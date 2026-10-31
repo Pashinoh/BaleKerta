@@ -10,7 +10,8 @@
 | :---: | :--- | :--- | :---: |
 | **Tahap 1** | **Backend Core & Engine AI** | API FastAPI, Azimuth, Sanga Mandala, Rule Checker, Caching | ✅ **SELESAI** |
 | **Tahap 2** | **Frontend Visualizer & Canvas** | Next.js, HTML5 Canvas, Overlay 9 Zona, Bounding Box Merah | ✅ **SELESAI** |
-| **Tahap 3** | **Integrasi End-to-End & Presets** | Form Upload, Selector Wilayah Bali, 3 Preset Uji Juri | 🟡 **BERIKUTNYA** |
+| **Tahap 3** | **Integrasi End-to-End & Presets** | Form Upload, Selector Wilayah Bali, 3 Preset Uji Juri | ✅ **SELESAI** |
+| **Tahap 4** | **Panel Laporan Audit & UI Polish** | Kartu Skor, Referensi Pasal Perda, Saran Remediasi | 🟡 **BERIKUTNYA** |
 | **Tahap 4** | **Panel Laporan Audit & UI Polish** | Kartu Skor, Referensi Pasal Perda, Saran Remediasi | ⚪ Belum Mulai |
 | **Tahap 5** | **Live Deployment & Stress Test** | Deploy Backend (Cloud) + Frontend (Vercel) | ⚪ Belum Mulai |
 | **Tahap 6** | **Penyusunan 4 Berkas Wajib** | Proposal PDF A4 5 Hal, Git Tag `v1.0-submission`, Disclosure | ⚪ Belum Mulai |
