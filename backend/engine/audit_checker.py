@@ -155,10 +155,10 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 "severity": "WARNING",
                 "issue": f"{name} menutupi zona pusat Natah (Madyaning Madya)",
                 "recommendation": "Biarkan zona tengah pekarangan terbuka tanpa atap masif sebagai sirkulasi udara dan ruang sakral Natah.",
-                "legal_reference": "Perda Bali No. 5/2005 Pasal 16 ayat (1): Natah wajib dibiarkan terbuka sebagai ruang hijau dan sirkulasi."
+                "legal_reference": "Pedoman Asta Bumi: Natah wajib dibiarkan terbuka sebagai ruang hijau dan sirkulasi alami."
             })
 
-    # Evaluasi KDB (Koefisien Dasar Bangunan)
+    # Evaluasi KDB (Koefisien Dasar Bangunan - Perkiraan Kasar)
     kdb_percentage = round((total_room_area / total_canvas_area) * 100, 1)
     kdb_status = "MEMENUHI"
     if kdb_percentage > 60:
@@ -172,15 +172,15 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             "zone_id": "GLOBAL",
             "zone_name": "Seluruh Tapak",
             "severity": "WARNING",
-            "issue": f"KDB terestimasi {kdb_percentage}%, melebihi ambang batas maksimal Perda (60%)",
+            "issue": f"Perkiraan kasar luas kotak ruangan: {kdb_percentage}%, melebihi ambang batas hunian (60%)",
             "recommendation": "Perbanyak ruang terbuka hijau (RTH) minimal 40% dari total luas pekarangan untuk resapan air.",
-            "legal_reference": "Perda Bali No. 5/2005 Pasal 21: Koefisien Dasar Bangunan (KDB) hunian di kawasan permukiman maksimal 60%."
+            "legal_reference": "Pedoman Penataan Ruang Bali: Koefisien Dasar Bangunan (KDB) hunian dianjurkan maksimal 60%."
         })
     else:
         compliances.append({
             "room_name": "KDB Permukiman",
             "zone_name": "Seluruh Tapak",
-            "detail": f"KDB terestimasi {kdb_percentage}%, mematuhi standar konservasi ruang hijau (maksimal 60%)."
+            "detail": f"Perkiraan kasar luas kotak ruangan: {kdb_percentage}%, mematuhi anjuran ruang hijau pekarangan."
         })
 
     # Evaluasi Ketersediaan Tempat Suci
@@ -196,7 +196,7 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             "severity": "CRITICAL",
             "issue": "Tidak terdeteksi area persembahyangan (Pemerajan/Sanggah) pada denah",
             "recommendation": "Sediakan area tempat suci keluarga pada sudut Utamaning Utama (Kaja-Kangin).",
-            "legal_reference": "Perda Bali No. 5/2005 Pasal 14 ayat (1): Setiap hunian wajib memiliki tempat pemujaan keluarga."
+            "legal_reference": "Pedoman Asta Bumi: Setiap pekarangan hunian dianjurkan menyediakan tempat pemujaan keluarga di sudut suci."
         })
 
     final_score = max(0, min(100, score))

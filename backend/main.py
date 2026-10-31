@@ -112,6 +112,8 @@ def run_preset_audit(preset_id: str):
     audit_results = run_spatial_audit(mapped_rooms, grid_config)
     
     return {
+        "status": "success",
+        "source": "preset",
         "mode": "preset",
         "preset_id": preset_id,
         "title": preset_data.get("title"),
@@ -131,21 +133,44 @@ async def audit_floor_plan(
 ):
     """
     Endpoint audit utama:
-    Menerima upload gambar denah -> AI Vision -> Sanga Mandala Math -> Audit Perda.
+    Menerima upload gambar denah -> AI Vision Asli -> Sanga Mandala Math -> Audit Perda.
     """
     contents = await file.read()
     if len(contents) == 0:
-        raise HTTPException(status_code=400, detail="File kosong")
+        raise HTTPException(status_code=400, detail="File gambar kosong.")
         
-    # 1. AI Vision Parsing (dengan Caching)
+    # 1. AI Vision Parsing (Asli, dengan caching)
     try:
         vision_result = await parse_floor_plan_image(contents)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Gagal memproses gambar AI: {str(e)}")
+        err_msg = str(e)
+        err_lower = err_msg.lower()
+        if "quota" in err_lower or "resourceexhausted" in err_lower or "429" in err_lower:
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "error": "rate_limit_exceeded",
+                    "retry_after_s": 40,
+                    "message": "Layanan AI sedang mencapai batas kuota free-tier Google. Silakan coba lagi dalam 40 detik."
+                }
+            )
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": "ai_unavailable",
+                "message": f"Layanan AI tidak dapat membaca denah ini: {err_msg}"
+            }
+        )
         
     raw_rooms = vision_result.get("rooms", [])
     if not raw_rooms:
-        raise HTTPException(status_code=422, detail="AI tidak mendeteksi ruangan pada denah yang diunggah.")
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error": "no_rooms_detected",
+                "message": "Model AI tidak mendeteksi teks batas ruangan pada denah yang diunggah. Pastikan gambar denah memiliki tulisan label ruangan yang jelas."
+            }
+        )
         
     # 2. Hitung vektor arah Gunung Agung
     kaja_vector = resolve_kaja_vector(regency, custom_lat, custom_lon)
@@ -168,6 +193,7 @@ async def audit_floor_plan(
     return {
         "status": "success",
         "source": vision_result.get("source"),
+        "model": vision_result.get("model"),
         "image_hash": vision_result.get("image_hash"),
         "kaja_vector": kaja_vector,
         "hasta_antropometri_cm": hasta_cm,

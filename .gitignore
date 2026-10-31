@@ -29,6 +29,10 @@ venv.bak/
 *.pem
 *.key
 
+# Data Cache
+backend/data/cache/
+*.cache
+
 # IDE & OS
 .vscode/
 .idea/

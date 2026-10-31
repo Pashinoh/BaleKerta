@@ -15,6 +15,7 @@ class Settings(BaseModel):
     
     # AI Credentials
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     PRIMARY_AI_PROVIDER: str = os.getenv("PRIMARY_AI_PROVIDER", "gemini") # 'gemini' or 'groq'
     

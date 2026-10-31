@@ -1,6 +1,7 @@
 {
-  "regulation": "Peraturan Daerah Provinsi Bali Nomor 5 Tahun 2005 tentang Persyaratan Arsitektur Bangunan Gedung",
+  "regulation": "Rujukan Pedoman: Perda Provinsi Bali No. 5 Tahun 2005 tentang Persyaratan Arsitektur Bangunan Gedung (Perlu verifikasi lembaran daerah)",
   "cultural_reference": "Naskah Lontar Asta Bumi & Asta Kosala-Kosali",
+  "disclaimer": "Rujukan pasal berikut merupakan ringkasan pedoman arsitektur adat Bali dan memerlukan verifikasi naskah resmi sebelum proses perizinan PBG dinas.",
   "zones": {
     "UTAMANING_UTAMA": {
       "name": "Utamaning Utama (Kaja-Kangin)",
@@ -21,7 +22,8 @@
         "dapur_paon",
         "garasi"
       ],
-      "legal_basis": "Perda Bali No. 5/2005 Pasal 14 ayat (2): Sudut Kaja-Kangin dialokasikan khusus sebagai zona suci (Pemerajan/Sanggah). Segala bentuk sanitasi kotor dan utilitas buangan dilarang keras menempati zona ini."
+      "legal_basis": "Pedoman Asta Bumi & Asta Kosala-Kosali: Sudut Kaja-Kangin dialokasikan khusus sebagai zona suci (Pemerajan/Sanggah). Fungsi sanitasi dan utilitas kotor dilarang menempati zona ini.",
+      "verified": false
     },
     "MADYANING_UTAMA": {
       "name": "Madyaning Utama (Kaja)",
@@ -39,7 +41,8 @@
         "kandang_hewan",
         "tempat_sampah"
       ],
-      "legal_basis": "Asta Kosala-Kosali: Sisi Kaja difungsikan sebagai Bale Daja (Gedong Meten) untuk ruang tidur kepala keluarga dan tempat menyimpan pusaka/benda berharga."
+      "legal_basis": "Asta Kosala-Kosali: Sisi Kaja difungsikan sebagai Bale Daja (Gedong Meten) untuk ruang tidur kepala keluarga dan tempat menyimpan benda berharga.",
+      "verified": false
     },
     "NISTANING_UTAMA": {
       "name": "Nistaning Utama (Kaja-Kauh)",
@@ -55,7 +58,8 @@
         "septic_tank_utama",
         "kandang_limbah"
       ],
-      "legal_basis": "Pedoman Penataan Pekarangan Tradisional Bali: Zona penyangga sakral sisi barat laut diperuntukkan bagi aktivitas penunjang keluarga yang tenang."
+      "legal_basis": "Pedoman Penataan Pekarangan Tradisional Bali: Zona penyangga sakral sisi barat laut diperuntukkan bagi aktivitas keluarga yang tenang.",
+      "verified": false
     },
     "UTAMANING_MADYA": {
       "name": "Utamaning Madya (Kangin)",
@@ -72,7 +76,8 @@
         "tempat_sampah",
         "kandang_hewan"
       ],
-      "legal_basis": "Perda Bali No. 5/2005 Pasal 15: Sisi Kangin difungsikan sebagai Bale Dangin/Gede, berfungsi untuk penyelenggaraan upacara Manusa Yadnya dan upacara adat keluarga."
+      "legal_basis": "Pedoman Arsitektur Tradisional Bali: Sisi Kangin difungsikan sebagai Bale Dangin/Gede untuk penyelenggaraan upacara adat keluarga.",
+      "verified": false
     },
     "MADYANING_MADYA": {
       "name": "Madyaning Madya (Tengah / Puser)",
@@ -90,7 +95,8 @@
         "toilet",
         "dapur_tertutup"
       ],
-      "legal_basis": "Perda Bali No. 5/2005 Pasal 16 ayat (1): Natah (halaman tengah) wajib dibiarkan terbuka sebagai ruang sirkulasi tata hijau dan keseimbangan kosmik (Akasa-Pertiwi). Dilarang didirikan bangunan masif tertutup."
+      "legal_basis": "Pedoman Asta Bumi: Natah (halaman tengah) wajib dibiarkan terbuka sebagai ruang sirkulasi udara dan keseimbangan mikrokosmos pekarangan.",
+      "verified": false
     },
     "NISTANING_MADYA": {
       "name": "Nistaning Madya (Kauh)",
@@ -106,7 +112,8 @@
       "prohibited_types": [
         "pemerajan_sanggah"
       ],
-      "legal_basis": "Asta Bumi: Sisi Kauh difungsikan sebagai Bale Dauh untuk tempat istirahat anak-anak, ruang kerja, dan kegiatan sehari-hari."
+      "legal_basis": "Asta Bumi: Sisi Kauh difungsikan sebagai Bale Dauh untuk tempat istirahat anak-anak dan kegiatan keluarga sehari-hari.",
+      "verified": false
     },
     "UTAMANING_NISTA": {
       "name": "Utamaning Nista (Kelod-Kangin)",
@@ -121,7 +128,8 @@
       "prohibited_types": [
         "tempat_suci_pemerajan"
       ],
-      "legal_basis": "Pedoman Arsitektur Bali: Difungsikan sebagai Bale Delod atau area transisi penghubung natah dan sisi selatan."
+      "legal_basis": "Pedoman Arsitektur Tradisional Bali: Difungsikan sebagai Bale Delod atau area transisi penghubung natah dan sisi selatan pekarangan.",
+      "verified": false
     },
     "MADYANING_NISTA": {
       "name": "Madyaning Nista (Kelod)",
@@ -137,7 +145,8 @@
         "pemerajan_sanggah",
         "altar_suci"
       ],
-      "legal_basis": "Perda Bali No. 5/2005 Pasal 17: Paon (dapur) dan Jineng (lumbung beras) ditempatkan pada zona Kelod menghadap ke utara."
+      "legal_basis": "Pedoman Arsitektur Tradisional Bali: Paon (dapur) dan Jineng (lumbung padi) ditempatkan pada zona Kelod.",
+      "verified": false
     },
     "NISTANING_NISTA": {
       "name": "Nistaning Nista (Kelod-Kauh)",
@@ -157,12 +166,14 @@
         "altar_suci",
         "bale_daja"
       ],
-      "legal_basis": "Perda Bali No. 5/2005 Pasal 18: Zona Teba (Nistaning Nista) di sudut Kelod-Kauh dialokasikan untuk fungsi sanitasi, pembuangan, dan utilitas kotor agar tidak mencemari kesucian zona Utama."
+      "legal_basis": "Pedoman Asta Bumi: Zona Teba di sudut Kelod-Kauh dialokasikan untuk fungsi sanitasi, pembuangan, dan utilitas kotor agar tidak mencemari zona suci.",
+      "verified": false
     }
   },
   "entrance_rules": {
     "recommended_zones": ["UTAMANING_NISTA", "NISTANING_MADYA", "MADYANING_NISTA"],
-    "rule_title": "Penempatan Angkul-angkul (Pintu Gerbang Utama)",
-    "legal_basis": "Asta Kosala-Kosali: Angkul-angkul ditempatkan di sisi profan (Kelod atau Kauh), menghindari garis lurus langsung dengan Sanggah Pemerajan untuk menjaga privasi kesucian."
+    "rule_title": "Penempatan Angkul-angkul (Pintu Masuk)",
+    "legal_basis": "Asta Kosala-Kosali: Angkul-angkul ditempatkan di sisi profan pekarangan dan menghindari garis lurus langsung dengan Sanggah Pemerajan.",
+    "verified": false
   }
 }

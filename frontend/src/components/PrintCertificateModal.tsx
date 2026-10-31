@@ -70,13 +70,16 @@ export default function PrintCertificateModal({
           {/* Certificate Header */}
           <div className="border-b-2 border-slate-900 pb-4 text-center space-y-1">
             <h1 className="text-lg font-black tracking-wider uppercase text-slate-950 font-sans">
-              PEMERINTAH PROVINSI BALI
+              BALEKERTA — SISTEM ANALISIS TATA RUANG BALI
             </h1>
             <h2 className="text-sm font-bold text-slate-800 font-sans">
-              LEMBAR VERIFIKASI DIGITAL KEPATUHAN ARSITEKTUR TRADISIONAL BALI
+              LEMBAR PRA-PEMERIKSAAN KEPATUHAN ARSITEKTUR TRADISIONAL BALI
             </h2>
             <p className="text-[11px] text-slate-600 font-sans">
-              Berdasarkan Peraturan Daerah Provinsi Bali No. 5 Tahun 2005 & Pedoman Asta Kosala-Kosali
+              Pra-pemeriksaan independen berdasarkan pedoman Asta Bumi & Asta Kosala-Kosali
+            </p>
+            <p className="text-[10px] text-amber-800 bg-amber-50 py-1 px-2 rounded border border-amber-200 inline-block font-sans mt-1">
+              *Pemberitahuan: Lembar ini adalah hasil pra-pemeriksaan digital dan BUKAN merupakan dokumen resmi pemerintah ataupun pengganti keputusan dinas perizinan PBG.
             </p>
           </div>
 
@@ -180,25 +183,20 @@ export default function PrintCertificateModal({
             )}
           </div>
 
-          {/* Certificate Footer & Digital Seal */}
+          {/* Certificate Footer */}
           <div className="pt-6 mt-6 border-t border-slate-300 grid grid-cols-2 items-end font-sans text-xs">
             <div>
               <p className="text-[10px] text-slate-500">
-                Diverifikasi secara otomatis oleh Mesin Audit Spasial BaleKerta.
+                Pra-pemeriksaan dihitung otomatis oleh Mesin Spasial Sanga Mandala BaleKerta.
               </p>
               <p className="text-[10px] text-slate-500">
-                Didukung oleh: Diskominfos Bali & Primakara University (Bali DigiFest 2026).
+                Inovasi untuk Bali DigiFest 2026 (Solver for Bali).
               </p>
             </div>
 
-            <div className="text-center ml-auto">
-              <div className="w-20 h-20 mx-auto border-2 border-dashed border-amber-600/40 rounded-full flex flex-col items-center justify-center text-amber-700 text-[9px] font-bold p-1">
-                <ShieldCheck className="w-6 h-6 text-amber-600 mb-0.5" />
-                <span>BALEKERTA</span>
-                <span>VERIFIED</span>
-              </div>
-              <p className="font-bold text-slate-900 mt-2">Sistem Audit AI BaleKerta</p>
-              <p className="text-[10px] text-slate-500">Sertifikasi Tata Ruang Digital</p>
+            <div className="text-right ml-auto">
+              <p className="font-bold text-slate-900">BaleKerta Spatial Engine</p>
+              <p className="text-[10px] text-slate-500">Alat Bantu Pra-Pemeriksaan Mandiri</p>
             </div>
           </div>
 

@@ -41,6 +41,7 @@ export default function PlanCanvas({
 }: PlanCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const renderAreaRef = useRef({ x: 0, y: 0, w: 0, h: 0 });
   const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null);
   
   // Controls
@@ -82,18 +83,23 @@ export default function PlanCanvas({
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Draw Background / Base Floor Plan
+    // 1. Calculate Image Render Area & Draw Base Floor Plan
+    let renderArea = { x: 0, y: 0, w: width, h: height };
     if (imageObj) {
       // Calculate aspect ratio containment
       const hRatio = width / imageObj.width;
       const vRatio = height / imageObj.height;
       const ratio = Math.min(hRatio, vRatio);
-      const centerShiftX = (width - imageObj.width * ratio) / 2;
-      const centerShiftY = (height - imageObj.height * ratio) / 2;
+      const renderW = imageObj.width * ratio;
+      const renderH = imageObj.height * ratio;
+      const centerShiftX = (width - renderW) / 2;
+      const centerShiftY = (height - renderH) / 2;
+      renderArea = { x: centerShiftX, y: centerShiftY, w: renderW, h: renderH };
+
       ctx.drawImage(
         imageObj,
         0, 0, imageObj.width, imageObj.height,
-        centerShiftX, centerShiftY, imageObj.width * ratio, imageObj.height * ratio
+        centerShiftX, centerShiftY, renderW, renderH
       );
     } else {
       // Sleek Architectural Blueprint Grid when no image
@@ -123,9 +129,11 @@ export default function PlanCanvas({
       ctx.fillText("[ AREA BIDANG AUDIT TATA RUANG BALI (1000 x 1000) ]", width / 2, height / 2);
     }
 
-    // Helper: Map Normalized (0-1000) coordinates to Canvas Pixel Space
-    const toPxX = (normX: number) => (normX / 1000) * width;
-    const toPxY = (normY: number) => (normY / 1000) * height;
+    renderAreaRef.current = renderArea;
+
+    // Helper: Map Normalized (0-1000) coordinates to Image Render Area (Fix F3 Alignment)
+    const toPxX = (normX: number) => renderArea.x + (normX / 1000) * renderArea.w;
+    const toPxY = (normY: number) => renderArea.y + (normY / 1000) * renderArea.h;
 
     // 2. Draw 9 Sanga Mandala Grid Overlay
     if (showGrid && gridLayout && gridLayout.cells) {
@@ -262,8 +270,11 @@ export default function PlanCanvas({
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    const normX = (mouseX / canvas.clientWidth) * 1000;
-    const normY = (mouseY / canvas.clientHeight) * 1000;
+    const renderArea = renderAreaRef.current;
+    if (renderArea.w <= 0 || renderArea.h <= 0) return;
+
+    const normX = ((mouseX - renderArea.x) / renderArea.w) * 1000;
+    const normY = ((mouseY - renderArea.y) / renderArea.h) * 1000;
 
     const hit = rooms.find((r) => {
       const [ymin, xmin, ymax, xmax] = r.box;
