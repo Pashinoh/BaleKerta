@@ -1,122 +1,106 @@
-# BaleKerta 🏛️🌺
-### AI-Powered Spatial Compliance & Cultural Architecture Audit Engine
+# BaleKerta
+### Engine Pra-Pemeriksaan Kepatuhan Tata Ruang Adat Bali Berbasis AI Vision & Geospasial
 > **Solver for Bali — Bali DigiFest 2026 | AI Web Innovation Challenge**  
-> *Fokus Bidang: Bali Smart Society (Pariwisata, Budaya, Lingkungan & Regulasi)*
+> *Fokus: Bali Smart Society (Pelestarian Arsitektur Tradisional, Lingkungan & Regulasi PBG)*
 
 ---
 
-## 📌 1. Latar Belakang & Masalah (*Problem Statement*)
+## 1. Latar Belakang & Masalah (*Problem Statement*)
 
-Pembangunan properti (vila, homestay, hotel, ruko, dan hunian) di Bali memiliki kekhasan yang tidak ditemukan di daerah lain. Berdasarkan **Perda Provinsi Bali No. 5 Tahun 2005 tentang Persyaratan Arsitektur Bangunan Gedung**, setiap permohonan Persetujuan Bangunan Gedung (PBG) wajib menyelaraskan tata ruang tapak dengan filosofi arsitektur tradisional Bali:
-1. **Asta Bumi & Sanga Mandala:** Pembagian lahan ke dalam 9 zona spasial sakral-profan berdasarkan sumbu suci *Kaja-Kelod* (Gunung–Laut) dan *Kangin-Kauh* (Terbit–Terbenamnya Matahari).
-2. **Asta Kosala-Kosali:** Standar proporsi dimensi arsitektur berbasis antropometri tubuh manusia (*depa, hasta, musti, rai*).
-3. **Kepatuhan Zonasi PBG/KDB:** Batas Koefisien Dasar Bangunan (maks. 60%) dan penataan ruang terbuka hijau.
+Pembangunan properti (vila, homestay, hotel, ruko, dan hunian) di Bali memiliki kekhasan arsitektural yang tidak ditemukan di wilayah lain di Indonesia. Berdasarkan **Perda Provinsi Bali No. 5 Tahun 2005 tentang Persyaratan Arsitektur Bangunan Gedung**, setiap permohonan Persetujuan Bangunan Gedung (PBG) wajib menyelaraskan tata ruang tapak dengan filosofi arsitektur tradisional Bali:
 
-### 🔥 *Pain Point* Nyata:
-* **Kompleksitas Orientasi Kosmologis:** Arah *Kaja* (Gunung Agung) berbeda-beda di setiap kabupaten. Di Bali Selatan (Denpasar, Badung, Gianyar), Gunung Agung berada di Utara/Timur Laut; sedangkan di Bali Utara (Buleleng), arah gunung berada di Selatan. Arsitek pemula sering keliru menentukan arah suci tapak.
-* **Pelanggaran Zonasi Sakral:** Penempatan utilitas kotor/buangan (toilet, septic tank, dapur kotor) di zona suci (*Utamaning Utama*) sering memicu penolakan izin PBG oleh dinas dan resistensi warga desa adat.
-* **Ketiadaan Alat Audit Otomatis:** Verifikasi denah saat ini masih dilakukan manual oleh dinas atau arsitek senior, memakan waktu 1–2 minggu per berkas permohonan.
+1. **Asta Bumi & Sanga Mandala:** Pembagian lahan pekarangan ke dalam kisi 3×3 (9 zona spasial) berdasarkan sumbu suci *Kaja-Kelod* (Gunung–Laut) dan *Kangin-Kauh* (Terbit–Terbenamnya Matahari).
+2. **Asta Kosala-Kosali:** Standar proporsi dimensi dan anatomi arsitektur tradisional.
+3. **Kepatuhan Zonasi PBG & KDB:** Batas Koefisien Dasar Bangunan (maksimal 60%) untuk menjamin ruang terbuka hijau dan resapan air alami (*Natah* dan *Teba*).
 
----
-
-## 💡 2. Solusi: BaleKerta
-
-**BaleKerta** adalah sistem inspeksi dan audit tata ruang arsitektur Bali otomatis berbasis kecerdasan buatan (*Multimodal Vision + Geometrical Engine + Legal Knowledge Base*). 
-
-Pengguna cukup mengunggah denah bangunan (JPG/PNG/PDF) dan memilih lokasi tapak lahan. Sistem akan:
-1. **Menghitung Azimuth Geospasial ke Gunung Agung** secara otomatis berdasarkan koordinat GPS/wilayah tapak.
-2. **Mendeteksi Ruangan & Bounding Box** pada denah secara cerdas menggunakan Vision Language Model (VLM).
-3. **Memproyeksikan Grid 9 Sanga Mandala** di atas denah dengan orientasi presisi.
-4. **Melakukan Audit Kepatuhan Deterministik** untuk mendeteksi pelanggaran zonasi adat dan Perda No. 5/2005.
-5. **Memberikan Visualisasi Bounding Box Merah** beserta rekomendasi perbaikan dan kutipan pasal hukum resmi.
+### Masalah Nyata di Lapangan:
+* **Kompleksitas Orientasi Kosmologis:** Arah *Kaja* (Gunung Agung) berbeda-beda di setiap kabupaten. Di Bali Selatan (Denpasar, Badung, Gianyar), Gunung Agung berada di Timur Laut; sedangkan di Bali Utara (Singaraja/Buleleng), arah gunung berada di Tenggara/Selatan.
+* **Pelanggaran Zonasi Sakral:** Penempatan utilitas kotor (toilet, septic tank) di zona suci (*Utamaning Utama*) bertentangan dengan pakem adat dan menghambat proses verifikasi PBG.
+* **Ketiadaan Alat Audit Pra-Pemeriksaan:** Pemohon PBG dan arsitek sering kali baru mengetahui kesalahan tata letak setelah gambar kerja selesai atau saat diverifikasi manual.
 
 ---
 
-## 🏗️ 3. Arsitektur Teknis & Pipeline AI
+## 2. Solusi: BaleKerta v2
+
+**BaleKerta** menyederhanakan pra-pemeriksaan denah menjadi **alur intuitif 3 langkah**:
 
 ```
-[ Pengguna ] 
-     │
-     ├── 1. Unggah Gambar Denah (PNG/JPG)
-     ├── 2. Input Koordinat / Lokasi Tapak (cth: Gianyar)
-     └── 3. Input Antropometri Pemilik (cth: 1 Hasta = 45 cm)
-     │
-     ▼
-[ Frontend: Next.js + Tailwind CSS + HTML5 Canvas ]
-     │
-     ▼ (REST API / Multipart Form-Data)
-[ Backend: Python FastAPI ]
-     │
-     ├── A. Geodesic Azimuth Calculator
-     │      Menghitung sudut bantalan (bearing angle) dari koordinat tapak 
-     │      ke puncak Gunung Agung (-8.3433° S, 115.5071° E).
-     │
-     ├── B. Multimodal Vision Parser (Gemini 1.5 Flash Vision)
-     │      Mengekstrak label ruangan & koordinat 2D bounding box [ymin, xmin, ymax, xmax] 
-     │      dengan Strict JSON Schema.
-     │
-     ├── C. Spatial Sanga Mandala Engine (NumPy / Shapely)
-     │      Membuat 9 kuadran grid berorientasi sudut Kaja-Kelod, 
-     │      lalu menghitung perpotongan poligon/titik tengah ruangan (Centroid).
-     │
-     └── D. Deterministic Legal Auditor (Perda No. 5/2005 Knowledge Base)
-            Mengecek aturan zonasi (misal: Toilet di Utamaning Utama = CRITICAL VIOLATION)
-            dan mengembalikan referensi pasal hukum tanpa risiko halusinasi.
-     │
-     ▼
-[ Output Respons JSON ] ──► [ Frontend Visualizer: Canvas Overlay + Audit Report Card ]
+[ Langkah 1: Lokasi Tanah ] ──► [ Langkah 2: Denah Bangunan ] ──► [ Langkah 3: Hasil Kepatuhan ]
+  - Peta Interaktif Leaflet        - Denah Contoh atau Unggah denah  - Kesimpulan bahasa awam
+  - Seret pin lokasi pekarangan    - Deteksi otomatis AI Vision       - Kartu perbaikan & solusi
+  - Garis azimuth ke Gn. Agung     - Rotasi orientasi mata angin     - Lembar laporan pra-PBG
+  - Preview kisi 9 Sanga Mandala   - Pemetaan koordinat aspect-fit   - Kamus budaya interaktif
 ```
 
----
-
-## ⚙️ 4. AI & Technology Stack Disclosure
-
-Sesuai ketentuan transparansi kompetisi *AI Web Innovation Challenge*, berikut adalah daftar teknologi yang digunakan:
-
-* **Frontend:** Next.js 14 / React, TypeScript, Tailwind CSS, HTML5 Canvas API (untuk rendering overlay 9 zona dan kotak pelanggaran).
-* **Backend:** Python 3.11, FastAPI, Uvicorn, Pydantic.
-* **Spatial & Math Engine:** NumPy, Shapely (kalkulasi poligon 2D dan perpotongan koordinat).
-* **AI Core Model:** Google Gemini 1.5 Flash (Multimodal Vision API dengan *Structured JSON Output*).
-* **Legal Knowledge Base:** Transkrip & Ekstrak Pasal Perda Provinsi Bali No. 5 Tahun 2005 & pedoman naskah Asta Kosala-Kosali.
-* **Deployment:** Vercel (Frontend) & Railway/Render (Backend).
+1. **Langkah 1 — Lokasi Tanah (Peta Leaflet):** Menghitung sudut azimuth geodesik ke puncak Gunung Agung (−8.3433°, 115.5071°) secara instan dan memproyeksikan letak zona suci (*Utamaning Utama*).
+2. **Langkah 2 — Denah Bangunan:** Pengguna dapat memilih denah contoh terkalibrasi atau mengunggah denah sendiri (PNG/JPG/WebP) untuk dibaca oleh model **Gemini 3.5 Flash Lite Vision**. Dilengkapi pengatur arah mata angin denah (*0°, 90°, 180°, 270°*).
+3. **Langkah 3 — Hasil Kepatuhan:** Kesimpulan satu kalimat dalam bahasa Indonesia lugas, estimasi KDB, kartu masalah dengan panduan solusi konkret, dasar pedoman adat, dan lembar laporan pra-pemeriksaan yang dapat dicetak langsung.
+4. **Glosarium Istilah Arsitektur Bali:** 30 entri istilah budaya (*Kaja, Kelod, Natah, Sanga Mandala, Asta Kosala-Kosali, Hasta, dll.*) terintegrasi dengan tooltip interaktif dan laci referensi yang dapat dicari.
 
 ---
 
-## 🚀 5. Cara Menjalankan Proyek (*Local Development*)
+## 3. Prinsip Desain: Bebas "AI Slop"
+
+Sistem antarmuka BaleKerta dibangun dengan disiplin ketat tanpa ornamen dekoratif berlebihan:
+
+* **Palet 3 Warna:**
+  * **Ink** (`#0E0D0C` s/d `#2A2622`): Latar kanvas gelap hangat, permukaan kartu, dan garis pembatas.
+  * **Bone** (`#EDE7DA` / `#A39B8B`): Teks utama, garis ruangan yang telah sesuai, tombol navigasi, dan garis zona suci.
+  * **Clay** (`#D2603F`): Khusus untuk menandai masalah, pelanggaran tata ruang, dan peringatan kritis.
+* **Tanpa Elemen Semu:** Tidak ada gradien warna-warni, efek blur kaca, teks mikro ber-uppercase berlebih, animasi dekoratif, maupun emoji pada antarmuka.
+* **Kejujuran Data (Integritas AI):** Transparansi sumber data ditampilkan dengan jelas (*Preset Bawaan*, *Dianalisis langsung oleh AI*, atau *Dari Cache AI valid*). Jika kuota AI mencapai batas, sistem mengembalikan pesan transparan dan tombol coba lagi tanpa data mock palsu.
+
+---
+
+## 4. Stack Teknologi & Transparansi AI
+
+* **Frontend:** Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Leaflet 1.9 & React-Leaflet (peta interaktif CARTO Dark), HTML5 Canvas API (koordinat aspect-fit).
+* **Backend:** Python 3.10+, FastAPI, Uvicorn, Pydantic.
+* **Model AI Aktif:** Google Gemini 3.5 Flash Lite Vision (`models/gemini-3.5-flash-lite`) via Google Generative AI SDK (latensi rata-rata ~2.6 detik per denah).
+* **Geodesik & Spasial:** Geodesic azimuth calculation, rotasi kisi matriks Sanga Mandala 3×3, kalkulasi luas poligon ruangan (KDB).
+* **Knowledge Base:** Pedoman Asta Bumi, Asta Kosala-Kosali, dan Perda Prov. Bali No. 5/2005.
+
+---
+
+## 5. Cara Menjalankan Secara Lokal (*Local Development*)
 
 ### Prasyarat:
-* Node.js v18+ & npm/pnpm
+* Node.js v18+ & npm
 * Python 3.10+
 * Google Gemini API Key
 
 ### A. Clone Repository
 ```bash
-git clone https://github.com/Pashinoh/balekerta.git
-cd balekerta
+git clone https://github.com/Pashinoh/gatau-mo-isi-apa.git
+cd gatau-mo-isi-apa
 ```
 
 ### B. Konfigurasi Environment Variable
-Salin template `.env.example` menjadi `.env`:
+Salin template konfigurasi:
 ```bash
 cp .env.example .env
 ```
-Isi variabel dengan kredensial yang sesuai:
+Buka `.env` dan masukkan API key Gemini Anda:
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
-PORT=8000
+GEMINI_API_KEY=AIzaSy...
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 ### C. Menjalankan Backend (FastAPI)
 ```bash
 cd backend
 python -m venv venv
-# Windows:
+# Di Windows:
 .\venv\Scripts\activate
-# Linux/Mac:
+# Di Linux/macOS:
 source venv/bin/activate
 
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+Uji endpoint backend:
+```bash
+python scripts/test_geo_and_rotation.py
 ```
 
 ### D. Menjalankan Frontend (Next.js)
@@ -125,27 +109,12 @@ cd frontend
 npm install
 npm run dev
 ```
-Buka browser di `http://localhost:3000`.
+Buka peramban di `http://localhost:3000`.
 
 ---
 
-## 📊 6. Rencana Tahapan Pengembangan (Roadmap Tahap 1 & 2)
+## 6. Batasan Sistem (*Disclaimers*)
 
-- [x] **v1.0-submission (Tahap 1 - Batas 7 November):**
-  - [x] Perumusan masalah & arsitektur pipeline AI hibrida.
-  - [ ] Implementasi Vision Parser dengan Gemini Flash (ekstraksi denah ke JSON).
-  - [ ] Implementasi Spatial Sanga Mandala Grid berotasi otomatis sesuai lokasi tapak.
-  - [ ] Rule engine audit zonasi dasar (Toilet, Pemerajan, Dapur, Bale).
-  - [ ] Web visualizer interaktif dengan HTML5 canvas.
-  - [ ] Live deployment URL & video demo alur input-ke-output.
-- [ ] **v2.0-final (Tahap 2 - Finalis Top 5):**
-  - [ ] Integrasi konversi antropometri dinamis (*depa, hasta, musti*) ke ukuran meteran.
-  - [ ] Ekspor laporan resmi format PDF siap lampiran PBG dinas.
-  - [ ] Dukungan denah multi-lantai (*Bhur, Bwah, Swah*).
-
----
-
-## 👥 Tim Pengembang (*Credits*)
-* **Pengembang:** Pashinoh & Tim
-* **Event:** AI Web Innovation Challenge — Bali DigiFest 2026
-* **Lisensi:** MIT License
+1. **Pra-Pemeriksaan Independen:** BaleKerta berfungsi sebagai alat pra-pemeriksaan otomatis dan sarana edukasi arsitektur adat. Keputusan resmi perizinan bangunan tetap berada di bawah wewenang Tim Profesi Ahli (TPA) dan Dinas PUPR/Perkim terkait melalui proses PBG resmi.
+2. **Kalkulasi KDB Kasar:** Persentase Koefisien Dasar Bangunan (KDB) dihitung secara perkiraan kasar dari rasio luas total bounding box ruangan terhadap luas bidang tapak gambar.
+3. **Kalkulator Ukuran Adat:** Modul konversi ukuran tubuh (*Hasta*, *Depa*, *Musti*) pada kamus istilah bersifat estimasi antropometris tradisi dan bukan parameter mutlak audit struktural.
