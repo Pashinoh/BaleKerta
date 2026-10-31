@@ -1,0 +1,17 @@
+{
+  "id": "preset_3_villa_overbuild",
+  "title": "Denah Vila Wisata Komersial (Over-KDB & Hilangnya Natah)",
+  "regency": "badung",
+  "description": "Contoh kasus vila komersial di Canggu: Bangunan masif tertutup menutupi seluruh zona Natah (ruang terbuka), KDB terestimasi >75%, dan posisi dapur menabrak zona suci.",
+  "expected_status": "PERLU PENYESUAIAN TATA RUANG",
+  "rooms": [
+    {"name": "Sanggah Kecil Sudut", "type": "pemerajan_sanggah", "box": [40, 750, 180, 940]},
+    {"name": "Dapur & Bar Lounge", "type": "dapur_paon", "box": [50, 340, 300, 680]},
+    {"name": "Suite Room 1", "type": "kamar_tidur", "box": [320, 670, 640, 950]},
+    {"name": "Enclosed Living & Dining Hall", "type": "ruang_tamu", "box": [320, 330, 650, 660]},
+    {"name": "Suite Room 2", "type": "kamar_tidur", "box": [320, 50, 640, 320]},
+    {"name": "Suite Room 3", "type": "kamar_tidur", "box": [680, 670, 940, 950]},
+    {"name": "Toilet Servis & Laundry", "type": "toilet", "box": [700, 360, 920, 640]},
+    {"name": "Carport & Entrance", "type": "garasi", "box": [700, 60, 930, 320]}
+  ]
+}

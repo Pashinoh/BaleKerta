@@ -1,0 +1,16 @@
+{
+  "id": "preset_2_toilet_violation",
+  "title": "Denah Rumah Modern (Pelanggaran Kritis Sanitasi di Zona Suci)",
+  "regency": "badung",
+  "description": "Contoh kasus umum arsitektur modern di Badung: Kamar Mandi/Toilet diletakkan di sudut Kaja-Kangin (Utamaning Utama) dan meniadakan area persembahyangan Pemerajan.",
+  "expected_status": "MELANGGAR REGULASI ADAT & PERDA",
+  "rooms": [
+    {"name": "Kamar Mandi Utama / Ensuite Bath", "type": "toilet", "box": [50, 700, 260, 950]},
+    {"name": "Kamar Tidur Utama", "type": "kamar_tidur", "box": [60, 340, 320, 650]},
+    {"name": "Ruang Tamu & Foyer", "type": "ruang_tamu", "box": [360, 680, 620, 940]},
+    {"name": "Living Room / TV Lounge", "type": "ruang_keluarga", "box": [350, 350, 640, 650]},
+    {"name": "Kamar Tidur Anak", "type": "kamar_tidur", "box": [360, 60, 600, 320]},
+    {"name": "Dapur Bersih / Island Kitchen", "type": "dapur_paon", "box": [700, 680, 920, 930]},
+    {"name": "Garasi Mobil", "type": "garasi", "box": [720, 60, 950, 320]}
+  ]
+}

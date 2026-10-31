@@ -1,0 +1,223 @@
+import json
+from pathlib import Path
+from typing import List, Dict, Any
+from core.config import settings
+
+def load_perda_rules() -> Dict[str, Any]:
+    rules_file = settings.DATA_DIR / "perda_rules.json"
+    with open(rules_file, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Melakukan verifikasi deterministik terhadap posisi ruangan
+    berdasarkan aturan Perda No. 5/2005 dan Asta Kosala-Kosali.
+    """
+    rules = load_perda_rules()
+    zone_rules = rules["zones"]
+    
+    violations = []
+    compliances = []
+    score = 100
+    
+    # Hitung estimasi luas bangunan vs ruang terbuka (KDB)
+    total_room_area = 0
+    total_canvas_area = 1000 * 1000
+    
+    has_pemerajan = False
+    pemerajan_in_utama = False
+    has_natah = False
+    natah_preserved = True
+    
+    for room in rooms:
+        name = room.get("name", "Ruangan")
+        rtype = room.get("type", "unknown").lower()
+        box = room.get("box", [0, 0, 0, 0])
+        zone_info = room.get("zone", {})
+        zone_id = zone_info.get("zone_id", "UNKNOWN")
+        
+        # Hitung area ruangan
+        ymin, xmin, ymax, xmax = box
+        area = max(0, ymax - ymin) * max(0, xmax - xmin)
+        total_room_area += area
+        
+        current_zone_rule = zone_rules.get(zone_id, {})
+        zone_name = current_zone_rule.get("name", zone_id)
+        prohibited = current_zone_rule.get("prohibited_types", [])
+        allowed = current_zone_rule.get("allowed_types", [])
+        
+        # 1. Cek Pelanggaran Kritis: Toilet / Utilitas Kotor di Zona Suci
+        if any(p in rtype for p in ["toilet", "kamar_mandi", "wc", "septic"]):
+            if zone_id in ["UTAMANING_UTAMA", "MADYANING_UTAMA"]:
+                score -= 35
+                violations.append({
+                    "id": f"viol_{len(violations)+1}",
+                    "room_name": name,
+                    "room_type": rtype,
+                    "box": box,
+                    "zone_id": zone_id,
+                    "zone_name": zone_name,
+                    "severity": "CRITICAL",
+                    "issue": f"{name} berada pada zona suci ({zone_name})",
+                    "recommendation": "Pindahkan toilet/sanitasi ke sudut Kelod-Kauh (Nistaning Nista / Teba) agar tidak mencemari kesucian pekarangan.",
+                    "legal_reference": current_zone_rule.get("legal_basis", rules["regulation"])
+                })
+            elif zone_id == "NISTANING_NISTA":
+                compliances.append({
+                    "room_name": name,
+                    "zone_name": zone_name,
+                    "detail": f"{name} ditempatkan tepat di zona Teba (Nistaning Nista) sesuai amanat Perda Pasal 18."
+                })
+                
+        # 2. Cek Tempat Suci (Pemerajan / Sanggah)
+        if any(p in rtype for p in ["pemerajan", "sanggah", "sembahyang", "altar"]):
+            has_pemerajan = True
+            if zone_id == "UTAMANING_UTAMA":
+                pemerajan_in_utama = True
+                compliances.append({
+                    "room_name": name,
+                    "zone_name": zone_name,
+                    "detail": f"{name} berada tepat pada kuadran suci tertinggi (Utamaning Utama) sesuai Asta Bumi."
+                })
+            elif zone_id in ["NISTANING_NISTA", "MADYANING_NISTA", "UTAMANING_NISTA"]:
+                score -= 30
+                violations.append({
+                    "id": f"viol_{len(violations)+1}",
+                    "room_name": name,
+                    "room_type": rtype,
+                    "box": box,
+                    "zone_id": zone_id,
+                    "zone_name": zone_name,
+                    "severity": "CRITICAL",
+                    "issue": f"{name} ditempatkan pada zona profan/kotor ({zone_name})",
+                    "recommendation": "Tempat persembahyangan keluarga (Pemerajan) wajib dialokasikan di sudut Kaja-Kangin (Utamaning Utama).",
+                    "legal_reference": "Perda Bali No. 5/2005 Pasal 14 ayat (1): Setiap pekarangan hunian diwajibkan menyediakan tempat persembahyangan keluarga pada sudut Kaja-Kangin."
+                })
+            else:
+                score -= 15
+                violations.append({
+                    "id": f"viol_{len(violations)+1}",
+                    "room_name": name,
+                    "room_type": rtype,
+                    "box": box,
+                    "zone_id": zone_id,
+                    "zone_name": zone_name,
+                    "severity": "WARNING",
+                    "issue": f"{name} berada di {zone_name}, belum optimal di Utamaning Utama",
+                    "recommendation": "Geser posisi altar/pemerajan lebih condong ke arah Kaja-Kangin.",
+                    "legal_reference": current_zone_rule.get("legal_basis", rules["regulation"])
+                })
+                
+        # 3. Cek Dapur (Paon)
+        if any(p in rtype for p in ["dapur", "kitchen", "paon"]):
+            if zone_id in ["UTAMANING_UTAMA", "MADYANING_UTAMA"]:
+                score -= 20
+                violations.append({
+                    "id": f"viol_{len(violations)+1}",
+                    "room_name": name,
+                    "room_type": rtype,
+                    "box": box,
+                    "zone_id": zone_id,
+                    "zone_name": zone_name,
+                    "severity": "WARNING",
+                    "issue": f"{name} ditempatkan pada zona suci ({zone_name})",
+                    "recommendation": "Dapur (Paon) sebaiknya dialokasikan pada zona Kelod (Madyaning Nista) menghadap ke utara.",
+                    "legal_reference": "Perda Bali No. 5/2005 Pasal 17 tentang Penataan Paon Tradisional."
+                })
+            elif zone_id in ["MADYANING_NISTA", "UTAMANING_NISTA"]:
+                compliances.append({
+                    "room_name": name,
+                    "zone_name": zone_name,
+                    "detail": f"{name} sesuai dengan pakem penempatan Paon di sisi selatan pekarangan."
+                })
+                
+        # 4. Cek Natah (Halaman Tengah)
+        if "natah" in rtype or "open_space" in rtype or "taman_tengah" in rtype:
+            has_natah = True
+            if zone_id == "MADYANING_MADYA":
+                compliances.append({
+                    "room_name": name,
+                    "zone_name": zone_name,
+                    "detail": "Natah (halaman tengah) terpelihara sebagai ruang terbuka keseimbangan kosmik (Akasa-Pertiwi)."
+                })
+                
+        # Jika bangunan masif menutupi zona tengah
+        if zone_id == "MADYANING_MADYA" and any(p in rtype for p in ["kamar", "ruang_tamu", "dapur", "toilet"]):
+            natah_preserved = False
+            score -= 15
+            violations.append({
+                "id": f"viol_{len(violations)+1}",
+                "room_name": name,
+                "room_type": rtype,
+                "box": box,
+                "zone_id": zone_id,
+                "zone_name": zone_name,
+                "severity": "WARNING",
+                "issue": f"{name} menutupi zona pusat Natah (Madyaning Madya)",
+                "recommendation": "Biarkan zona tengah pekarangan terbuka tanpa atap masif sebagai sirkulasi udara dan ruang sakral Natah.",
+                "legal_reference": "Perda Bali No. 5/2005 Pasal 16 ayat (1): Natah wajib dibiarkan terbuka sebagai ruang hijau dan sirkulasi."
+            })
+
+    # Evaluasi KDB (Koefisien Dasar Bangunan)
+    kdb_percentage = round((total_room_area / total_canvas_area) * 100, 1)
+    kdb_status = "MEMENUHI"
+    if kdb_percentage > 60:
+        kdb_status = "MELEBIHI_BATAS"
+        score -= 15
+        violations.append({
+            "id": f"viol_{len(violations)+1}",
+            "room_name": "Koefisien Dasar Bangunan (KDB)",
+            "room_type": "kdb_assessment",
+            "box": [0, 0, 1000, 1000],
+            "zone_id": "GLOBAL",
+            "zone_name": "Seluruh Tapak",
+            "severity": "WARNING",
+            "issue": f"KDB terestimasi {kdb_percentage}%, melebihi ambang batas maksimal Perda (60%)",
+            "recommendation": "Perbanyak ruang terbuka hijau (RTH) minimal 40% dari total luas pekarangan untuk resapan air.",
+            "legal_reference": "Perda Bali No. 5/2005 Pasal 21: Koefisien Dasar Bangunan (KDB) hunian di kawasan permukiman maksimal 60%."
+        })
+    else:
+        compliances.append({
+            "room_name": "KDB Permukiman",
+            "zone_name": "Seluruh Tapak",
+            "detail": f"KDB terestimasi {kdb_percentage}%, mematuhi standar konservasi ruang hijau (maksimal 60%)."
+        })
+
+    # Evaluasi Ketersediaan Tempat Suci
+    if not has_pemerajan:
+        score -= 20
+        violations.append({
+            "id": f"viol_{len(violations)+1}",
+            "room_name": "Pemerajan / Sanggah",
+            "room_type": "missing_required_facility",
+            "box": [0, 667, 333, 1000],
+            "zone_id": "UTAMANING_UTAMA",
+            "zone_name": "Utamaning Utama",
+            "severity": "CRITICAL",
+            "issue": "Tidak terdeteksi area persembahyangan (Pemerajan/Sanggah) pada denah",
+            "recommendation": "Sediakan area tempat suci keluarga pada sudut Utamaning Utama (Kaja-Kangin).",
+            "legal_reference": "Perda Bali No. 5/2005 Pasal 14 ayat (1): Setiap hunian wajib memiliki tempat pemujaan keluarga."
+        })
+
+    final_score = max(0, min(100, score))
+    
+    if final_score >= 80:
+        status_label = "MEMENUHI PERSYARATAN (LAYAK PBG)"
+        status_color = "green"
+    elif final_score >= 50:
+        status_label = "PERLU PENYESUAIAN TATA RUANG"
+        status_color = "yellow"
+    else:
+        status_label = "MELANGGAR REGULASI ADAT & PERDA"
+        status_color = "red"
+        
+    return {
+        "compliance_score": final_score,
+        "status_label": status_label,
+        "status_color": status_color,
+        "kdb_percentage": kdb_percentage,
+        "kdb_status": kdb_status,
+        "violations_count": len(violations),
+        "violations": violations,
+        "compliances": compliances
+    }

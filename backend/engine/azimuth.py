@@ -1,0 +1,149 @@
+import math
+from typing import Dict, Any, Tuple
+
+# Mount Agung Summit Coordinates (Titik Suci Kosmologi Bali)
+MOUNT_AGUNG_LAT = -8.3433
+MOUNT_AGUNG_LON = 115.5071
+
+# Pre-mapped Regency Coordinates in Bali
+BALI_REGENCIES = {
+    "denpasar": {
+        "name": "Kota Denpasar",
+        "lat": -8.6705,
+        "lon": 115.2126,
+        "note": "Gunung Agung berada di arah Timur Laut (Kaja-Kangin)"
+    },
+    "badung": {
+        "name": "Kabupaten Badung (Kuta, Seminyak, Canggu, Nusa Dua)",
+        "lat": -8.5833,
+        "lon": 115.1667,
+        "note": "Gunung Agung berada di arah Timur Laut"
+    },
+    "gianyar": {
+        "name": "Kabupaten Gianyar (Ubud, Sukawati)",
+        "lat": -8.5069,
+        "lon": 115.2625,
+        "note": "Gunung Agung berada di arah Timur Laut"
+    },
+    "tabanan": {
+        "name": "Kabupaten Tabanan",
+        "lat": -8.5414,
+        "lon": 115.1252,
+        "note": "Gunung Agung berada di arah Timur Laut / Timur"
+    },
+    "buleleng": {
+        "name": "Kabupaten Buleleng (Singaraja)",
+        "lat": -8.1120,
+        "lon": 115.0882,
+        "note": "Kaja berada di arah Tenggara/Selatan (menghadap ke arah Gunung Agung di selatan)"
+    },
+    "bangli": {
+        "name": "Kabupaten Bangli (Kintamani)",
+        "lat": -8.4539,
+        "lon": 115.3547,
+        "note": "Gunung Agung berada di arah Timur"
+    },
+    "klungkung": {
+        "name": "Kabupaten Klungkung & Nusa Penida",
+        "lat": -8.5350,
+        "lon": 115.4039,
+        "note": "Gunung Agung berada di arah Utara-Timur Laut"
+    },
+    "karangasem": {
+        "name": "Kabupaten Karangasem",
+        "lat": -8.4619,
+        "lon": 115.6122,
+        "note": "Kaja bervariasi bergantung lereng (Barat Laut / Utara)"
+    },
+    "jembrana": {
+        "name": "Kabupaten Jembrana (Negara)",
+        "lat": -8.3585,
+        "lon": 114.6176,
+        "note": "Gunung Agung berada di arah Timur"
+    }
+}
+
+def calculate_geodesic_bearing(lat1: float, lon1: float, lat2: float = MOUNT_AGUNG_LAT, lon2: float = MOUNT_AGUNG_LON) -> float:
+    """
+    Menghitung sudut bantalan (azimuth / bearing) dari koordinat tapak ke puncak Gunung Agung.
+    Formula:
+      θ = atan2( sin Δλ ⋅ cos φ2 , cos φ1 ⋅ sin φ2 − sin φ1 ⋅ cos φ2 ⋅ cos Δλ )
+    Hasil dikembalikan dalam derajat (0° - 360° dari Utara Sejati).
+    """
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_lambda = math.radians(lon2 - lon1)
+    
+    y = math.sin(delta_lambda) * math.cos(phi2)
+    x = math.cos(phi1) * math.sin(phi2) - math.sin(phi1) * math.cos(phi2) * math.cos(delta_lambda)
+    
+    initial_bearing = math.atan2(y, x)
+    # Konversi ke derajat (0 - 360)
+    bearing_deg = (math.degrees(initial_bearing) + 360) % 360
+    return round(bearing_deg, 2)
+
+def get_cardinal_direction(bearing: float) -> str:
+    """Mengonversi derajat azimuth ke nama mata angin standar."""
+    directions = [
+        "Utara (N)", "Utara-Timur Laut (NNE)", "Timur Laut (NE)", "Timur-Timur Laut (ENE)",
+        "Timur (E)", "Timur-Tenggara (ESE)", "Tenggara (SE)", "Selatan-Tenggara (SSE)",
+        "Selatan (S)", "Selatan-Barat Daya (SSW)", "Barat Daya (SW)", "Barat-Barat Daya (WSW)",
+        "Barat (W)", "Barat-Barat Laut (WNW)", "Barat Laut (NW)", "Utara-Barat Laut (NNW)"
+    ]
+    idx = int((bearing + 11.25) / 22.5) % 16
+    return directions[idx]
+
+def resolve_kaja_vector(regency_key: str = None, custom_lat: float = None, custom_lon: float = None) -> Dict[str, Any]:
+    """
+    Mengembalikan data orientasi Kaja untuk wilayah atau koordinat spesifik di Bali.
+    """
+    regency_info = None
+    if regency_key and regency_key.lower() in BALI_REGENCIES:
+        regency_info = BALI_REGENCIES[regency_key.lower()]
+        lat = regency_info["lat"]
+        lon = regency_info["lon"]
+        location_label = regency_info["name"]
+    elif custom_lat is not None and custom_lon is not None:
+        lat = custom_lat
+        lon = custom_lon
+        location_label = f"Koordinat Kustom ({lat:.4f}, {lon:.4f})"
+    else:
+        # Default: Denpasar
+        regency_info = BALI_REGENCIES["denpasar"]
+        lat = regency_info["lat"]
+        lon = regency_info["lon"]
+        location_label = regency_info["name"]
+        
+    bearing = calculate_geodesic_bearing(lat, lon)
+    cardinal = get_cardinal_direction(bearing)
+    
+    # Menentukan kuadran Kaja pada denah 2D
+    # Jika arah Gunung Agung condong ke Utara/Timur Laut (misal Denpasar/Badung) -> Kaja = Pojok Kanan Atas
+    # Jika condong ke Tenggara/Selatan (misal Buleleng) -> Kaja = Pojok Kanan Bawah
+    if 0 <= bearing < 90:
+        kaja_quadrant = "TOP_RIGHT"
+        kaja_side = "TOP"
+    elif 90 <= bearing < 180:
+        kaja_quadrant = "BOTTOM_RIGHT"
+        kaja_side = "BOTTOM"
+    elif 180 <= bearing < 270:
+        kaja_quadrant = "BOTTOM_LEFT"
+        kaja_side = "BOTTOM"
+    else:
+        kaja_quadrant = "TOP_LEFT"
+        kaja_side = "TOP"
+        
+    return {
+        "location": location_label,
+        "latitude": lat,
+        "longitude": lon,
+        "mount_agung_target": {
+            "lat": MOUNT_AGUNG_LAT,
+            "lon": MOUNT_AGUNG_LON
+        },
+        "bearing_degrees": bearing,
+        "cardinal_direction": cardinal,
+        "kaja_quadrant": kaja_quadrant,
+        "kaja_side": kaja_side,
+        "note": regency_info.get("note", "") if regency_info else "Orientasi dihitung via Geodesic Azimuth"
+    }

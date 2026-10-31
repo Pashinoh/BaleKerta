@@ -1,0 +1,168 @@
+{
+  "regulation": "Peraturan Daerah Provinsi Bali Nomor 5 Tahun 2005 tentang Persyaratan Arsitektur Bangunan Gedung",
+  "cultural_reference": "Naskah Lontar Asta Bumi & Asta Kosala-Kosali",
+  "zones": {
+    "UTAMANING_UTAMA": {
+      "name": "Utamaning Utama (Kaja-Kangin)",
+      "orientation": "Utara-Timur (Arah Gunung Agung & Matahari Terbit)",
+      "sacred_level": "Utama (Sangat Suci)",
+      "allowed_types": [
+        "pemerajan_sanggah",
+        "tempat_sembahyang",
+        "altar_suci",
+        "taman_suci"
+      ],
+      "prohibited_types": [
+        "toilet",
+        "kamar_mandi",
+        "septic_tank",
+        "tempat_sampah",
+        "kandang_hewan",
+        "dapur_paon",
+        "garasi"
+      ],
+      "legal_basis": "Perda Bali No. 5/2005 Pasal 14 ayat (2): Sudut Kaja-Kangin dialokasikan khusus sebagai zona suci (Pemerajan/Sanggah). Segala bentuk sanitasi kotor dan utilitas buangan dilarang keras menempati zona ini."
+    },
+    "MADYANING_UTAMA": {
+      "name": "Madyaning Utama (Kaja)",
+      "orientation": "Utara (Arah Gunung)",
+      "sacred_level": "Utama Madya (Suci Sedang)",
+      "allowed_types": [
+        "bale_daja",
+        "gedong_pusaka",
+        "kamar_utama_orangtua",
+        "ruang_tidur_tetua"
+      ],
+      "prohibited_types": [
+        "toilet",
+        "kamar_mandi",
+        "kandang_hewan",
+        "tempat_sampah"
+      ],
+      "legal_basis": "Asta Kosala-Kosali: Sisi Kaja difungsikan sebagai Bale Daja (Gedong Meten) untuk ruang tidur kepala keluarga dan tempat menyimpan pusaka/benda berharga."
+    },
+    "NISTANING_UTAMA": {
+      "name": "Nistaning Utama (Kaja-Kauh)",
+      "orientation": "Utara-Barat",
+      "sacred_level": "Utama Pendukung",
+      "allowed_types": [
+        "ruang_studi",
+        "bale_rapat",
+        "kamar_tidur_keluarga",
+        "taman"
+      ],
+      "prohibited_types": [
+        "septic_tank_utama",
+        "kandang_limbah"
+      ],
+      "legal_basis": "Pedoman Penataan Pekarangan Tradisional Bali: Zona penyangga sakral sisi barat laut diperuntukkan bagi aktivitas penunjang keluarga yang tenang."
+    },
+    "UTAMANING_MADYA": {
+      "name": "Utamaning Madya (Kangin)",
+      "orientation": "Timur (Arah Matahari Terbit)",
+      "sacred_level": "Madya Utama (Sakral Sosial)",
+      "allowed_types": [
+        "bale_dangin",
+        "bale_gede",
+        "ruang_upacara",
+        "kamar_tamu_kehormatan"
+      ],
+      "prohibited_types": [
+        "toilet",
+        "tempat_sampah",
+        "kandang_hewan"
+      ],
+      "legal_basis": "Perda Bali No. 5/2005 Pasal 15: Sisi Kangin difungsikan sebagai Bale Dangin/Gede, berfungsi untuk penyelenggaraan upacara Manusa Yadnya dan upacara adat keluarga."
+    },
+    "MADYANING_MADYA": {
+      "name": "Madyaning Madya (Tengah / Puser)",
+      "orientation": "Titik Pusat (Natah)",
+      "sacred_level": "Pusat Keseimbangan Kosmos",
+      "allowed_types": [
+        "natah_open_space",
+        "halaman_terbuka",
+        "plaza_tengah",
+        "taman_sirkulasi"
+      ],
+      "prohibited_types": [
+        "bangunan_masif",
+        "kamar_tertutup",
+        "toilet",
+        "dapur_tertutup"
+      ],
+      "legal_basis": "Perda Bali No. 5/2005 Pasal 16 ayat (1): Natah (halaman tengah) wajib dibiarkan terbuka sebagai ruang sirkulasi tata hijau dan keseimbangan kosmik (Akasa-Pertiwi). Dilarang didirikan bangunan masif tertutup."
+    },
+    "NISTANING_MADYA": {
+      "name": "Nistaning Madya (Kauh)",
+      "orientation": "Barat (Matahari Terbenam)",
+      "sacred_level": "Madya Profan",
+      "allowed_types": [
+        "bale_dauh",
+        "bale_tiang_sanga",
+        "ruang_kerja",
+        "kamar_tidur_anak",
+        "ruang_keluarga"
+      ],
+      "prohibited_types": [
+        "pemerajan_sanggah"
+      ],
+      "legal_basis": "Asta Bumi: Sisi Kauh difungsikan sebagai Bale Dauh untuk tempat istirahat anak-anak, ruang kerja, dan kegiatan sehari-hari."
+    },
+    "UTAMANING_NISTA": {
+      "name": "Utamaning Nista (Kelod-Kangin)",
+      "orientation": "Selatan-Timur",
+      "sacred_level": "Nista Utama (Peralihan Profan)",
+      "allowed_types": [
+        "bale_delod",
+        "ruang_santai",
+        "taman_selatan",
+        "halaman_depan"
+      ],
+      "prohibited_types": [
+        "tempat_suci_pemerajan"
+      ],
+      "legal_basis": "Pedoman Arsitektur Bali: Difungsikan sebagai Bale Delod atau area transisi penghubung natah dan sisi selatan."
+    },
+    "MADYANING_NISTA": {
+      "name": "Madyaning Nista (Kelod)",
+      "orientation": "Selatan (Arah Laut)",
+      "sacred_level": "Nista Madya (Profan Pelayanan)",
+      "allowed_types": [
+        "dapur_paon",
+        "jineng_lumbung",
+        "ruang_makan",
+        "gudang_alat"
+      ],
+      "prohibited_types": [
+        "pemerajan_sanggah",
+        "altar_suci"
+      ],
+      "legal_basis": "Perda Bali No. 5/2005 Pasal 17: Paon (dapur) dan Jineng (lumbung beras) ditempatkan pada zona Kelod menghadap ke utara."
+    },
+    "NISTANING_NISTA": {
+      "name": "Nistaning Nista (Kelod-Kauh)",
+      "orientation": "Selatan-Barat (Arah Laut & Matahari Terbenam)",
+      "sacred_level": "Nista (Zona Pembuangan / Teba)",
+      "allowed_types": [
+        "toilet",
+        "kamar_mandi",
+        "septic_tank",
+        "tempat_sampah",
+        "kandang_hewan",
+        "gudang_kotor",
+        "area_servis"
+      ],
+      "prohibited_types": [
+        "pemerajan_sanggah",
+        "altar_suci",
+        "bale_daja"
+      ],
+      "legal_basis": "Perda Bali No. 5/2005 Pasal 18: Zona Teba (Nistaning Nista) di sudut Kelod-Kauh dialokasikan untuk fungsi sanitasi, pembuangan, dan utilitas kotor agar tidak mencemari kesucian zona Utama."
+    }
+  },
+  "entrance_rules": {
+    "recommended_zones": ["UTAMANING_NISTA", "NISTANING_MADYA", "MADYANING_NISTA"],
+    "rule_title": "Penempatan Angkul-angkul (Pintu Gerbang Utama)",
+    "legal_basis": "Asta Kosala-Kosali: Angkul-angkul ditempatkan di sisi profan (Kelod atau Kauh), menghindari garis lurus langsung dengan Sanggah Pemerajan untuk menjaga privasi kesucian."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "preset_1_pass",
+  "title": "Denah Hunian Tradisional Bali (Pola Nawa Sanga Ideal)",
+  "regency": "gianyar",
+  "description": "Pola tata ruang tradisional Bali autentik yang mematuhi Asta Bumi, Asta Kosala-Kosali, dan Perda No. 5/2005. Sanggah Pemerajan di Kaja-Kangin dan Toilet di sudut Teba.",
+  "expected_status": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+  "rooms": [
+    {"name": "Sanggah Pemerajan Keluarga", "type": "pemerajan_sanggah", "box": [50, 700, 240, 940]},
+    {"name": "Bale Daja (Gedong Meten)", "type": "bale_daja", "box": [60, 360, 260, 640]},
+    {"name": "Bale Dangin (Upacara Yadnya)", "type": "bale_dangin", "box": [360, 700, 620, 940]},
+    {"name": "Natah (Pekarangan Suci Terbuka)", "type": "natah_open_space", "box": [350, 360, 650, 640]},
+    {"name": "Bale Dauh (Ruang Istirahat / Kerja)", "type": "bale_dauh", "box": [360, 60, 620, 320]},
+    {"name": "Paon Tradisional (Dapur)", "type": "dapur_paon", "box": [700, 370, 920, 640]},
+    {"name": "Kamar Mandi / Toilet Teba", "type": "toilet", "box": [720, 70, 920, 300]},
+    {"name": "Angkul-angkul (Pintu Gerbang Masuk)", "type": "angkul_angkul_pintu", "box": [850, 720, 980, 880]}
+  ]
+}
