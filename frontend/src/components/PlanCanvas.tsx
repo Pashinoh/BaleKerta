@@ -2,55 +2,63 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { GridLayout, Room, Violation } from "@/types/audit";
-import { Compass, Eye, Grid3X3, Layers } from "lucide-react";
+import { Grid3X3, Layers, Maximize2, Minimize2 } from "lucide-react";
 
-interface PlanCanvasProps {
+export interface PlanCanvasProps {
   imageSrc?: string | null;
   gridLayout?: GridLayout | null;
   rooms: Room[];
   violations: Violation[];
+  hoveredIndex?: number | null;
+  selectedIndex?: number | null;
   selectedRoom?: Room | null;
   onSelectRoom?: (room: Room | null) => void;
+  onHoverIndex?: (index: number | null) => void;
+  onSelectIndex?: (index: number | null) => void;
   kajaBearing?: number;
   kajaDirection?: string;
   regencyName?: string;
+  className?: string;
 }
 
-const ZONE_HUMAN_NAMES: Record<string, string> = {
-  UTAMANING_UTAMA: "Utamaning Utama (Suci)",
+const ZONE_LABELS: Record<string, string> = {
+  UTAMANING_UTAMA: "Utamaning Utama · Paling Suci",
   MADYANING_UTAMA: "Madyaning Utama",
   NISTANING_UTAMA: "Nistaning Utama",
   UTAMANING_MADYA: "Utamaning Madya",
-  MADYANING_MADYA: "Madyaning Madya (Natah)",
+  MADYANING_MADYA: "Madyaning Madya · Natah",
   NISTANING_MADYA: "Nistaning Madya",
   UTAMANING_NISTA: "Utamaning Nista",
   MADYANING_NISTA: "Madyaning Nista",
-  NISTANING_NISTA: "Nistaning Nista (Teba)"
+  NISTANING_NISTA: "Nistaning Nista · Teba",
 };
 
-export default function PlanCanvas({
+export const PlanCanvas: React.FC<PlanCanvasProps> = ({
   imageSrc,
   gridLayout,
   rooms,
   violations,
-  selectedRoom,
+  hoveredIndex = null,
+  selectedIndex = null,
+  selectedRoom = null,
   onSelectRoom,
-  kajaBearing = 55.95,
+  onHoverIndex,
+  onSelectIndex,
+  kajaBearing = 41.7,
   kajaDirection = "Timur Laut (NE)",
-  regencyName = "Gianyar"
-}: PlanCanvasProps) {
+  className = "",
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renderAreaRef = useRef({ x: 0, y: 0, w: 0, h: 0 });
   const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null);
-  
-  // Controls
+
+  // View toggles
   const [showGrid, setShowGrid] = useState(true);
   const [showRooms, setShowRooms] = useState(true);
-  const [showLabels, setShowLabels] = useState(true);
-  const [hoveredRoom, setHoveredRoom] = useState<Room | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Load image when imageSrc changes
+  // Load image object
   useEffect(() => {
     if (!imageSrc) {
       setImageObj(null);
@@ -62,14 +70,13 @@ export default function PlanCanvas({
     img.src = imageSrc;
   }, [imageSrc]);
 
-  // Main Draw Function
+  // Main canvas render loop
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Handle HiDPI / Retina displays
     const dpr = window.devicePixelRatio || 1;
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
@@ -83,10 +90,9 @@ export default function PlanCanvas({
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Calculate Image Render Area & Draw Base Floor Plan
+    // 1. Calculate aspect-fit geometry (Fix F3 Alignment)
     let renderArea = { x: 0, y: 0, w: width, h: height };
     if (imageObj) {
-      // Calculate aspect ratio containment
       const hRatio = width / imageObj.width;
       const vRatio = height / imageObj.height;
       const ratio = Math.min(hRatio, vRatio);
@@ -102,40 +108,35 @@ export default function PlanCanvas({
         centerShiftX, centerShiftY, renderW, renderH
       );
     } else {
-      // Sleek Architectural Blueprint Grid when no image
-      ctx.fillStyle = "#0f172a"; // dark slate
+      // Schematic dark canvas when no image is loaded
+      ctx.fillStyle = "#0E0D0C"; // Ink-950
       ctx.fillRect(0, 0, width, height);
 
-      ctx.strokeStyle = "rgba(51, 65, 85, 0.4)";
+      // Subtle architectural grid lines
+      ctx.strokeStyle = "#1D1A17"; // Ink-800
       ctx.lineWidth = 1;
-      const gridSize = 30;
-      for (let x = 0; x < width; x += gridSize) {
+      const step = 40;
+      for (let x = 0; x < width; x += step) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, height);
         ctx.stroke();
       }
-      for (let y = 0; y < height; y += gridSize) {
+      for (let y = 0; y < height; y += step) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
         ctx.stroke();
       }
-
-      // Center Blueprint Label
-      ctx.fillStyle = "rgba(148, 163, 184, 0.5)";
-      ctx.font = "14px monospace";
-      ctx.textAlign = "center";
-      ctx.fillText("[ AREA BIDANG AUDIT TATA RUANG BALI (1000 x 1000) ]", width / 2, height / 2);
     }
 
     renderAreaRef.current = renderArea;
 
-    // Helper: Map Normalized (0-1000) coordinates to Image Render Area (Fix F3 Alignment)
+    // Coordinate conversion functions tied strictly to image render rectangle
     const toPxX = (normX: number) => renderArea.x + (normX / 1000) * renderArea.w;
     const toPxY = (normY: number) => renderArea.y + (normY / 1000) * renderArea.h;
 
-    // 2. Draw 9 Sanga Mandala Grid Overlay
+    // 2. Draw 9 Sanga Mandala Grid
     if (showGrid && gridLayout && gridLayout.cells) {
       gridLayout.cells.forEach((cell) => {
         const [ymin, xmin, ymax, xmax] = cell.box;
@@ -145,116 +146,133 @@ export default function PlanCanvas({
         const ch = toPxY(ymax) - cy;
 
         const isUtama = cell.zone_id === "UTAMANING_UTAMA";
-        const isNatah = cell.zone_id === "MADYANING_MADYA";
-        const isTeba = cell.zone_id === "NISTANING_NISTA";
 
-        // Zone Cell Tint
         if (isUtama) {
-          ctx.fillStyle = "rgba(251, 191, 36, 0.08)"; // Soft Amber/Gold
-        } else if (isNatah) {
-          ctx.fillStyle = "rgba(56, 189, 248, 0.06)"; // Soft Sky/Ether
-        } else if (isTeba) {
-          ctx.fillStyle = "rgba(148, 163, 184, 0.06)"; // Soft Gray/Slate
+          // Sacred Zone: Dashed Bone border + subtle Bone fill
+          ctx.fillStyle = "rgba(237, 231, 218, 0.05)";
+          ctx.fillRect(cx, cy, cw, ch);
+
+          ctx.strokeStyle = "#EDE7DA"; // Bone-100
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 6]);
+          ctx.strokeRect(cx, cy, cw, ch);
+          ctx.setLineDash([]);
+
+          // Sacred Zone Label
+          ctx.font = "bold 12px sans-serif";
+          ctx.fillStyle = "#EDE7DA";
+          ctx.textAlign = "center";
+          ctx.fillText("Utamaning Utama (Paling Suci)", cx + cw / 2, cy + 22);
         } else {
-          ctx.fillStyle = "rgba(241, 245, 249, 0.02)";
+          // Standard Zone: Subtle Ink-600 line
+          ctx.strokeStyle = "#3A352F"; // Ink-600
+          ctx.lineWidth = 1;
+          ctx.strokeRect(cx, cy, cw, ch);
+
+          // Subtle zone name
+          ctx.font = "11px sans-serif";
+          ctx.fillStyle = "#A39B8B"; // Bone-400
+          ctx.textAlign = "center";
+          const label = ZONE_LABELS[cell.zone_id] || cell.zone_id;
+          ctx.fillText(label, cx + cw / 2, cy + 20);
         }
-        ctx.fillRect(cx, cy, cw, ch);
-
-        // Dashed Grid Lines
-        ctx.strokeStyle = isUtama ? "rgba(245, 158, 11, 0.6)" : "rgba(148, 163, 184, 0.35)";
-        ctx.lineWidth = isUtama ? 2 : 1;
-        ctx.setLineDash([6, 4]);
-        ctx.strokeRect(cx, cy, cw, ch);
-        ctx.setLineDash([]);
-
-        // Zone Title Badge
-        ctx.font = isUtama ? "bold 11px sans-serif" : "10px sans-serif";
-        ctx.fillStyle = isUtama ? "#f59e0b" : "#94a3b8";
-        ctx.textAlign = "center";
-        const zoneTitle = ZONE_HUMAN_NAMES[cell.zone_id] || cell.zone_id;
-        ctx.fillText(zoneTitle, cx + cw / 2, cy + 22);
       });
     }
 
-    // 3. Draw Detected Rooms and Bounding Boxes
+    // 3. Draw Room Bounding Boxes
     if (showRooms && rooms) {
-      rooms.forEach((room) => {
+      rooms.forEach((room, idx) => {
         const [ymin, xmin, ymax, xmax] = room.box;
         const rx = toPxX(xmin);
         const ry = toPxY(ymin);
         const rw = toPxX(xmax) - rx;
         const rh = toPxY(ymax) - ry;
 
-        // Check if this room has a violation
+        // Check violation status
         const violation = violations.find(
-          (v) => v.room_name.toLowerCase() === room.name.toLowerCase() ||
-                 (v.box[0] === room.box[0] && v.box[1] === room.box[1])
+          (v) =>
+            v.room_name.toLowerCase() === room.name.toLowerCase() ||
+            (v.box &&
+              v.box[0] === room.box[0] &&
+              v.box[1] === room.box[1] &&
+              v.box[2] === room.box[2] &&
+              v.box[3] === room.box[3])
         );
 
         const isViolated = !!violation;
-        const isHovered = hoveredRoom?.name === room.name;
-        const isSelected = selectedRoom?.name === room.name;
+        const isHovered = hoveredIndex === idx;
+        const isSelected = selectedIndex === idx || (selectedRoom != null && selectedRoom.name === room.name);
+        const isHighlighted = isHovered || isSelected;
 
-        // Fill color
         if (isViolated) {
-          ctx.fillStyle = isHovered || isSelected ? "rgba(239, 68, 68, 0.35)" : "rgba(239, 68, 68, 0.18)";
-          ctx.strokeStyle = "#ef4444"; // Vivid Red
-          ctx.lineWidth = isHovered || isSelected ? 3 : 2;
+          // Violation: Clay (#D2603F)
+          ctx.fillStyle = isHighlighted
+            ? "rgba(210, 96, 63, 0.24)"
+            : "rgba(210, 96, 63, 0.14)";
+          ctx.strokeStyle = "#D2603F";
+          ctx.lineWidth = isHighlighted ? 3 : 2;
         } else {
-          ctx.fillStyle = isHovered || isSelected ? "rgba(16, 185, 129, 0.3)" : "rgba(16, 185, 129, 0.12)";
-          ctx.strokeStyle = "#10b981"; // Emerald Green
-          ctx.lineWidth = isHovered || isSelected ? 3 : 1.5;
+          // Compliant: Bone-100 (#EDE7DA)
+          ctx.fillStyle = isHighlighted
+            ? "rgba(237, 231, 218, 0.14)"
+            : "rgba(237, 231, 218, 0.06)";
+          ctx.strokeStyle = "#EDE7DA";
+          ctx.lineWidth = isHighlighted ? 2.5 : 1.5;
         }
 
-        // Draw Room Box
         ctx.fillRect(rx, ry, rw, rh);
         ctx.strokeRect(rx, ry, rw, rh);
 
-        // Highlight Glow for Selected/Hovered Room
-        if (isSelected || isHovered) {
+        // Highlight extra indicator border
+        if (isHighlighted) {
           ctx.save();
-          ctx.strokeStyle = "#fbbf24";
-          ctx.lineWidth = 2;
-          ctx.setLineDash([4, 2]);
-          ctx.strokeRect(rx - 2, ry - 2, rw + 4, rh + 4);
+          ctx.strokeStyle = isViolated ? "#D2603F" : "#EDE7DA";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.strokeRect(rx - 3, ry - 3, rw + 6, rh + 6);
           ctx.restore();
         }
 
-        // Draw Room Label Tag
-        if (showLabels) {
-          ctx.font = "bold 11px sans-serif";
-          const labelText = room.name;
-          const textWidth = ctx.measureText(labelText).width;
-          const tagW = textWidth + 14;
-          const tagH = 20;
-          const tagX = rx + 4;
-          const tagY = ry + 4;
+        // Clean Room Label
+        ctx.font = isHighlighted ? "bold 12px sans-serif" : "11px sans-serif";
+        const labelText = room.name;
+        const textWidth = ctx.measureText(labelText).width;
+        const tagW = textWidth + 14;
+        const tagH = 22;
+        const tagX = rx + 4;
+        const tagY = ry + 4;
 
-          // Tag background
-          ctx.fillStyle = isViolated ? "rgba(185, 28, 28, 0.9)" : "rgba(6, 78, 59, 0.85)";
-          ctx.beginPath();
-          ctx.roundRect(tagX, tagY, tagW, tagH, 4);
-          ctx.fill();
+        // Label pill background
+        ctx.fillStyle = isViolated ? "#D2603F" : "#1D1A17";
+        ctx.beginPath();
+        ctx.rect(tagX, tagY, tagW, tagH);
+        ctx.fill();
 
-          // Tag text
-          ctx.fillStyle = "#ffffff";
-          ctx.textAlign = "left";
-          ctx.fillText(labelText, tagX + 7, tagY + 14);
+        ctx.strokeStyle = isViolated ? "#B84E30" : "#2A2622";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(tagX, tagY, tagW, tagH);
 
-          // Danger exclamation pill on violated room
-          if (isViolated) {
-            ctx.fillStyle = "#fef08a";
-            ctx.font = "bold 10px sans-serif";
-            ctx.fillText("⚠️", rx + rw - 24, ry + 16);
-          }
-        }
+        // Text color
+        ctx.fillStyle = isViolated ? "#0E0D0C" : "#EDE7DA";
+        ctx.textAlign = "left";
+        ctx.fillText(labelText, tagX + 7, tagY + 15);
       });
     }
 
     ctx.restore();
-  }, [imageObj, gridLayout, rooms, violations, selectedRoom, hoveredRoom, showGrid, showRooms, showLabels]);
+  }, [
+    imageObj,
+    gridLayout,
+    rooms,
+    violations,
+    hoveredIndex,
+    selectedIndex,
+    selectedRoom,
+    showGrid,
+    showRooms,
+  ]);
 
-  // Redraw whenever canvas resizes or dependencies update
+  // Redraw on updates or window resize
   useEffect(() => {
     renderCanvas();
     const handleResize = () => renderCanvas();
@@ -262,10 +280,11 @@ export default function PlanCanvas({
     return () => window.removeEventListener("resize", handleResize);
   }, [renderCanvas]);
 
-  // Click & Hover Detection
+  // Mouse hover & click detection
   const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !onHoverIndex) return;
+
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
@@ -276,120 +295,125 @@ export default function PlanCanvas({
     const normX = ((mouseX - renderArea.x) / renderArea.w) * 1000;
     const normY = ((mouseY - renderArea.y) / renderArea.h) * 1000;
 
-    const hit = rooms.find((r) => {
+    const hitIdx = rooms.findIndex((r) => {
       const [ymin, xmin, ymax, xmax] = r.box;
       return normY >= ymin && normY <= ymax && normX >= xmin && normX <= xmax;
     });
 
-    setHoveredRoom(hit || null);
-    canvas.style.cursor = hit ? "pointer" : "crosshair";
+    onHoverIndex(hitIdx >= 0 ? hitIdx : null);
+    canvas.style.cursor = hitIdx >= 0 ? "pointer" : "default";
   };
 
   const handleCanvasClick = () => {
-    if (onSelectRoom) {
-      onSelectRoom(hoveredRoom);
+    if (typeof hoveredIndex === "number" && hoveredIndex >= 0) {
+      if (onSelectIndex) {
+        onSelectIndex(hoveredIndex === selectedIndex ? null : hoveredIndex);
+      }
+      if (onSelectRoom) {
+        onSelectRoom(rooms[hoveredIndex] || null);
+      }
     }
   };
 
   return (
-    <div className="flex flex-col bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+    <div
+      ref={containerRef}
+      className={`border border-ink-700 bg-ink-900 rounded-lg overflow-hidden flex flex-col ${
+        isFullscreen ? "fixed inset-4 z-50 shadow-2xl" : ""
+      } ${className}`}
+    >
       {/* Top Toolbar */}
-      <div className="flex flex-wrap items-center justify-between px-4 py-3 bg-slate-950/80 border-b border-slate-800 backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between px-3.5 py-2.5 border-b border-ink-700 bg-ink-950 text-[13px] gap-2">
         <div className="flex items-center gap-2">
-          <Layers className="w-5 h-5 text-amber-400" />
-          <span className="text-sm font-semibold text-slate-200">
-            Kanvas Inspeksi Tata Ruang Adat
+          <span className="font-semibold text-bone-100">
+            Kanvas Tata Ruang
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-            {rooms.length} Ruangan Terdeteksi
+          <span className="text-[12px] font-mono px-2 py-0.5 bg-ink-900 border border-ink-700 text-bone-400 rounded">
+            {rooms.length} Ruangan
           </span>
-        </div>
-
-        {/* Compass & Mount Agung Azimuth Pill */}
-        <div className="flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full">
-          <Compass className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span className="text-xs font-medium text-amber-300">
-            Kaja (Gn. Agung): <strong className="text-white">{kajaBearing.toFixed(1)}° {kajaDirection}</strong> ({regencyName})
+          <span className="hidden sm:inline-block text-[12px] font-mono text-bone-400 pl-2 border-l border-ink-700">
+            Kaja: {kajaDirection} ({kajaBearing.toFixed(1)}°)
           </span>
         </div>
 
-        {/* View Toggle Buttons */}
-        <div className="flex items-center gap-1.5 mt-2 sm:mt-0">
+        {/* Action Toggles */}
+        <div className="flex items-center gap-1.5">
           <button
+            type="button"
             onClick={() => setShowGrid(!showGrid)}
-            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg font-medium transition ${
+            className={`px-2.5 py-1 text-[12px] font-medium rounded border transition-colors flex items-center gap-1 ${
               showGrid
-                ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                ? "bg-bone-100 text-ink-950 border-bone-100"
+                : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100 hover:bg-ink-800"
             }`}
-            title="Toggle Grid 9 Sanga Mandala"
           >
-            <Grid3X3 className="w-3.5 h-3.5" />
-            Grid 9 Zona
+            <Grid3X3 size={13} />
+            <span>Kisi 9 Zona</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setShowRooms(!showRooms)}
-            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg font-medium transition ${
+            className={`px-2.5 py-1 text-[12px] font-medium rounded border transition-colors flex items-center gap-1 ${
               showRooms
-                ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                ? "bg-bone-100 text-ink-950 border-bone-100"
+                : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100 hover:bg-ink-800"
             }`}
-            title="Toggle Tampilan Ruangan"
           >
-            <Layers className="w-3.5 h-3.5" />
-            Ruangan
+            <Layers size={13} />
+            <span>Kotak Ruangan</span>
           </button>
 
           <button
-            onClick={() => setShowLabels(!showLabels)}
-            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg font-medium transition ${
-              showLabels
-                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                : "bg-slate-800 text-slate-400 hover:text-slate-200"
-            }`}
-            title="Toggle Label Nama Ruangan"
+            type="button"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-1 text-bone-400 hover:text-bone-100 hover:bg-ink-800 rounded border border-ink-700 transition-colors ml-1"
+            title={isFullscreen ? "Kecilkan kanvas" : "Perbesar penuh layar"}
           >
-            <Eye className="w-3.5 h-3.5" />
-            Label
+            {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
           </button>
         </div>
       </div>
 
       {/* Canvas Viewport */}
-      <div
-        ref={containerRef}
-        className="relative w-full aspect-square md:aspect-[4/3] bg-slate-950 flex items-center justify-center overflow-hidden"
-      >
+      <div className="relative w-full aspect-square sm:aspect-[4/3] bg-ink-950 flex items-center justify-center overflow-hidden">
         <canvas
           ref={canvasRef}
           onMouseMove={handleCanvasMouseMove}
-          onMouseLeave={() => setHoveredRoom(null)}
+          onMouseLeave={() => onHoverIndex?.(null)}
           onClick={handleCanvasClick}
           className="w-full h-full block"
         />
 
-        {/* Bottom Legend Overlay */}
-        <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 bg-slate-900/90 border border-slate-800/80 rounded-xl backdrop-blur-md text-xs">
+        {/* Bottom Legend Bar adhering strictly to 3 colors */}
+        <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between gap-3 px-3 py-1.5 bg-ink-950/95 border border-ink-700 rounded-md text-[12px] pointer-events-none">
           <div className="flex items-center gap-4">
+            {/* Compliant: Bone-100 */}
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-emerald-500/30 border border-emerald-500 inline-block" />
-              <span className="text-slate-300">Sesuai Adat</span>
+              <span className="w-3 h-3 rounded-sm border border-bone-100 bg-bone-100/10 inline-block" />
+              <span className="text-bone-100">Sesuai Adat</span>
             </div>
+            {/* Violation: Clay */}
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-red-500/40 border border-red-500 inline-block animate-pulse" />
-              <span className="text-red-300 font-semibold">Melanggar Perda</span>
+              <span className="w-3 h-3 rounded-sm border-2 border-clay bg-clay/20 inline-block" />
+              <span className="text-clay font-medium">Perlu Perbaikan</span>
             </div>
+            {/* Sacred: Dashed Bone */}
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded border border-dashed border-amber-400 inline-block" />
-              <span className="text-amber-300">Utamaning Utama (Suci)</span>
+              <span className="w-3 h-3 border border-dashed border-bone-100 inline-block" />
+              <span className="text-bone-400">Utamaning Utama</span>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500">
-            {hoveredRoom ? `Hover: ${hoveredRoom.name}` : "Arahkan kursor / klik ruangan untuk detail"}
+
+          <span className="hidden sm:inline text-bone-400 font-mono text-[11px]">
+            {typeof hoveredIndex === "number" && hoveredIndex >= 0 && rooms[hoveredIndex]
+              ? `Sorotan: ${rooms[hoveredIndex].name}`
+              : "Arahkan kursor ke ruangan"}
           </span>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default PlanCanvas;
