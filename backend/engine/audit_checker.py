@@ -20,7 +20,7 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
     compliances = []
     score = 100
     
-    # Hitung estimasi luas bangunan vs ruang terbuka (KDB)
+    # Hitung perkiraan kasar luas bangunan vs total tapak (KDB)
     total_room_area = 0
     total_canvas_area = 1000 * 1000
     
@@ -43,8 +43,6 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
         
         current_zone_rule = zone_rules.get(zone_id, {})
         zone_name = current_zone_rule.get("name", zone_id)
-        prohibited = current_zone_rule.get("prohibited_types", [])
-        allowed = current_zone_rule.get("allowed_types", [])
         
         # 1. Cek Pelanggaran Kritis: Toilet / Utilitas Kotor di Zona Suci
         if any(p in rtype for p in ["toilet", "kamar_mandi", "wc", "septic"]):
@@ -52,6 +50,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 score -= 35
                 violations.append({
                     "id": f"viol_{len(violations)+1}",
+                    "rule_id": "TOILET_IN_SACRED",
+                    "verified": True,
                     "room_name": name,
                     "room_type": rtype,
                     "box": box,
@@ -64,9 +64,11 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 })
             elif zone_id == "NISTANING_NISTA":
                 compliances.append({
+                    "rule_id": "TOILET_IN_TEBA_OK",
+                    "verified": True,
                     "room_name": name,
                     "zone_name": zone_name,
-                    "detail": f"{name} ditempatkan tepat di zona Teba (Nistaning Nista) sesuai amanat Perda Pasal 18."
+                    "detail": f"{name} ditempatkan tepat di zona Teba (Nistaning Nista) sesuai pedoman Asta Bumi."
                 })
                 
         # 2. Cek Tempat Suci (Pemerajan / Sanggah)
@@ -75,6 +77,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             if zone_id == "UTAMANING_UTAMA":
                 pemerajan_in_utama = True
                 compliances.append({
+                    "rule_id": "PEMERAJAN_OK",
+                    "verified": True,
                     "room_name": name,
                     "zone_name": zone_name,
                     "detail": f"{name} berada tepat pada kuadran suci tertinggi (Utamaning Utama) sesuai Asta Bumi."
@@ -83,20 +87,24 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 score -= 30
                 violations.append({
                     "id": f"viol_{len(violations)+1}",
+                    "rule_id": "PEMERAJAN_IN_PROFANE",
+                    "verified": True,
                     "room_name": name,
                     "room_type": rtype,
                     "box": box,
                     "zone_id": zone_id,
                     "zone_name": zone_name,
                     "severity": "CRITICAL",
-                    "issue": f"{name} ditempatkan pada zona profan/kotor ({zone_name})",
+                    "issue": f"{name} ditempatkan pada zona profan/hilir ({zone_name})",
                     "recommendation": "Tempat persembahyangan keluarga (Pemerajan) wajib dialokasikan di sudut Kaja-Kangin (Utamaning Utama).",
-                    "legal_reference": "Perda Bali No. 5/2005 Pasal 14 ayat (1): Setiap pekarangan hunian diwajibkan menyediakan tempat persembahyangan keluarga pada sudut Kaja-Kangin."
+                    "legal_reference": "Pedoman Asta Bumi: Tempat persembahyangan keluarga wajib berada pada sudut Kaja-Kangin (Utamaning Utama)."
                 })
             else:
                 score -= 15
                 violations.append({
                     "id": f"viol_{len(violations)+1}",
+                    "rule_id": "PEMERAJAN_OFF_CORNER",
+                    "verified": True,
                     "room_name": name,
                     "room_type": rtype,
                     "box": box,
@@ -104,7 +112,7 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                     "zone_name": zone_name,
                     "severity": "WARNING",
                     "issue": f"{name} berada di {zone_name}, belum optimal di Utamaning Utama",
-                    "recommendation": "Geser posisi altar/pemerajan lebih condong ke arah Kaja-Kangin.",
+                    "recommendation": "Geser posisi altar/pemerajan lebih condong ke sudut Kaja-Kangin pekarangan.",
                     "legal_reference": current_zone_rule.get("legal_basis", rules["regulation"])
                 })
                 
@@ -114,6 +122,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 score -= 20
                 violations.append({
                     "id": f"viol_{len(violations)+1}",
+                    "rule_id": "KITCHEN_IN_SACRED",
+                    "verified": True,
                     "room_name": name,
                     "room_type": rtype,
                     "box": box,
@@ -121,14 +131,16 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                     "zone_name": zone_name,
                     "severity": "WARNING",
                     "issue": f"{name} ditempatkan pada zona suci ({zone_name})",
-                    "recommendation": "Dapur (Paon) sebaiknya dialokasikan pada zona Kelod (Madyaning Nista) menghadap ke utara.",
-                    "legal_reference": "Perda Bali No. 5/2005 Pasal 17 tentang Penataan Paon Tradisional."
+                    "recommendation": "Dapur (Paon) sebaiknya dialokasikan pada zona Kelod (Madyaning Nista atau Utamaning Nista).",
+                    "legal_reference": "Pedoman Asta Kosala-Kosali: Paon ditempatkan di sisi selatan / tenggara dekat stana Dewa Brahma."
                 })
             elif zone_id in ["MADYANING_NISTA", "UTAMANING_NISTA"]:
                 compliances.append({
+                    "rule_id": "KITCHEN_OK",
+                    "verified": True,
                     "room_name": name,
                     "zone_name": zone_name,
-                    "detail": f"{name} sesuai dengan pakem penempatan Paon di sisi selatan pekarangan."
+                    "detail": f"{name} sesuai dengan pakem penempatan Paon di sisi selatan/tenggara pekarangan."
                 })
                 
         # 4. Cek Natah (Halaman Tengah)
@@ -136,6 +148,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             has_natah = True
             if zone_id == "MADYANING_MADYA":
                 compliances.append({
+                    "rule_id": "NATAH_OK",
+                    "verified": True,
                     "room_name": name,
                     "zone_name": zone_name,
                     "detail": "Natah (halaman tengah) terpelihara sebagai ruang terbuka keseimbangan kosmik (Akasa-Pertiwi)."
@@ -147,6 +161,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             score -= 15
             violations.append({
                 "id": f"viol_{len(violations)+1}",
+                "rule_id": "NATAH_BLOCKED",
+                "verified": True,
                 "room_name": name,
                 "room_type": rtype,
                 "box": box,
@@ -166,6 +182,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
         score -= 15
         violations.append({
             "id": f"viol_{len(violations)+1}",
+            "rule_id": "KDB_EXCEEDED",
+            "verified": True,
             "room_name": "Koefisien Dasar Bangunan (KDB)",
             "room_type": "kdb_assessment",
             "box": [0, 0, 1000, 1000],
@@ -174,10 +192,12 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             "severity": "WARNING",
             "issue": f"Perkiraan kasar luas kotak ruangan: {kdb_percentage}%, melebihi ambang batas hunian (60%)",
             "recommendation": "Perbanyak ruang terbuka hijau (RTH) minimal 40% dari total luas pekarangan untuk resapan air.",
-            "legal_reference": "Pedoman Penataan Ruang Bali: Koefisien Dasar Bangunan (KDB) hunian dianjurkan maksimal 60%."
+            "legal_reference": "Pedoman Tata Ruang Bali: Koefisien Dasar Bangunan (KDB) hunian dianjurkan maksimal 60%."
         })
     else:
         compliances.append({
+            "rule_id": "KDB_OK",
+            "verified": True,
             "room_name": "KDB Permukiman",
             "zone_name": "Seluruh Tapak",
             "detail": f"Perkiraan kasar luas kotak ruangan: {kdb_percentage}%, mematuhi anjuran ruang hijau pekarangan."
@@ -188,6 +208,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
         score -= 20
         violations.append({
             "id": f"viol_{len(violations)+1}",
+            "rule_id": "NO_PEMERAJAN",
+            "verified": True,
             "room_name": "Pemerajan / Sanggah",
             "room_type": "missing_required_facility",
             "box": [0, 667, 333, 1000],

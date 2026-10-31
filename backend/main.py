@@ -1,12 +1,18 @@
 import json
 from pathlib import Path
 from typing import Optional
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from core.config import settings
-from engine.azimuth import BALI_REGENCIES, resolve_kaja_vector
+from engine.azimuth import (
+    BALI_REGENCIES,
+    MOUNT_AGUNG_LAT,
+    MOUNT_AGUNG_LON,
+    resolve_kaja_vector,
+    is_in_bali
+)
 from engine.sanga_mandala import build_sanga_mandala_grid, map_room_to_zone
 from engine.vision_parser import parse_floor_plan_image
 from engine.audit_checker import run_spatial_audit, load_perda_rules
@@ -17,7 +23,7 @@ app = FastAPI(
     description="Engine Audit Spasial Denah Berbasis Asta Kosala-Kosali & Perda Bali No. 5/2005"
 )
 
-# Setup CORS (Supports Localhost & Any Vercel / Cloud Domain)
+# Setup CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -42,6 +48,39 @@ def health_check():
         "gemini_configured": bool(settings.GEMINI_API_KEY),
         "groq_configured": bool(settings.GROQ_API_KEY),
         "cache_dir_ready": settings.CACHE_DIR.exists()
+    }
+
+@app.get("/api/kaja")
+def get_kaja_endpoint(
+    lat: float = Query(..., description="Latitude tapak tanah"),
+    lon: float = Query(..., description="Longitude tapak tanah")
+):
+    """
+    Menghitung vektor arah Kaja (menuju puncak Gunung Agung) secara instan berbasis geodesik.
+    Cepat, deterministik, tanpa pemanggilan AI.
+    """
+    vector = resolve_kaja_vector(custom_lat=lat, custom_lon=lon)
+    in_bali = vector["in_bali"]
+
+    return {
+        "latitude": lat,
+        "longitude": lon,
+        "in_bali": in_bali,
+        "bearing_degrees": vector["bearing_degrees"],
+        "cardinal_direction": vector["cardinal_direction"],
+        "kaja_quadrant": vector["kaja_quadrant"],
+        "distance_km": vector["distance_km"],
+        "location_label": vector["location"],
+        "target": {
+            "lat": MOUNT_AGUNG_LAT,
+            "lon": MOUNT_AGUNG_LON,
+            "label": "Puncak Gunung Agung (Titik Suci)"
+        },
+        "message": (
+            "Koordinat berada di dalam Pulau Bali."
+            if in_bali
+            else "Pilih lokasi di dalam Pulau Bali."
+        )
     }
 
 @app.get("/api/regencies")
@@ -81,8 +120,13 @@ def get_presets():
     return presets
 
 @app.get("/api/presets/{preset_id}")
-def run_preset_audit(preset_id: str):
-    """Menjalankan evaluasi audit instan untuk preset denah demo."""
+def run_preset_audit(
+    preset_id: str,
+    lat: Optional[float] = Query(None),
+    lon: Optional[float] = Query(None),
+    plan_north_deg: int = Query(0)
+):
+    """Menjalankan evaluasi audit instan untuk preset denah demo dengan rotasi orientasi."""
     target_file = settings.PRESETS_DIR / f"{preset_id}.json"
     if not target_file.exists():
         raise HTTPException(status_code=404, detail="Preset tidak ditemukan")
@@ -90,14 +134,17 @@ def run_preset_audit(preset_id: str):
     with open(target_file, "r", encoding="utf-8") as f:
         preset_data = json.load(f)
         
-    regency = preset_data.get("regency", "gianyar")
     raw_rooms = preset_data.get("rooms", [])
     
     # 1. Hitung orientasi Kaja
-    kaja_vector = resolve_kaja_vector(regency)
+    if lat is not None and lon is not None:
+        kaja_vector = resolve_kaja_vector(custom_lat=lat, custom_lon=lon)
+    else:
+        regency = preset_data.get("regency", "gianyar")
+        kaja_vector = resolve_kaja_vector(regency)
     
-    # 2. Bangun 9 grid Sanga Mandala
-    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"])
+    # 2. Bangun 9 grid Sanga Mandala (dengan orientasi utara denah)
+    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"], plan_north_deg)
     
     # 3. Petakan ruangan ke zona
     mapped_rooms = []
@@ -127,9 +174,12 @@ def run_preset_audit(preset_id: str):
 async def audit_floor_plan(
     file: UploadFile = File(...),
     regency: Optional[str] = Form("denpasar"),
+    lat: Optional[float] = Form(None),
+    lon: Optional[float] = Form(None),
     custom_lat: Optional[float] = Form(None),
     custom_lon: Optional[float] = Form(None),
-    hasta_cm: Optional[float] = Form(45.0)
+    plan_north_deg: int = Form(0),
+    hasta_cm: Optional[float] = Form(44.5)
 ):
     """
     Endpoint audit utama:
@@ -173,10 +223,12 @@ async def audit_floor_plan(
         )
         
     # 2. Hitung vektor arah Gunung Agung
-    kaja_vector = resolve_kaja_vector(regency, custom_lat, custom_lon)
+    target_lat = lat if lat is not None else custom_lat
+    target_lon = lon if lon is not None else custom_lon
+    kaja_vector = resolve_kaja_vector(regency, target_lat, target_lon)
     
-    # 3. Proyeksikan 9 Grid Sanga Mandala
-    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"])
+    # 3. Proyeksikan 9 Grid Sanga Mandala dengan rotasi orientasi denah
+    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"], plan_north_deg)
     
     # 4. Petakan koordinat ruangan ke zona adat
     mapped_rooms = []
@@ -196,7 +248,6 @@ async def audit_floor_plan(
         "model": vision_result.get("model"),
         "image_hash": vision_result.get("image_hash"),
         "kaja_vector": kaja_vector,
-        "hasta_antropometri_cm": hasta_cm,
         "grid_layout": grid_config,
         "rooms": mapped_rooms,
         "audit_report": audit_results
