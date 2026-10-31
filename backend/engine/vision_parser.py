@@ -53,23 +53,39 @@ PENTING:
 """
 
 async def parse_floor_plan_gemini(image_bytes: bytes) -> List[Dict[str, Any]]:
-    """Memanggil Google Gemini 1.5 Flash Vision untuk mendeteksi ruangan."""
+    """Memanggil Google Gemini Vision untuk mendeteksi ruangan."""
     import google.generativeai as genai
     
     if not settings.GEMINI_API_KEY:
         raise ValueError("GEMINI_API_KEY belum dikonfigurasi di file .env")
         
     genai.configure(api_key=settings.GEMINI_API_KEY)
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        generation_config={
-            "response_mime_type": "application/json",
-            "temperature": 0.1
-        }
-    )
+    
+    # Prioritaskan gemini-2.5-flash atau gemini-flash-latest
+    target_models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]
+    response = None
+    last_err = None
     
     image = Image.open(io.BytesIO(image_bytes))
-    response = model.generate_content([VISION_SYSTEM_PROMPT, image])
+    
+    for m_name in target_models:
+        try:
+            model = genai.GenerativeModel(
+                model_name=m_name,
+                generation_config={
+                    "response_mime_type": "application/json",
+                    "temperature": 0.1
+                }
+            )
+            response = model.generate_content([VISION_SYSTEM_PROMPT, image])
+            if response and response.text:
+                break
+        except Exception as e:
+            last_err = e
+            continue
+            
+    if not response or not response.text:
+        raise ValueError(f"Gagal generate content dengan Gemini: {last_err}")
     
     raw_text = response.text.strip()
     # Bersihkan markdown jika ada
