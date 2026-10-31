@@ -17,11 +17,11 @@ app = FastAPI(
     description="Engine Audit Spasial Denah Berbasis Asta Kosala-Kosali & Perda Bali No. 5/2005"
 )
 
-# Setup CORS
+# Setup CORS (Supports Localhost & Any Vercel / Cloud Domain)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
