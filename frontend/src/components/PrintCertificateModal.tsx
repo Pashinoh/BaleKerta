@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AuditResponse } from "@/types/audit";
-import { Printer, X, Award, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Printer, X, Award, CheckCircle2 } from "lucide-react";
 
 interface PrintCertificateModalProps {
   isOpen: boolean;
