@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import PlanCanvas from "@/components/PlanCanvas";
 import UploadDropzone from "@/components/UploadDropzone";
 import ControlPanel from "@/components/ControlPanel";
+import AuditReportPanel from "@/components/AuditReportPanel";
+import PrintCertificateModal from "@/components/PrintCertificateModal";
 import { Room, AuditResponse, PresetSummary } from "@/types/audit";
 import { 
   runPresetAudit, 
@@ -15,10 +17,7 @@ import {
   Building2, 
   Compass, 
   Sparkles, 
-  ShieldAlert, 
-  CheckCircle2, 
   AlertTriangle,
-  Layers,
   FileText,
   Server
 } from "lucide-react";
@@ -36,10 +35,11 @@ export default function Home() {
   const [presets, setPresets] = useState<PresetSummary[]>([]);
   const [activePresetId, setActivePresetId] = useState<string>("preset_1_pass");
 
-  // State: Status
+  // State: Status & Modals
   const [isLoading, setIsLoading] = useState(false);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   // 1. Initial Load: Check Backend & Load Presets
   useEffect(() => {
@@ -75,7 +75,6 @@ export default function Home() {
       const result = await runPresetAudit(presetId);
       setAuditData(result);
       if (result.kaja_vector) {
-        // Match regency
         const regKey = result.kaja_vector.location.toLowerCase();
         if (regKey.includes("buleleng")) setSelectedRegency("buleleng");
         else if (regKey.includes("badung")) setSelectedRegency("badung");
@@ -94,7 +93,7 @@ export default function Home() {
     setSelectedFile(file);
     const objectUrl = URL.createObjectURL(file);
     setUploadedImageSrc(objectUrl);
-    setActivePresetId(""); // Deselect preset
+    setActivePresetId("");
     setErrorMessage(null);
   };
 
@@ -102,7 +101,6 @@ export default function Home() {
     setSelectedFile(null);
     if (uploadedImageSrc) URL.revokeObjectURL(uploadedImageSrc);
     setUploadedImageSrc(null);
-    // Reload preset 1
     handleSelectPreset("preset_1_pass");
   };
 
@@ -132,12 +130,11 @@ export default function Home() {
     cardinal_direction: "Timur Laut (NE)",
     location: "Denpasar"
   };
-  const complianceScore = auditData?.audit_report?.compliance_score ?? 100;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
       {/* Top Navigation Bar */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20">
@@ -227,7 +224,6 @@ export default function Home() {
                 title: "Denah Hunian Tradisional Bali",
                 badge: "100% Layak PBG",
                 badgeColor: "emerald",
-                regencyName: "Gianyar",
                 desc: "Sanggah Pemerajan di Kaja-Kangin, Toilet di Teba"
               },
               {
@@ -235,7 +231,6 @@ export default function Home() {
                 title: "Denah Modern Salah Letak Toilet",
                 badge: "Melanggar Regulasi",
                 badgeColor: "red",
-                regencyName: "Badung",
                 desc: "Toilet di Sudut Suci Kaja-Kangin, Tanpa Pemerajan"
               },
               {
@@ -243,7 +238,6 @@ export default function Home() {
                 title: "Denah Vila Wisata Canggu",
                 badge: "Perlu Penyesuaian",
                 badgeColor: "amber",
-                regencyName: "Badung / Buleleng",
                 desc: "KDB > 60% & Bangunan Menutup Area Natah"
               }
             ].map((p) => {
@@ -315,7 +309,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Column: Controls, Upload & Audit Report (5 Cols) */}
+          {/* Right Column: Controls, Upload & Audit Report Panel (5 Cols) */}
           <div className="lg:col-span-5 space-y-5">
             
             {/* Upload Dropzone */}
@@ -343,112 +337,25 @@ export default function Home() {
               canAudit={!!selectedFile}
             />
 
-            {/* Audit Status Card */}
-            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
-                  Skor Kepatuhan Tata Ruang
-                </span>
-                <span
-                  className={`text-xs font-bold px-3 py-1 rounded-full ${
-                    currentViolations.length === 0
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-red-500/20 text-red-300 border border-red-500/30"
-                  }`}
-                >
-                  {auditData?.audit_report?.status_label || (currentViolations.length === 0 ? "LAYAK PBG" : "TERDAPAT PELANGGARAN")}
-                </span>
-              </div>
-
-              <div className="flex items-baseline gap-3">
-                <span
-                  className={`text-4xl font-black ${
-                    complianceScore >= 80 ? "text-emerald-400" : complianceScore >= 50 ? "text-amber-400" : "text-red-400"
-                  }`}
-                >
-                  {complianceScore}
-                </span>
-                <span className="text-sm text-slate-400 font-medium">/ 100 Skor</span>
-                {auditData?.source && (
-                  <span className="text-[10px] ml-auto px-2 py-0.5 rounded bg-slate-800 text-slate-400">
-                    Engine: {auditData.source}
-                  </span>
-                )}
-              </div>
-
-              <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    complianceScore >= 80 ? "bg-emerald-500" : complianceScore >= 50 ? "bg-amber-500" : "bg-red-500"
-                  }`}
-                  style={{ width: `${complianceScore}%` }}
-                />
-              </div>
-
-              {/* Violations List */}
-              <div className="space-y-2.5 pt-2 border-t border-slate-800">
-                <span className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ShieldAlert className="w-4 h-4 text-red-400" />
-                    Peringatan Regulasi ({currentViolations.length})
-                  </span>
-                  {currentViolations.length > 0 && (
-                    <span className="text-[10px] text-red-400">Perlu Penyesuaian</span>
-                  )}
-                </span>
-
-                {currentViolations.length === 0 ? (
-                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <p className="text-xs text-emerald-200">
-                      Seluruh zonasi ruangan memenuhi pakem Asta Bumi dan Perda No. 5/2005. Tidak terdeteksi pelanggaran sanitasi sakral.
-                    </p>
-                  </div>
-                ) : (
-                  currentViolations.map((viol) => (
-                    <div
-                      key={viol.id}
-                      className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 space-y-2 text-xs"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-red-300 flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                          {viol.room_name}
-                        </span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-red-950/80 text-red-300 border border-red-800">
-                          {viol.severity}
-                        </span>
-                      </div>
-                      <p className="text-slate-300">{viol.issue}</p>
-                      <div className="p-2 rounded bg-slate-950/60 border border-red-500/20 text-[11px] text-red-200/90 italic">
-                        ⚖️ {viol.legal_reference}
-                      </div>
-                      <div className="text-[11px] text-amber-300/90 font-medium">
-                        💡 Rekomendasi: {viol.recommendation}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Selected Room Details */}
-            {selectedRoom && (
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2 animate-fade-in">
-                <span className="font-bold text-amber-300 flex items-center gap-1.5">
-                  <Layers className="w-4 h-4" />
-                  Ruangan Terpilih: {selectedRoom.name}
-                </span>
-                <p className="text-slate-300">
-                  Tipe: <code className="text-amber-200">{selectedRoom.type}</code> | Zona Adat:{" "}
-                  <strong className="text-white">{selectedRoom.zone?.zone_id || "Terpetakan"}</strong>
-                </p>
-              </div>
-            )}
+            {/* Dedicated Audit Report Panel (Tabbed & Print Capable) */}
+            <AuditReportPanel
+              auditData={auditData}
+              selectedRoom={selectedRoom}
+              onSelectRoom={setSelectedRoom}
+              onOpenPrintModal={() => setIsPrintModalOpen(true)}
+            />
           </div>
         </div>
 
       </div>
+
+      {/* Print Certificate Modal */}
+      <PrintCertificateModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        auditData={auditData}
+        hastaCm={hastaCm}
+      />
     </main>
   );
 }
