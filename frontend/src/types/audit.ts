@@ -8,6 +8,8 @@ export interface ZoneCell {
 
 export interface GridLayout {
   kaja_quadrant: string;
+  plan_north_deg?: number;
+  sacred_row_col?: [number, number];
   grid_matrix: string[][];
   cells: ZoneCell[];
 }
@@ -16,6 +18,8 @@ export interface KajaVector {
   location: string;
   latitude: number;
   longitude: number;
+  in_bali?: boolean;
+  distance_km?: number;
   mount_agung_target: {
     lat: number;
     lon: number;
@@ -23,15 +27,36 @@ export interface KajaVector {
   bearing_degrees: number;
   cardinal_direction: string;
   kaja_quadrant: string;
-  kaja_side: string;
-  note: string;
+  kaja_side?: string;
+  note?: string;
+}
+
+export interface KajaGeoResponse {
+  latitude: number;
+  longitude: number;
+  in_bali: boolean;
+  bearing_degrees: number;
+  cardinal_direction: string;
+  kaja_quadrant: string;
+  distance_km: number;
+  location_label: string;
+  target: {
+    lat: number;
+    lon: number;
+    label?: string;
+  };
+  message: string;
 }
 
 export interface RoomZoneInfo {
   zone_id: string;
-  grid_row: number;
-  grid_col: number;
-  centroid: [number, number];
+  row?: number;
+  col?: number;
+  grid_row?: number;
+  grid_col?: number;
+  box?: [number, number, number, number];
+  center?: [number, number];
+  centroid?: [number, number];
 }
 
 export interface Room {
@@ -43,6 +68,8 @@ export interface Room {
 
 export interface Violation {
   id: string;
+  rule_id?: string;
+  verified?: boolean;
   room_name: string;
   room_type: string;
   box: [number, number, number, number];
@@ -55,6 +82,8 @@ export interface Violation {
 }
 
 export interface Compliance {
+  rule_id?: string;
+  verified?: boolean;
   room_name: string;
   zone_name: string;
   detail: string;
@@ -74,12 +103,12 @@ export interface AuditReport {
 export interface AuditResponse {
   status: string;
   source?: string;
+  model?: string;
   image_hash?: string;
   mode?: string;
   preset_id?: string;
   title?: string;
   kaja_vector: KajaVector;
-  hasta_antropometri_cm?: number;
   grid_layout: GridLayout;
   rooms: Room[];
   audit_report: AuditReport;
