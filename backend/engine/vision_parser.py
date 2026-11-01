@@ -166,8 +166,17 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
     valid_rooms = []
     for r in raw_rooms:
         name = str(r.get("name", "Ruangan")).strip()
-        rtype = str(r.get("type", "unknown")).strip()
+        rtype = str(r.get("type", "unknown")).strip().lower()
         box = normalize_box(r.get("box"))
+
+        # Normalisasi semantik: pastikan taman/halaman tidak keliru terklasifikasi sebagai pemerajan/bangunan
+        name_lower = name.lower()
+        if "taman" in name_lower or "kebun" in name_lower or "halaman" in name_lower:
+            if "natah" in name_lower:
+                rtype = "natah_open_space"
+            else:
+                rtype = "taman"
+
         if box:
             valid_rooms.append({
                 "name": name,

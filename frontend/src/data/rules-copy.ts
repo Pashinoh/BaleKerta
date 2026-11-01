@@ -97,6 +97,17 @@ export const RULES_COPY: Record<string, RuleCopy> = {
     legalBasisText:
       "Pedoman Asta Kosala-Kosali: Penataan Paon di sisi selatan/tenggara mencerminkan keselarasan fungsi ruang tradisi.",
   },
+  TAMAN_SUCI_OK: {
+    ruleId: "TAMAN_SUCI_OK",
+    title: "Taman Penyangga Kesucian Sesuai Pakem",
+    meaning:
+      "Taman hijau penyangga diletakkan di zona Utama/Madya, menjaga kehijauan dan ketenangan area suci pekarangan serta menambah resapan air alami.",
+    fix: "Pertahankan tata letak ruang terbuka hijau ini.",
+    termId: "utamaning-utama",
+    legalBasisVerified: true,
+    legalBasisText:
+      "Perda Bali No. 5/2005 & Asta Bumi: Penyediaan ruang terbuka hijau dan taman penyangga kesucian pekarangan.",
+  },
   NATAH_OK: {
     ruleId: "NATAH_OK",
     title: "Natah Terbuka Terpelihara di Pusat Denah",

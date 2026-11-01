@@ -28,6 +28,14 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
     pemerajan_in_utama = False
     has_natah = False
     natah_preserved = True
+
+    # Pra-pengecekan: Apakah pekarangan sudah memiliki tempat suci utama di Utamaning Utama
+    has_primary_pemerajan_in_utama = any(
+        any(p in r.get("type", "").lower() or p in r.get("name", "").lower() for p in ["pemerajan", "sanggah", "altar"])
+        and not any(g in r.get("type", "").lower() or g in r.get("name", "").lower() for g in ["taman", "kebun", "halaman"])
+        and r.get("zone", {}).get("zone_id") == "UTAMANING_UTAMA"
+        for r in rooms
+    )
     
     for room in rooms:
         name = room.get("name", "Ruangan")
@@ -36,10 +44,14 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
         zone_info = room.get("zone", {})
         zone_id = zone_info.get("zone_id", "UNKNOWN")
         
-        # Hitung area ruangan
+        # Hitung area ruangan tertutup untuk KDB (kecualikan ruang terbuka hijau seperti Natah & Taman)
         ymin, xmin, ymax, xmax = box
         area = max(0, ymax - ymin) * max(0, xmax - xmin)
-        total_room_area += area
+        is_open_space = any(p in rtype or p in name.lower() for p in [
+            "natah", "taman", "halaman", "open_space", "kebun", "plaza", "pekarangan", "sirkulasi"
+        ])
+        if not is_open_space:
+            total_room_area += area
         
         current_zone_rule = zone_rules.get(zone_id, {})
         zone_name = current_zone_rule.get("name", zone_id)
@@ -71,8 +83,18 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                     "detail": f"{name} ditempatkan tepat di zona Teba (Nistaning Nista) sesuai pedoman Asta Bumi."
                 })
                 
-        # 2. Cek Tempat Suci (Pemerajan / Sanggah)
-        if any(p in rtype for p in ["pemerajan", "sanggah", "sembahyang", "altar"]):
+        # 2. Cek Tempat Suci (Pemerajan / Sanggah) vs Taman Suci
+        is_garden = any(p in rtype or p in name.lower() for p in ["taman", "kebun", "halaman", "buffer", "lanskap"])
+        if is_garden:
+            if zone_id in ["UTAMANING_UTAMA", "MADYANING_UTAMA", "NISTANING_UTAMA", "UTAMANING_MADYA", "MADYANING_MADYA"]:
+                compliances.append({
+                    "rule_id": "TAMAN_SUCI_OK",
+                    "verified": True,
+                    "room_name": name,
+                    "zone_name": zone_name,
+                    "detail": f"{name} berfungsi optimal sebagai ruang terbuka hijau penyangga kesucian pekarangan."
+                })
+        elif any(p in rtype or p in name.lower() for p in ["pemerajan", "sanggah", "sembahyang", "altar"]):
             has_pemerajan = True
             if zone_id == "UTAMANING_UTAMA":
                 pemerajan_in_utama = True
@@ -99,7 +121,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                     "recommendation": "Tempat persembahyangan keluarga (Pemerajan) wajib dialokasikan di sudut Kaja-Kangin (Utamaning Utama).",
                     "legal_reference": "Pedoman Asta Bumi: Tempat persembahyangan keluarga wajib berada pada sudut Kaja-Kangin (Utamaning Utama)."
                 })
-            else:
+            elif not has_primary_pemerajan_in_utama:
+                # Hanya beri peringatan jika pekarangan BELUM memiliki pemerajan utama di Utamaning Utama
                 score -= 15
                 violations.append({
                     "id": f"viol_{len(violations)+1}",
@@ -114,6 +137,15 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                     "issue": f"{name} berada di {zone_name}, belum optimal di Utamaning Utama",
                     "recommendation": "Geser posisi altar/pemerajan lebih condong ke sudut Kaja-Kangin pekarangan.",
                     "legal_reference": current_zone_rule.get("legal_basis", rules["regulation"])
+                })
+            else:
+                # Jika sudah ada pemerajan utama di Utamaning Utama, ruang pelengkap ini dianggap sesuai
+                compliances.append({
+                    "rule_id": "PEMERAJAN_OK",
+                    "verified": True,
+                    "room_name": name,
+                    "zone_name": zone_name,
+                    "detail": f"{name} melengkapi area kesucian pekarangan di zona {zone_name}."
                 })
                 
         # 3. Cek Dapur (Paon)
