@@ -1,0 +1,64 @@
+{
+  "id": "preset_4_kompleks_ageng",
+  "title": "Kompleks Pekarangan Ageng Adat Bali (10 Paviliun Lengkap)",
+  "regency": "gianyar",
+  "description": "Denah skala besar arsitektur tradisional Bali (pola Puri/Griya) dengan 10 zona ruangan lengkap: Sanggah Pemerajan, Bale Daja, Bale Dangin Gede, Natah Luas, Bale Dauh, Bale Delod, Paon Brahma, Jineng Lumbung, Sanitasi Teba, dan Angkul-angkul.",
+  "expected_status": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+  "rooms": [
+    {
+      "name": "Sanggah Pemerajan Utama",
+      "type": "pemerajan_sanggah",
+      "box": [40, 700, 250, 960]
+    },
+    {
+      "name": "Taman Suci Pemerajan",
+      "type": "taman",
+      "box": [40, 480, 250, 680]
+    },
+    {
+      "name": "Bale Daja (Gedong Meten)",
+      "type": "bale_daja",
+      "box": [40, 60, 260, 440]
+    },
+    {
+      "name": "Bale Dangin (Bale Gede Yadnya)",
+      "type": "bale_dangin",
+      "box": [340, 680, 640, 960]
+    },
+    {
+      "name": "Natah Terbuka (Halaman Suci)",
+      "type": "natah_open_space",
+      "box": [340, 340, 640, 660]
+    },
+    {
+      "name": "Bale Dauh (Ruang Kerja & Tamu)",
+      "type": "bale_dauh",
+      "box": [340, 60, 640, 320]
+    },
+    {
+      "name": "Bale Delod (Paviliun Selatan)",
+      "type": "ruang_tamu",
+      "box": [720, 680, 940, 960]
+    },
+    {
+      "name": "Paon Tradisional (Dapur Brahma)",
+      "type": "dapur_paon",
+      "box": [720, 380, 940, 660]
+    },
+    {
+      "name": "Jineng (Lumbung Padi)",
+      "type": "ruang_tamu",
+      "box": [720, 230, 840, 360]
+    },
+    {
+      "name": "Kamar Mandi & Toilet Teba",
+      "type": "toilet",
+      "box": [720, 40, 940, 210]
+    },
+    {
+      "name": "Angkul-angkul & Aling-aling",
+      "type": "angkul_angkul_pintu",
+      "box": [860, 230, 970, 360]
+    }
+  ]
+}

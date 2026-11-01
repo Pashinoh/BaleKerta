@@ -12,6 +12,12 @@ export interface PresetOption {
 
 export const PRESET_OPTIONS: PresetOption[] = [
   {
+    id: "preset_4_kompleks_ageng",
+    title: "Pekarangan Ageng Bali (Kompleks 10 Ruangan)",
+    subtitle: "Denah skala besar pola Puri/Griya dengan 10 zona lengkap: Sanggah, Bale Daja, Bale Dangin, Natah, Bale Dauh, Paon, Jineng, dan Teba.",
+    highlight: "Denah Skala Besar (10 Ruang)",
+  },
+  {
     id: "preset_1_pass",
     title: "Denah Hunian Tradisional",
     subtitle: "Pola Sanga Mandala ideal dengan tempat suci di sudut Kaja-Kangin dan Natah terbuka.",
