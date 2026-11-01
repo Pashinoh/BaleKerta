@@ -16,6 +16,7 @@ import { Verdict } from "@/components/result/Verdict";
 import { IssueCard } from "@/components/result/IssueCard";
 import { SourceBanner } from "@/components/result/SourceBanner";
 import { Report } from "@/components/result/Report";
+import { AuditTransparency } from "@/components/result/AuditTransparency";
 import { Button } from "@/components/ui/Button";
 import { Tabs } from "@/components/ui/Tabs";
 import { Disclosure } from "@/components/ui/Disclosure";
@@ -614,6 +615,18 @@ export default function Home() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* FULL-WIDTH SECTION: TRANSPARANSI PERHITUNGAN SISTEM & DASAR HUKUM PBG */}
+      {step === 3 && auditData && (
+        <div className="mt-8 pt-6 border-t border-ink-800">
+          <AuditTransparency
+            kajaVector={auditData.kaja_vector}
+            report={auditData.audit_report}
+            rooms={auditData.rooms}
+            planNorthDeg={planNorthDeg}
+          />
         </div>
       )}
       </main>

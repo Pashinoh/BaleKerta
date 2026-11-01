@@ -51,7 +51,7 @@ export const Verdict: React.FC<VerdictProps> = ({
               : `Denah ini belum sesuai: terdapat ${violationsCount} hal yang perlu disesuaikan.`}
           </h3>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-bone-400 font-mono">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-bone-400 font-mono">
             <span>
               Skor: <strong className="text-bone-100 font-semibold">{report.compliance_score}</strong> / 100
             </span>
@@ -60,6 +60,13 @@ export const Verdict: React.FC<VerdictProps> = ({
               Perkiraan kasar terbangun:{" "}
               <strong className="text-bone-100 font-semibold">{report.kdb_percentage}%</strong> (maks 60%)
             </span>
+            <span>·</span>
+            <a
+              href="#transparansi-sistem"
+              className="text-bone-300 hover:text-bone-100 underline underline-offset-2 transition-colors cursor-pointer"
+            >
+              Lihat Formula & Dasar Hukum ↓
+            </a>
           </div>
         </div>
 

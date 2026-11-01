@@ -192,6 +192,58 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
             </table>
           </div>
 
+          {/* 5. Dasar Hukum & Regulasi PBG */}
+          <div className="space-y-2">
+            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
+              5. Dasar Hukum Regulasi PBG & Rujukan Naskah Adat
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px]">
+              <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
+                <span className="font-bold text-bone-100 print:text-black block font-mono">
+                  Perda Prov. Bali No. 5 Tahun 2005
+                </span>
+                <ul className="text-bone-400 print:text-gray-700 space-y-1 list-disc pl-4 text-[11px]">
+                  <li><strong>Pasal 5 & 8:</strong> Kewajiban prinsip Tri Hita Karana & konsepsi hierarki Tri Angga.</li>
+                  <li><strong>Pasal 9:</strong> Orientasi sumbu suci Kaja-Kelod & Sanga Mandala 9 zona.</li>
+                  <li><strong>Pasal 12:</strong> Batas Koefisien Dasar Bangunan (KDB) hunian maksimal 60%.</li>
+                  <li><strong>Pasal 14:</strong> Fasilitas tempat suci keluarga (Pemerajan) di sudut Kaja-Kangin.</li>
+                </ul>
+              </div>
+
+              <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
+                <span className="font-bold text-bone-100 print:text-black block font-mono">
+                  UU No. 28/2002 & Naskah Lontar
+                </span>
+                <ul className="text-bone-400 print:text-gray-700 space-y-1 list-disc pl-4 text-[11px]">
+                  <li><strong>UU No. 28/2002 jo. PP 16/2021:</strong> Kewajiban keselarasan arsitektur gedung terhadap kearifan lokal dalam PBG.</li>
+                  <li><strong>Lontar Asta Kosala-Kosali:</strong> Larangan kamar tidur utama di zona Teba (limbah/kandang) & penataan bale pekarangan.</li>
+                  <li><strong>Lontar Asta Bumi:</strong> Pemeliharaan Natah di pusat pekarangan sebagai sumbu Akasa-Pertiwi.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 6. Transparansi Formula Perhitungan Sistem (Untuk Juri & TABG) */}
+          <div className="space-y-2">
+            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
+              6. Transparansi Formula Perhitungan Sistem (Dewan Juri & TABG)
+            </h3>
+            <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-2 font-mono text-[11px] text-bone-300 print:text-black">
+              <div>
+                <strong className="text-bone-100 print:text-black">Formula Azimuth Geodesik:</strong> θ = atan2(sin(Δλ)·cos(φ_2), cos(φ_1)sin(φ_2) - sin(φ_1)cos(φ_2)cos(Δλ)) → Sudut Kaja: <strong>{kaja_vector.bearing_degrees.toFixed(1)}° ({kaja_vector.cardinal_direction})</strong>
+              </div>
+              <div>
+                <strong className="text-bone-100 print:text-black">Formula Haversine Jarak:</strong> d = 2R · arcsin(√(sin²(Δφ/2) + cos(φ_1)cos(φ_2)sin²(Δλ/2))) → Jarak ke Puncak: <strong>{kaja_vector.distance_km ? `${kaja_vector.distance_km.toFixed(1)} km` : "Terpetakan"}</strong>
+              </div>
+              <div>
+                <strong className="text-bone-100 print:text-black">Formula Koefisien Dasar Bangunan:</strong> KDB = (Σ Luas_Ruang / Luas_Pekarangan) × 100% → <strong>{audit_report.kdb_percentage}% (Maks. 60.0%)</strong>
+              </div>
+              <div>
+                <strong className="text-bone-100 print:text-black">Formula Algoritma Skor:</strong> Skor = max(0, 100 - Σ Penalti) → Skor Akhir: <strong>{audit_report.compliance_score} / 100 ({isPass ? "Layak PBG" : "Perlu Penyesuaian"})</strong>
+              </div>
+            </div>
+          </div>
+
           {/* Signatures / Closing */}
           <div className="pt-6 border-t border-ink-700 flex justify-between text-[12px] text-bone-400 print:text-black">
             <div>
