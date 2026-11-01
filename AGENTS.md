@@ -52,6 +52,7 @@ Golden case rotasi grid (4 kuadrant × 4 rotasi) dan 1 test per rule `audit_chec
 
 ## Jangan
 
+- **Jangan pernah `git push` otomatis** — push hanya atas permintaan eksplisit user.
 - Jangan buat folder `infra/`, microservice, atau abstraksi baru — proyek 2 service, pola co-located cukup.
 - Jangan hardcode warning/logging dengan `print` di kode produksi gunakan logging.
 - Jangan commit file biner sampel baru di root repo.
