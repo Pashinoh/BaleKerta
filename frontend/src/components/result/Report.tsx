@@ -57,13 +57,13 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
         className="relative w-full max-w-4xl bg-ink-900 border border-ink-700 rounded-lg shadow-2xl flex flex-col max-h-[94vh]"
       >
         {/* Modal Controls (Hidden in Print) */}
-        <div className="p-3 sm:p-4 border-b border-ink-700 flex items-center justify-between no-print">
+        <div className="p-4 border-b border-ink-700 flex items-center justify-between no-print">
           <div>
-            <h3 className="text-[15px] sm:text-[16px] font-semibold text-bone-100 flex items-center gap-2">
+            <h3 className="text-[16px] font-semibold text-bone-100 flex items-center gap-2">
               <ShieldCheck size={18} className="text-bone-100" />
               <span>Pratinjau Lembar Pra-Pemeriksaan PBG</span>
             </h3>
-            <p className="text-[11px] sm:text-[12px] text-bone-400">
+            <p className="text-[12px] text-bone-400">
               Format dokumen resmi pra-pemeriksaan arsitektur tradisional BaleKerta &bull; {docFilename}.pdf
             </p>
           </div>
@@ -90,21 +90,21 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
         {/* Printable Report Document Body */}
         <div
           id="printable-report-body"
-          className="p-5 sm:p-7 overflow-y-auto space-y-4 print:space-y-1.5 text-bone-100 print:text-black print:bg-white print:p-0 print:border-none"
+          className="p-6 sm:p-8 overflow-y-auto space-y-4 print:space-y-2.5 text-bone-100 print:text-black print:bg-white print:p-0 print:border-none"
         >
           {/* Header Lembar Resmi */}
-          <div className="border-b-2 border-bone-100 print:border-black pb-3 print:pb-1.5 text-center space-y-1 print:space-y-0.5 print-avoid-break">
-            <div className="flex items-center justify-between text-[10px] print:text-[8.5px] font-mono text-bone-400 print:text-gray-600">
+          <div className="border-b-2 border-bone-100 print:border-black pb-3 print:pb-2 text-center space-y-1 print-avoid-break">
+            <div className="flex items-center justify-between text-[11px] print:text-[10px] font-mono text-bone-400 print:text-gray-600">
               <span>PEMERINTAH PROVINSI BALI &bull; DINAS PUPR</span>
               <span>NOMOR: {docNumber}</span>
             </div>
-            <h1 className="text-[18px] sm:text-[20px] print:text-[15px] font-bold tracking-tight text-bone-100 print:text-black uppercase">
+            <h1 className="text-[19px] sm:text-[21px] print:text-[17px] font-bold tracking-tight text-bone-100 print:text-black uppercase">
               BaleKerta &mdash; Sistem Pra-Inspeksi Tata Ruang Adat Bali
             </h1>
-            <h2 className="text-[12px] print:text-[9.5px] font-semibold tracking-wider text-bone-400 print:text-gray-800 uppercase">
+            <h2 className="text-[12px] print:text-[11px] font-semibold tracking-wider text-bone-400 print:text-gray-800 uppercase">
               Lembar Verifikasi Kepatuhan Asta Kosala-Kosali, Asta Bumi &amp; Perda No. 5/2005
             </h2>
-            <div className="flex items-center justify-center gap-3 text-[10.5px] print:text-[8.5px] font-mono text-bone-400 print:text-gray-600 pt-0.5">
+            <div className="flex items-center justify-center gap-4 text-[11px] print:text-[10px] font-mono text-bone-400 print:text-gray-600 pt-0.5">
               <span>Tanggal Penerbitan: {new Date().toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</span>
               <span>&bull;</span>
               <span>Metode: Geodesic Sanga Mandala Matrix Engine</span>
@@ -112,18 +112,18 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* Catatan Legalitas PBG */}
-          <div className="p-2.5 print:p-1.5 bg-ink-950 border border-ink-700 rounded text-[10.5px] print:text-[8px] text-bone-400 print:border-gray-400 print:bg-gray-50 print:text-gray-800 leading-snug print-avoid-break">
+          <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded text-[11px] print:text-[9.5px] text-bone-400 print:border-gray-400 print:bg-gray-50 print:text-gray-800 leading-relaxed print-avoid-break">
             <strong>Catatan Resmi:</strong> Lembar ini diterbitkan sebagai hasil pra-pemeriksaan otomatis tata letak denah independen untuk membantu perancangan dan telaah mandiri sebelum sidang Tim Ahli Bangunan Gedung (TABG). Dokumen ini <u>bukan pengganti resmi sertifikat Persetujuan Bangunan Gedung (PBG)</u> yang diterbitkan oleh Dinas PUPR / Penanaman Modal.
           </div>
 
           {/* 1. Ringkasan Eksekutif & Status Kepatuhan */}
-          <div className="p-3.5 print:p-1.5 rounded-lg border border-ink-700 bg-ink-950 print:bg-white print:border-gray-400 print-avoid-break space-y-2 print:space-y-1">
-            <div className="flex items-center justify-between pb-1.5 print:pb-1 border-b border-ink-800 print:border-gray-300">
-              <span className="text-[12px] print:text-[9.5px] font-bold uppercase tracking-wider text-bone-100 print:text-black">
+          <div className="p-3.5 print:p-2 rounded-lg border border-ink-700 bg-ink-950 print:bg-white print:border-gray-400 print-avoid-break space-y-2">
+            <div className="flex items-center justify-between pb-1.5 border-b border-ink-800 print:border-gray-300">
+              <span className="text-[12px] print:text-[11px] font-bold uppercase tracking-wider text-bone-100 print:text-black">
                 1. Status Kelayakan Tata Ruang Adat
               </span>
               <span
-                className={`text-[11px] print:text-[8.5px] font-mono font-bold px-2 py-0.5 rounded border uppercase ${
+                className={`text-[11px] print:text-[10px] font-mono font-bold px-2.5 py-0.5 rounded border uppercase ${
                   isPass
                     ? "bg-bone-100/10 text-bone-100 border-bone-100/30 print:border-black print:text-black print:bg-gray-100"
                     : "bg-clay/10 text-clay border-clay print:border-black print:text-black"
@@ -133,33 +133,33 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 print:gap-1.5 text-[11px] print:text-[8.5px] font-mono">
-              <div className="p-2 print:p-1 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
-                <span className="text-bone-400 print:text-gray-600 block text-[9.5px] print:text-[8px]">Skor Kepatuhan:</span>
-                <span className="text-[15px] print:text-[13px] font-bold text-bone-100 print:text-black">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[11px] print:text-[10px] font-mono">
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px] print:text-[9.5px]">Skor Kepatuhan:</span>
+                <span className="text-[16px] print:text-[15px] font-bold text-bone-100 print:text-black">
                   {audit_report.compliance_score} / 100
                 </span>
               </div>
-              <div className="p-2 print:p-1 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
-                <span className="text-bone-400 print:text-gray-600 block text-[9.5px] print:text-[8px]">Luas Terbangun (KDB):</span>
-                <span className="text-[15px] print:text-[13px] font-bold text-bone-100 print:text-black">
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px] print:text-[9.5px]">Luas Terbangun (KDB):</span>
+                <span className="text-[16px] print:text-[15px] font-bold text-bone-100 print:text-black">
                   {audit_report.kdb_percentage}%
                 </span>
-                <span className="text-[9px] print:text-[7.5px] text-bone-400 print:text-gray-500 block">Maks. 60.0%</span>
+                <span className="text-[10px] print:text-[9px] text-bone-400 print:text-gray-500 block">Maks. 60.0%</span>
               </div>
-              <div className="p-2 print:p-1 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
-                <span className="text-bone-400 print:text-gray-600 block text-[9.5px] print:text-[8px]">Ruang Terbuka Hijau:</span>
-                <span className="text-[15px] print:text-[13px] font-bold text-bone-100 print:text-black">
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px] print:text-[9.5px]">Ruang Terbuka Hijau:</span>
+                <span className="text-[16px] print:text-[15px] font-bold text-bone-100 print:text-black">
                   {rthPercentage}%
                 </span>
-                <span className="text-[9px] print:text-[7.5px] text-bone-400 print:text-gray-500 block">Natah &amp; Taman</span>
+                <span className="text-[10px] print:text-[9px] text-bone-400 print:text-gray-500 block">Natah &amp; Taman</span>
               </div>
-              <div className="p-2 print:p-1 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
-                <span className="text-bone-400 print:text-gray-600 block text-[9.5px] print:text-[8px]">Jumlah Ruangan:</span>
-                <span className="text-[15px] print:text-[13px] font-bold text-bone-100 print:text-black">
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px] print:text-[9.5px]">Jumlah Ruangan:</span>
+                <span className="text-[16px] print:text-[15px] font-bold text-bone-100 print:text-black">
                   {rooms.length} Ruang
                 </span>
-                <span className="text-[9px] print:text-[7.5px] text-bone-400 print:text-gray-500 block">
+                <span className="text-[10px] print:text-[9px] text-bone-400 print:text-gray-500 block">
                   {audit_report.violations.length === 0 ? "Nir-Pelanggaran" : `${audit_report.violations.length} Catatan`}
                 </span>
               </div>
@@ -167,23 +167,23 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* 2. Ringkasan Perhitungan Teknis Sistem */}
-          <div className="space-y-1.5 print:space-y-1 print-avoid-break">
-            <h3 className="text-[12px] print:text-[9.5px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black flex items-center justify-between">
+          <div className="space-y-1.5 print-avoid-break">
+            <h3 className="text-[12px] print:text-[11px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black flex items-center justify-between">
               <span>2. Ringkasan Perhitungan Teknis Sistem (Verifikasi Teknis &amp; Tim Ahli TABG)</span>
-              <span className="text-[10px] print:text-[8px] font-mono text-bone-400 print:text-gray-600 font-normal">
+              <span className="text-[11px] print:text-[9.5px] font-mono text-bone-400 print:text-gray-600 font-normal">
                 Verifikasi Formula
               </span>
             </h3>
 
             {/* 3-Column Scorecard Table */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 print:gap-1.5 text-[10.5px] print:text-[8.5px] font-mono">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] print:text-[10px] font-mono">
               {/* Kolom A: Hitungan Geodesik */}
-              <div className="p-2.5 print:p-1.5 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1 print:space-y-0.5">
-                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 flex items-center gap-1.5">
-                  <Compass size={13} />
+              <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1">
+                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 flex items-center gap-1.5 text-[11.5px] print:text-[10.5px]">
+                  <Compass size={14} />
                   <span>A. Sumbu Geodesik Kaja</span>
                 </div>
-                <div className="space-y-0.5 text-bone-300 print:text-gray-800 leading-tight">
+                <div className="space-y-1 text-bone-300 print:text-gray-800 leading-snug">
                   <div className="flex justify-between">
                     <span className="text-bone-400 print:text-gray-500">Tapak:</span>
                     <span className="font-semibold truncate max-w-[140px]">{kaja_vector.location}</span>
@@ -204,7 +204,7 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
                     <span className="text-bone-400 print:text-gray-500">Jarak Tapak:</span>
                     <span>{kaja_vector.distance_km ? `${kaja_vector.distance_km.toFixed(1)} km` : "Terpetakan"}</span>
                   </div>
-                  <div className="flex justify-between text-[9.5px] print:text-[7.5px]">
+                  <div className="flex justify-between text-[10px] print:text-[9px]">
                     <span className="text-bone-400 print:text-gray-500">Kuadran Suci:</span>
                     <span>{kaja_vector.kaja_quadrant}</span>
                   </div>
@@ -212,11 +212,11 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
               </div>
 
               {/* Kolom B: Hitungan KDB */}
-              <div className="p-2.5 print:p-1.5 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1 print:space-y-0.5">
-                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1">
+              <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1">
+                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 text-[11.5px] print:text-[10.5px]">
                   B. Rasio KDB Pekarangan
                 </div>
-                <div className="space-y-0.5 text-bone-300 print:text-gray-800 leading-tight">
+                <div className="space-y-1 text-bone-300 print:text-gray-800 leading-snug">
                   <div className="flex justify-between">
                     <span className="text-bone-400 print:text-gray-500">Formula KDB:</span>
                     <span>(Luas_Atap / Tapak) &times; 100%</span>
@@ -243,11 +243,11 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
               </div>
 
               {/* Kolom C: Matriks Skor Kepatuhan */}
-              <div className="p-2.5 print:p-1.5 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1 print:space-y-0.5">
-                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1">
+              <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1">
+                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 text-[11.5px] print:text-[10.5px]">
                   C. Formulasi Skor Kepatuhan
                 </div>
-                <div className="space-y-0.5 text-bone-300 print:text-gray-800 leading-tight">
+                <div className="space-y-1 text-bone-300 print:text-gray-800 leading-snug">
                   <div className="flex justify-between">
                     <span className="text-bone-400 print:text-gray-500">Formula Skor:</span>
                     <span>max(0, 100 - &Sigma; Penalti)</span>
@@ -274,33 +274,33 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* 3. Catatan Penyesuaian Ruang */}
-          <div className="space-y-1.5 print:space-y-0.5 print-avoid-break">
-            <h3 className="text-[12px] print:text-[9.5px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
+          <div className="space-y-1.5 print-avoid-break">
+            <h3 className="text-[12px] print:text-[11px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
               3. Catatan Penyesuaian Ruang ({audit_report.violations.length})
             </h3>
             {audit_report.violations.length === 0 ? (
-              <div className="p-2.5 print:p-1.5 border border-ink-700 rounded bg-ink-950 print:border-gray-300 print:bg-gray-50 text-[11px] print:text-[8.5px] text-bone-300 print:text-gray-700 flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-bone-100 print:text-black shrink-0" />
+              <div className="p-2.5 print:p-2 border border-ink-700 rounded bg-ink-950 print:border-gray-300 print:bg-gray-50 text-[11px] print:text-[10px] text-bone-300 print:text-gray-700 flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-bone-100 print:text-black shrink-0" />
                 <span>
                   <strong>Nir-Pelanggaran Spasial:</strong> Seluruh peruntukan ruangan mematuhi hierarki kesucian Sanga Mandala dan Koefisien Dasar Bangunan (KDB).
                 </span>
               </div>
             ) : (
-              <div className="space-y-1.5 print:space-y-1 text-[11px] print:text-[8.5px]">
+              <div className="space-y-1.5 text-[11px] print:text-[10px]">
                 {audit_report.violations.map((v, i) => (
                   <div
                     key={v.id || i}
-                    className="p-2 print:p-1.5 border border-ink-700 rounded bg-ink-950/60 print:border-gray-400 print:bg-white space-y-0.5 print-avoid-break"
+                    className="p-2.5 print:p-2 border border-ink-700 rounded bg-ink-950/60 print:border-gray-400 print:bg-white space-y-0.5 print-avoid-break"
                   >
                     <div className="font-semibold text-bone-100 print:text-black flex items-center gap-1.5">
-                      <AlertCircle size={13} className="text-clay print:text-black shrink-0" />
+                      <AlertCircle size={14} className="text-clay print:text-black shrink-0" />
                       <span>{i + 1}. {v.issue}</span>
                     </div>
-                    <div className="text-bone-400 print:text-gray-700 pl-4 leading-tight">
+                    <div className="text-bone-400 print:text-gray-700 pl-5 leading-snug">
                       <strong>Rekomendasi Perbaikan:</strong> {v.recommendation}
                     </div>
                     {v.legal_reference && (
-                      <div className="text-[10px] print:text-[7.5px] text-bone-400 print:text-gray-600 font-mono italic pl-4">
+                      <div className="text-[10.5px] print:text-[9px] text-bone-400 print:text-gray-600 font-mono italic pl-5">
                         Dasar Pedoman: {v.legal_reference}
                       </div>
                     )}
@@ -311,28 +311,28 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* 4. Inventarisasi Ruangan ({rooms.length}) */}
-          <div className="space-y-1.5 print:space-y-0.5 print-avoid-break">
-            <h3 className="text-[12px] print:text-[9.5px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
+          <div className="space-y-1.5 print-avoid-break">
+            <h3 className="text-[12px] print:text-[11px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
               4. Inventarisasi Ruangan Terdeteksi ({rooms.length} Ruang)
             </h3>
-            <table className="w-full text-left text-[10.5px] print:text-[8.5px]">
+            <table className="w-full text-left text-[11px] print:text-[10px]">
               <thead className="bg-ink-950 border-b border-ink-700 print:bg-gray-100 text-bone-400 print:text-black font-mono">
                 <tr>
-                  <th className="p-1.5 print:py-0.5 print:px-1.5 w-10 text-center">No</th>
-                  <th className="p-1.5 print:py-0.5 print:px-1.5">Nama Ruangan pada Denah</th>
-                  <th className="p-1.5 print:py-0.5 print:px-1.5">Klasifikasi Arsitektur Adat</th>
-                  <th className="p-1.5 print:py-0.5 print:px-1.5">Zona Sanga Mandala Terpetakan</th>
+                  <th className="p-2 print:py-1 print:px-2 w-10 text-center">No</th>
+                  <th className="p-2 print:py-1 print:px-2">Nama Ruangan pada Denah</th>
+                  <th className="p-2 print:py-1 print:px-2">Klasifikasi Arsitektur Adat</th>
+                  <th className="p-2 print:py-1 print:px-2">Zona Sanga Mandala Terpetakan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-800 print:divide-gray-300">
                 {rooms.map((r, i) => (
                   <tr key={`${r.name}-${i}`} className="print-avoid-break">
-                    <td className="p-1.5 print:py-0.5 print:px-1.5 text-center font-mono text-bone-400 print:text-gray-600">{i + 1}</td>
-                    <td className="p-1.5 print:py-0.5 print:px-1.5 font-medium text-bone-100 print:text-black">{r.name}</td>
-                    <td className="p-1.5 print:py-0.5 print:px-1.5 font-mono text-bone-300 print:text-gray-700 uppercase text-[9.5px] print:text-[8px]">
+                    <td className="p-2 print:py-1 print:px-2 text-center font-mono text-bone-400 print:text-gray-600">{i + 1}</td>
+                    <td className="p-2 print:py-1 print:px-2 font-medium text-bone-100 print:text-black">{r.name}</td>
+                    <td className="p-2 print:py-1 print:px-2 font-mono text-bone-300 print:text-gray-700 uppercase text-[10px] print:text-[9.5px]">
                       {r.type}
                     </td>
-                    <td className="p-1.5 print:py-0.5 print:px-1.5 font-mono text-bone-400 print:text-black text-[9.5px] print:text-[8px]">
+                    <td className="p-2 print:py-1 print:px-2 font-mono text-bone-400 print:text-black text-[10px] print:text-[9.5px]">
                       {r.zone?.zone_name || r.zone?.zone_id?.replace(/_/g, " ") || "Terpetakan"}
                     </td>
                   </tr>
@@ -342,16 +342,16 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* 5. Dasar Hukum & Regulasi PBG */}
-          <div className="space-y-1.5 print:space-y-0.5 print-avoid-break">
-            <h3 className="text-[12px] print:text-[9.5px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
+          <div className="space-y-1.5 print-avoid-break">
+            <h3 className="text-[12px] print:text-[11px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
               5. Landasan Hukum &amp; Ketentuan Perda PBG
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 print:gap-1.5 text-[10.5px] print:text-[8px]">
-              <div className="p-2 print:p-1.5 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-0.5">
-                <span className="font-bold text-bone-100 print:text-black block font-mono text-[10px] print:text-[8.5px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px] print:text-[9.5px]">
+              <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
+                <span className="font-bold text-bone-100 print:text-black block font-mono text-[11px] print:text-[10px]">
                   Perda Prov. Bali No. 5 Tahun 2005
                 </span>
-                <ul className="text-bone-400 print:text-gray-700 space-y-0 list-disc pl-3 text-[9.5px] print:text-[7.5px] leading-snug">
+                <ul className="text-bone-400 print:text-gray-700 space-y-0.5 list-disc pl-3 text-[10px] print:text-[9px] leading-snug">
                   <li><strong>Pasal 5 &amp; 8:</strong> Kewajiban filosofi Tri Hita Karana &amp; hierarki Tri Angga.</li>
                   <li><strong>Pasal 9:</strong> Orientasi sumbu suci Kaja-Kelod &amp; 9 zona Sanga Mandala.</li>
                   <li><strong>Pasal 12:</strong> Koefisien Dasar Bangunan (KDB) hunian maksimal 60.0%.</li>
@@ -359,11 +359,11 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
                 </ul>
               </div>
 
-              <div className="p-2 print:p-1.5 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-0.5">
-                <span className="font-bold text-bone-100 print:text-black block font-mono text-[10px] print:text-[8.5px]">
+              <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
+                <span className="font-bold text-bone-100 print:text-black block font-mono text-[11px] print:text-[10px]">
                   UU No. 28/2002 &amp; Lontar Adat
                 </span>
-                <ul className="text-bone-400 print:text-gray-700 space-y-0 list-disc pl-3 text-[9.5px] print:text-[7.5px] leading-snug">
+                <ul className="text-bone-400 print:text-gray-700 space-y-0.5 list-disc pl-3 text-[10px] print:text-[9px] leading-snug">
                   <li><strong>UU 28/2002 jo. PP 16/2021:</strong> Keselarasan arsitektur gedung terhadap kearifan lokal dalam PBG.</li>
                   <li><strong>Lontar Asta Kosala-Kosali:</strong> Larangan kamar tidur utama di zona Teba (limbah/kandang).</li>
                   <li><strong>Lontar Asta Bumi:</strong> Pemeliharaan Natah di pusat pekarangan sebagai sumbu Akasa-Pertiwi.</li>
@@ -373,19 +373,19 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* 6. Pengesahan & Validasi Pra-Inspeksi */}
-          <div className="pt-2 print:pt-1 border-t-2 border-bone-100 print:border-black flex justify-between items-end text-[10px] print:text-[8px] text-bone-400 print:text-black print-avoid-break">
+          <div className="pt-3 print:pt-2 border-t-2 border-bone-100 print:border-black flex justify-between items-end text-[11px] print:text-[9.5px] text-bone-400 print:text-black print-avoid-break">
             <div className="space-y-0.5">
               <p>Dihasilkan secara otomatis oleh:</p>
-              <p className="font-bold text-bone-100 print:text-black text-[12px] print:text-[9.5px]">
+              <p className="font-bold text-bone-100 print:text-black text-[13px] print:text-[11.5px]">
                 BaleKerta Cultural Spatial Engine
               </p>
-              <p className="font-mono text-[9px] print:text-[7.5px]">
+              <p className="font-mono text-[10px] print:text-[9px] text-bone-400 print:text-gray-600">
                 Sistem Pra-Inspeksi Mandiri Tata Ruang Adat &bull; Dokumen Teknis PBG
               </p>
             </div>
             <div className="text-right space-y-0.5">
               <p>Telah Diperiksa &amp; Divalidasi:</p>
-              <div className="h-7 print:h-5"></div>
+              <div className="h-8 print:h-8"></div>
               <p className="font-mono text-bone-100 print:text-black font-semibold">
                 ( Tim Teknis / Arsitek Pemohon )
               </p>
