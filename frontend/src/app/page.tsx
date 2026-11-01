@@ -113,6 +113,7 @@ export default function Home() {
       }
     }
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Fetch Kaja vector whenever coordinates change
@@ -231,86 +232,120 @@ export default function Home() {
           />
         </div>
 
-        {/* 2-Column Responsive Workspace */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* ========================================================== */}
-          {/* LEFT PANEL: VISUAL (Map on Step 1, Plan Canvas on Step 2 & 3) */}
-          {/* ========================================================== */}
-          <div className="lg:col-span-7 space-y-4">
-            {step === 1 ? (
-              /* Step 1 Visual: Leaflet Map */
-              <div className="space-y-3">
-                <KajaMap
-                  lat={lat}
-                  lon={lon}
-                  bearing={kajaData.bearing_degrees}
-                  cardinalDirection={kajaData.cardinal_direction}
-                  distanceKm={kajaData.distance_km}
-                  onChangeLocation={handleLocationChange}
-                />
-              </div>
-            ) : (
-              /* Step 2 & 3 Visual: Plan Canvas + Room List (on Step 3) */
-              <div className="space-y-4">
-                <PlanCanvas
-                  imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
-                  gridLayout={auditData?.grid_layout || null}
-                  rooms={auditData?.rooms || []}
-                  violations={auditData?.audit_report?.violations || []}
-                  hoveredIndex={hoveredRoomIndex}
-                  selectedIndex={selectedRoomIndex}
-                  onHoverIndex={setHoveredRoomIndex}
-                  onSelectIndex={setSelectedRoomIndex}
-                  kajaBearing={kajaData.bearing_degrees}
-                  kajaDirection={kajaData.cardinal_direction}
-                />
-
-                {/* On Step 3: Interactive Room List underneath Canvas */}
-                {step === 3 && auditData && (
-                  <div className="p-4 bg-ink-900 border border-ink-700 rounded-lg">
-                    <RoomList
-                      rooms={auditData.rooms}
-                      violations={auditData.audit_report.violations}
-                      hoveredIndex={hoveredRoomIndex}
-                      selectedIndex={selectedRoomIndex}
-                      onHoverRoom={setHoveredRoomIndex}
-                      onSelectRoom={setSelectedRoomIndex}
-                      onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* ========================================================== */}
-          {/* RIGHT PANEL: ACTIVE STEP CONTROLS                          */}
-          {/* ========================================================== */}
-          <div className="lg:col-span-5 space-y-5">
-            {/* -------------------------------------------------------- */}
-            {/* STEP 1: LOKASI TANAH CONTROLS                            */}
-            {/* -------------------------------------------------------- */}
-            {step === 1 && (
-              <div className="space-y-5">
-                <div className="space-y-1">
-                  <h2 className="text-[17px] font-semibold text-bone-100">
-                    1. Tentukan Titik Lokasi Tanah
+        {step === 1 ? (
+          /* ========================================================== */
+          /* STEP 1: HERO MAP ON TOP, DASHBOARD & CONTROLS BELOW        */
+          /* ========================================================== */
+          <div className="space-y-6">
+            {/* 1. TOP HERO: Full-Width Interactive Map */}
+            <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-ink-800">
+                <div>
+                  <h2 className="text-[17px] font-semibold text-bone-100 flex items-center gap-2">
+                    <span>1. Peta Interaktif Penentuan Titik Tapak & Arah Kaja</span>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-ink-800 border border-ink-700 text-bone-300">
+                      Batas Wilayah Bali
+                    </span>
                   </h2>
-                  <p className="text-[13px] text-bone-400 leading-relaxed">
-                    Arah suci (<em>Kaja</em>) dihitung langsung dari koordinat tanah
-                    Anda menuju puncak Gunung Agung. Geser pin pada peta atau pilih kabupaten.
+                  <p className="text-[13px] text-bone-400 mt-0.5">
+                    Klik pada daratan Bali atau geser pin untuk menentukan koordinat tapak tanah Anda. Arah suci (<em>Kaja</em>) dihitung instan mengarah lurus ke puncak Gunung Agung.
                   </p>
                 </div>
+              </div>
 
-                {/* Mini 9-Zone Sanga Mandala Compass Grid */}
-                <MiniZoneGrid
-                  bearing={kajaData.bearing_degrees}
-                  cardinalDirection={kajaData.cardinal_direction}
-                  kajaQuadrant={kajaData.kaja_quadrant}
-                  locationLabel={kajaData.location_label}
-                />
+              <KajaMap
+                lat={lat}
+                lon={lon}
+                bearing={kajaData.bearing_degrees}
+                cardinalDirection={kajaData.cardinal_direction}
+                distanceKm={kajaData.distance_km}
+                onChangeLocation={handleLocationChange}
+                className="w-full"
+              />
+            </div>
 
-                {/* Step 1 Actions */}
+            {/* 2. BOTTOM DASHBOARD: MiniZoneGrid on Left, Geodesic Details & Next Action on Right */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* MiniZoneGrid Card (5 cols) */}
+              <div className="lg:col-span-5 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between border-b border-ink-800 pb-2">
+                    <h3 className="text-[15px] font-semibold text-bone-100">
+                      Orientasi 9 Zona Sanga Mandala
+                    </h3>
+                    <span className="text-[12px] font-mono text-clay">
+                      {kajaData.cardinal_direction}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-bone-400 leading-relaxed">
+                    Zona suci teratas (<em>Utamaning Utama</em>) berputar otomatis menyesuaikan sudut geodesik tanah Anda menuju Gunung Agung.
+                  </p>
+                  <MiniZoneGrid
+                    bearing={kajaData.bearing_degrees}
+                    cardinalDirection={kajaData.cardinal_direction}
+                    kajaQuadrant={kajaData.kaja_quadrant}
+                    locationLabel={kajaData.location_label}
+                  />
+                </div>
+              </div>
+
+              {/* Geodesic Parameters & Next Step Card (7 cols) */}
+              <div className="lg:col-span-7 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col justify-between space-y-5">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-ink-800 pb-2">
+                    <h3 className="text-[15px] font-semibold text-bone-100">
+                      Parameter Spasial Adat Tapak
+                    </h3>
+                    <span className="text-[11px] font-mono text-bone-400 bg-ink-950 px-2 py-0.5 rounded border border-ink-800">
+                      Asta Bumi Geodesic Engine
+                    </span>
+                  </div>
+
+                  {/* 3 Metric Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[11px] text-bone-400 block mb-1">Koordinat Tanah</span>
+                      <span className="text-[13px] font-mono font-medium text-bone-100 block">
+                        {lat.toFixed(4)}°, {lon.toFixed(4)}°
+                      </span>
+                      <span className="text-[11px] text-bone-400 mt-1 block truncate">
+                        {kajaData.location_label || "Wilayah Bali"}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[11px] text-bone-400 block mb-1">Sudut Geodesik Kaja</span>
+                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                        {kajaData.bearing_degrees.toFixed(1)}°
+                      </span>
+                      <span className="text-[11px] text-clay font-medium mt-1 block">
+                        Arah {kajaData.cardinal_direction}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[11px] text-bone-400 block mb-1">Jarak ke Gn. Agung</span>
+                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                        {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
+                      </span>
+                      <span className="text-[11px] text-bone-400 mt-1 block">
+                        Puncak 3.142 mdpl
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cultural rule note */}
+                  <div className="p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
+                    <p className="leading-relaxed">
+                      <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja mengarah ke Timur Laut. Di Bali Utara (Buleleng), Kaja mengarah ke Selatan.
+                    </p>
+                    <p className="text-[12px] text-bone-400">
+                      Sistem kami mengunci orientasi ini agar denah bangunan yang diaudit pada Langkah 2 dievaluasi secara akurat.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Primary Action Button */}
                 <div className="pt-2">
                   <Button
                     variant="primary"
@@ -322,11 +357,50 @@ export default function Home() {
                     }}
                     icon={<ArrowRight size={16} />}
                   >
-                    <span>Lanjut ke Masukkan Denah</span>
+                    <span>Lanjut ke Masukkan Denah (Langkah 2)</span>
                   </Button>
                 </div>
               </div>
-            )}
+            </div>
+          </div>
+        ) : (
+          /* ========================================================== */
+          /* STEP 2 & 3: 2-COLUMN RESPONSIVE WORKSPACE                  */
+          /* ========================================================== */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* LEFT PANEL: Plan Canvas (+ Room List on Step 3) */}
+            <div className="lg:col-span-7 space-y-4">
+              <PlanCanvas
+                imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
+                gridLayout={auditData?.grid_layout || null}
+                rooms={auditData?.rooms || []}
+                violations={auditData?.audit_report?.violations || []}
+                hoveredIndex={hoveredRoomIndex}
+                selectedIndex={selectedRoomIndex}
+                onHoverIndex={setHoveredRoomIndex}
+                onSelectIndex={setSelectedRoomIndex}
+                kajaBearing={kajaData.bearing_degrees}
+                kajaDirection={kajaData.cardinal_direction}
+              />
+
+              {/* On Step 3: Interactive Room List underneath Canvas */}
+              {step === 3 && auditData && (
+                <div className="p-4 bg-ink-900 border border-ink-700 rounded-lg">
+                  <RoomList
+                    rooms={auditData.rooms}
+                    violations={auditData.audit_report.violations}
+                    hoveredIndex={hoveredRoomIndex}
+                    selectedIndex={selectedRoomIndex}
+                    onHoverRoom={setHoveredRoomIndex}
+                    onSelectRoom={setSelectedRoomIndex}
+                    onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT PANEL: ACTIVE STEP CONTROLS (Step 2 or Step 3) */}
+            <div className="lg:col-span-5 space-y-5">
 
             {/* -------------------------------------------------------- */}
             {/* STEP 2: MASUKKAN DENAH CONTROLS                          */}
@@ -541,6 +615,7 @@ export default function Home() {
             )}
           </div>
         </div>
+      )}
       </main>
 
       {/* Slide-over Glossary Drawer */}

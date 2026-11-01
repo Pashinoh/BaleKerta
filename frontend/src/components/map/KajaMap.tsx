@@ -109,12 +109,22 @@ const createAgungIcon = () =>
 // Map Controller to handle clicks & pan
 function MapEventHandler({
   onLocationSelect,
+  onError,
 }: {
   onLocationSelect: (lat: number, lon: number) => void;
+  onError: (msg: string | null) => void;
 }) {
   useMapEvents({
     click(e) {
-      onLocationSelect(e.latlng.lat, e.latlng.lng);
+      const { lat, lng } = e.latlng;
+      if (!isInBali(lat, lng)) {
+        onError(
+          "Pilihan dibatasi hanya di dalam wilayah Pulau Bali. Silakan klik area daratan di dalam Pulau Bali."
+        );
+        return;
+      }
+      onError(null);
+      onLocationSelect(lat, lng);
     },
   });
   return null;
@@ -143,8 +153,6 @@ export default function KajaMap({
   const [scrollActive, setScrollActive] = useState(false);
   const markerRef = useRef<L.Marker>(null);
 
-  const isCurrentInBali = isInBali(lat, lon);
-
   // Midpoint between Plot and Mount Agung for the bearing tooltip
   const midpoint = useMemo(() => {
     return [(lat + MOUNT_AGUNG.lat) / 2, (lon + MOUNT_AGUNG.lon) / 2] as [number, number];
@@ -156,10 +164,19 @@ export default function KajaMap({
       const marker = markerRef.current;
       if (marker != null) {
         const newPos = marker.getLatLng();
+        if (!isInBali(newPos.lat, newPos.lng)) {
+          // Snap back to previous valid position
+          marker.setLatLng([lat, lon]);
+          setGeoError(
+            "Pin tidak dapat ditempatkan di luar wilayah Pulau Bali. Posisi pin dikembalikan ke titik sebelumnya."
+          );
+          return;
+        }
+        setGeoError(null);
         onChangeLocation(newPos.lat, newPos.lng);
       }
     },
-    [onChangeLocation]
+    [lat, lon, onChangeLocation]
   );
 
   // Geolocation trigger
@@ -206,7 +223,10 @@ export default function KajaMap({
               <button
                 key={loc.id}
                 type="button"
-                onClick={() => onChangeLocation(loc.lat, loc.lon)}
+                onClick={() => {
+                  setGeoError(null);
+                  onChangeLocation(loc.lat, loc.lon);
+                }}
                 className={`px-2.5 py-1 rounded text-[12px] shrink-0 font-medium transition-colors ${
                   isSelected
                     ? "bg-bone-100 text-ink-950 font-semibold"
@@ -233,19 +253,25 @@ export default function KajaMap({
       </div>
 
       {/* Out of Bali warning alert */}
-      {(!isCurrentInBali || geoError) && (
-        <div className="flex items-center gap-2 p-2.5 bg-ink-900 border border-clay text-clay rounded-md text-[13px]">
-          <AlertCircle size={16} className="shrink-0" />
-          <span>
-            {geoError ||
-              "Titik pin berada di luar batas Pulau Bali. Silakan geser pin kembali ke dalam area pulau."}
-          </span>
+      {geoError && (
+        <div className="flex items-center justify-between p-3 bg-ink-900 border border-clay text-clay rounded-md text-[13px] animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <AlertCircle size={16} className="shrink-0 text-clay" />
+            <span>{geoError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setGeoError(null)}
+            className="text-bone-400 hover:text-bone-100 text-xs px-2 py-0.5 rounded border border-ink-700 hover:bg-ink-800 transition-colors"
+          >
+            Tutup
+          </button>
         </div>
       )}
 
       {/* Interactive Leaflet Map Canvas */}
       <div
-        className="relative w-full h-[380px] sm:h-[440px] rounded-lg overflow-hidden border border-ink-700 bg-ink-950"
+        className="relative w-full h-[420px] sm:h-[480px] lg:h-[520px] rounded-lg overflow-hidden border border-ink-700 bg-ink-950"
         onClick={() => setScrollActive(true)}
       >
         <MapContainer
@@ -255,9 +281,10 @@ export default function KajaMap({
           maxZoom={16}
           scrollWheelZoom={scrollActive}
           maxBounds={[
-            [-9.15, 114.2],
-            [-7.9, 115.9],
+            [-9.15, 114.25],
+            [-7.95, 115.90],
           ]}
+          maxBoundsViscosity={1.0}
           className="w-full h-full dark-map-tiles"
         >
           {/* OpenStreetMap with Dark Theme Filter */}
@@ -267,7 +294,13 @@ export default function KajaMap({
           />
 
           <MapFlyTo lat={lat} lon={lon} />
-          <MapEventHandler onLocationSelect={onChangeLocation} />
+          <MapEventHandler
+            onLocationSelect={(newLat, newLon) => {
+              setGeoError(null);
+              onChangeLocation(newLat, newLon);
+            }}
+            onError={(err) => setGeoError(err)}
+          />
 
           {/* Mount Agung Summit Marker */}
           <Marker

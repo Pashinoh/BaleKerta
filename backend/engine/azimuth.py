@@ -7,10 +7,10 @@ MOUNT_AGUNG_LON = 115.5071
 
 # Geographic boundaries of Bali Island (approximate bounding box)
 BALI_BOUNDS = {
-    "lat_min": -9.0,
-    "lat_max": -7.9,
-    "lon_min": 114.3,
-    "lon_max": 116.0
+    "lat_min": -8.95,
+    "lat_max": -8.05,
+    "lon_min": 114.40,
+    "lon_max": 115.75
 }
 
 # Pre-mapped Regency Coordinates in Bali

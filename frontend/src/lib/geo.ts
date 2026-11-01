@@ -4,10 +4,10 @@ export interface LatLon {
 }
 
 export const BALI_BOUNDS = {
-  minLat: -9.0,
-  maxLat: -7.9,
-  minLon: 114.3,
-  maxLon: 116.0,
+  minLat: -8.95,
+  maxLat: -8.05,
+  minLon: 114.40,
+  maxLon: 115.75,
 };
 
 export const MOUNT_AGUNG = {
