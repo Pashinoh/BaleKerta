@@ -130,12 +130,18 @@ function MapEventHandler({
   return null;
 }
 
-// Controller to smoothly pan when quick location chosen
-function MapFlyTo({ lat, lon }: { lat: number; lon: number }) {
+// Controller to smoothly pan when quick location or GPS chosen
+function MapPanController({
+  panTarget,
+}: {
+  panTarget: [number, number] | null;
+}) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo([lat, lon], map.getZoom(), { duration: 1.0 });
-  }, [lat, lon, map]);
+    if (panTarget) {
+      map.panTo(panTarget, { animate: true, duration: 0.5 });
+    }
+  }, [panTarget, map]);
   return null;
 }
 
@@ -151,6 +157,7 @@ export default function KajaMap({
   const [geoError, setGeoError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [scrollActive, setScrollActive] = useState(false);
+  const [panTarget, setPanTarget] = useState<[number, number] | null>(null);
   const markerRef = useRef<L.Marker>(null);
 
   // Midpoint between Plot and Mount Agung for the bearing tooltip
@@ -193,6 +200,7 @@ export default function KajaMap({
         const userLat = pos.coords.latitude;
         const userLon = pos.coords.longitude;
         if (isInBali(userLat, userLon)) {
+          setPanTarget([userLat, userLon]);
           onChangeLocation(userLat, userLon);
         } else {
           setGeoError(
@@ -225,6 +233,7 @@ export default function KajaMap({
                 type="button"
                 onClick={() => {
                   setGeoError(null);
+                  setPanTarget([loc.lat, loc.lon]);
                   onChangeLocation(loc.lat, loc.lon);
                 }}
                 className={`px-2.5 py-1 rounded text-[12px] shrink-0 font-medium transition-colors ${
@@ -281,10 +290,9 @@ export default function KajaMap({
           maxZoom={16}
           scrollWheelZoom={scrollActive}
           maxBounds={[
-            [-9.15, 114.25],
-            [-7.95, 115.90],
+            [-9.50, 113.50],
+            [-7.50, 116.60],
           ]}
-          maxBoundsViscosity={1.0}
           className="w-full h-full dark-map-tiles"
         >
           {/* OpenStreetMap with Dark Theme Filter */}
@@ -293,7 +301,7 @@ export default function KajaMap({
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
           />
 
-          <MapFlyTo lat={lat} lon={lon} />
+          <MapPanController panTarget={panTarget} />
           <MapEventHandler
             onLocationSelect={(newLat, newLon) => {
               setGeoError(null);

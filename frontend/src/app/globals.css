@@ -56,9 +56,18 @@ body {
   outline-offset: 2px;
 }
 
-/* Dark Mode Filter for OpenStreetMap Tiles */
+/* Dark Mode Filter for OpenStreetMap Tiles & Deep Ink Canvas Background */
+.leaflet-container {
+  background-color: #0E0D0C !important;
+  outline: none;
+}
 .dark-map-tiles .leaflet-tile-pane {
   filter: brightness(0.6) invert(100%) contrast(1.6) hue-rotate(205deg) saturate(0.2) brightness(0.7);
+  background-color: #0E0D0C !important;
+}
+.leaflet-tile,
+.leaflet-tile-container {
+  background-color: #0E0D0C !important;
 }
 
 /* Transitions adhering to design spec (120-160ms) */
