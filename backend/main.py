@@ -1,9 +1,11 @@
+import io
 import json
 from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI, UploadFile, File, Form, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from PIL import Image
 
 from core.config import settings
 from engine.azimuth import (
@@ -22,6 +24,9 @@ app = FastAPI(
     version=settings.VERSION,
     description="Engine Audit Spasial Denah Berbasis Asta Kosala-Kosali & Perda Bali No. 5/2005"
 )
+
+# Batas ukuran berkas denah (maksimal 10 MB)
+MAX_FILE_SIZE = 10 * 1024 * 1024
 
 # Setup CORS
 app.add_middleware(
@@ -52,8 +57,8 @@ def health_check():
 
 @app.get("/api/kaja")
 def get_kaja_endpoint(
-    lat: float = Query(..., description="Latitude tapak tanah"),
-    lon: float = Query(..., description="Longitude tapak tanah")
+    lat: float = Query(..., ge=-90.0, le=90.0, description="Latitude tapak tanah (-90 hingga 90)"),
+    lon: float = Query(..., ge=-180.0, le=180.0, description="Longitude tapak tanah (-180 hingga 180)")
 ):
     """
     Menghitung vektor arah Kaja (menuju puncak Gunung Agung) secara instan berbasis geodesik.
@@ -122,9 +127,9 @@ def get_presets():
 @app.get("/api/presets/{preset_id}")
 def run_preset_audit(
     preset_id: str,
-    lat: Optional[float] = Query(None),
-    lon: Optional[float] = Query(None),
-    plan_north_deg: int = Query(0)
+    lat: Optional[float] = Query(None, ge=-90.0, le=90.0, description="Latitude tapak tanah"),
+    lon: Optional[float] = Query(None, ge=-180.0, le=180.0, description="Longitude tapak tanah"),
+    plan_north_deg: int = Query(0, description="Orientasi utara denah (derajat)")
 ):
     """Menjalankan evaluasi audit instan untuk preset denah demo dengan rotasi orientasi."""
     target_file = settings.PRESETS_DIR / f"{preset_id}.json"
@@ -138,13 +143,19 @@ def run_preset_audit(
     
     # 1. Hitung orientasi Kaja
     if lat is not None and lon is not None:
+        if not is_in_bali(lat, lon):
+            raise HTTPException(
+                status_code=422,
+                detail="Koordinat berada di luar wilayah Pulau Bali. Pemeriksaan Asta Kosala-Kosali hanya berlaku untuk tapak di dalam Pulau Bali."
+            )
         kaja_vector = resolve_kaja_vector(custom_lat=lat, custom_lon=lon)
     else:
         regency = preset_data.get("regency", "gianyar")
         kaja_vector = resolve_kaja_vector(regency)
     
-    # 2. Bangun 9 grid Sanga Mandala (dengan orientasi utara denah)
-    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"], plan_north_deg)
+    # 2. Bangun 9 grid Sanga Mandala (dengan normalisasi orientasi utara denah)
+    normalized_north = round(((plan_north_deg % 360) + 360) % 360 / 90) * 90 % 360
+    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"], normalized_north)
     
     # 3. Petakan ruangan ke zona
     mapped_rooms = []
@@ -183,12 +194,43 @@ async def audit_floor_plan(
 ):
     """
     Endpoint audit utama:
-    Menerima upload gambar denah -> AI Vision Asli -> Sanga Mandala Math -> Audit Perda.
+    Menerima upload gambar denah -> Validasi Berkas & Koordinat -> AI Vision Asli -> Sanga Mandala Math -> Audit Perda.
     """
     contents = await file.read()
     if len(contents) == 0:
         raise HTTPException(status_code=400, detail="File gambar kosong.")
         
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="Ukuran berkas melebihi batas maksimal 10 MB. Harap perkecil resolusi atau kompresi gambar denah Anda."
+        )
+
+    # Validasi bahwa berkas adalah gambar valid yang dapat didekode
+    try:
+        with Image.open(io.BytesIO(contents)) as img:
+            img.verify()
+    except Exception:
+        raise HTTPException(
+            status_code=415,
+            detail="Berkas bukan gambar yang valid. Harap unggah gambar denah berformat PNG, JPG, JPEG, atau WebP."
+        )
+
+    # Validasi koordinat tanah jika diberikan
+    target_lat = lat if lat is not None else custom_lat
+    target_lon = lon if lon is not None else custom_lon
+    if target_lat is not None and target_lon is not None:
+        if not (-90.0 <= target_lat <= 90.0 and -180.0 <= target_lon <= 180.0):
+            raise HTTPException(
+                status_code=422,
+                detail="Koordinat latitude harus antara -90 dan 90, dan longitude antara -180 dan 180."
+            )
+        if not is_in_bali(target_lat, target_lon):
+            raise HTTPException(
+                status_code=422,
+                detail="Koordinat berada di luar wilayah Pulau Bali. Pemeriksaan Asta Kosala-Kosali hanya berlaku untuk tapak di dalam Pulau Bali."
+            )
+
     # 1. AI Vision Parsing (Asli, dengan caching)
     try:
         vision_result = await parse_floor_plan_image(contents)
@@ -223,12 +265,11 @@ async def audit_floor_plan(
         )
         
     # 2. Hitung vektor arah Gunung Agung
-    target_lat = lat if lat is not None else custom_lat
-    target_lon = lon if lon is not None else custom_lon
     kaja_vector = resolve_kaja_vector(regency, target_lat, target_lon)
     
-    # 3. Proyeksikan 9 Grid Sanga Mandala dengan rotasi orientasi denah
-    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"], plan_north_deg)
+    # 3. Proyeksikan 9 Grid Sanga Mandala dengan normalisasi rotasi orientasi denah
+    normalized_north = round(((plan_north_deg % 360) + 360) % 360 / 90) * 90 % 360
+    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"], normalized_north)
     
     # 4. Petakan koordinat ruangan ke zona adat
     mapped_rooms = []
