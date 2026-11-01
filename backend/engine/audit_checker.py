@@ -174,6 +174,33 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 "legal_reference": "Pedoman Asta Bumi: Natah wajib dibiarkan terbuka sebagai ruang hijau dan sirkulasi alami."
             })
 
+        # 5. Cek Kamar Tidur Utama / Ruang Tidur (Tidak boleh di Nistaning Nista / Teba)
+        if any(p in rtype for p in ["kamar_tidur", "kamar_utama", "master_bedroom", "bale_daja", "gedong"]):
+            if zone_id == "NISTANING_NISTA":
+                score -= 20
+                violations.append({
+                    "id": f"viol_{len(violations)+1}",
+                    "rule_id": "BEDROOM_IN_TEBA",
+                    "verified": True,
+                    "room_name": name,
+                    "room_type": rtype,
+                    "box": box,
+                    "zone_id": zone_id,
+                    "zone_name": zone_name,
+                    "severity": "WARNING",
+                    "issue": f"{name} berada pada zona Teba / pembuangan ({zone_name})",
+                    "recommendation": "Menurut pakem Asta Kosala-Kosali, Kamar Tidur Utama (Bale Daja/Gedong) untuk kepala keluarga idealnya berada di sisi Kaja/Utama atau Madya, bukan di zona Teba (area pembuangan/ternak).",
+                    "legal_reference": "Asta Kosala-Kosali: Zona Nistaning Nista (Teba) difungsikan untuk sanitasi dan pembuangan, bukan untuk ruang tidur utama."
+                })
+            elif zone_id in ["MADYANING_UTAMA", "NISTANING_UTAMA", "UTAMANING_MADYA", "MADYANING_NISTA"]:
+                compliances.append({
+                    "rule_id": "BEDROOM_OK",
+                    "verified": True,
+                    "room_name": name,
+                    "zone_name": zone_name,
+                    "detail": f"{name} ditempatkan pada zona yang sesuai ({zone_name}) mematuhi hierarki ruang istirahat keluarga."
+                })
+
     # Evaluasi KDB (Koefisien Dasar Bangunan - Perkiraan Kasar)
     kdb_percentage = round((total_room_area / total_canvas_area) * 100, 1)
     kdb_status = "MEMENUHI"

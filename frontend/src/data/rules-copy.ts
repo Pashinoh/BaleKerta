@@ -141,6 +141,28 @@ export const RULES_COPY: Record<string, RuleCopy> = {
     legalBasisText:
       "Pedoman Penataan Ruang Bali: KDB hunian maksimal 60% terpenuhi.",
   },
+  BEDROOM_IN_TEBA: {
+    ruleId: "BEDROOM_IN_TEBA",
+    title: "Kamar Tidur Utama Diletakkan di Zona Teba (Hilir)",
+    meaning:
+      "Kamar Tidur Utama (Bale Daja/Gedong Meten) berada di zona Nistaning Nista (Teba/hilir pekarangan). Dalam hierarki tata ruang Asta Kosala-Kosali, ruang tidur kepala keluarga merupakan ruang utama bermartabat tinggi yang tidak selayaknya ditempatkan di zona pembuangan atau kandang ternak (Teba).",
+    fix: "Pindahkan Kamar Tidur Utama ke zona Utama (Madyaning Utama / sisi Kaja) atau zona Madya.",
+    termId: "gedong-meten",
+    legalBasisVerified: true,
+    legalBasisText:
+      "Pedoman Asta Kosala-Kosali: Bale Daja (Gedong Meten) dialokasikan di sisi Kaja/Utama pekarangan. Zona Nistaning Nista dialokasikan khusus untuk fungsi sanitasi dan pembuangan (Teba).",
+  },
+  BEDROOM_OK: {
+    ruleId: "BEDROOM_OK",
+    title: "Penempatan Kamar Tidur Mematuhi Zona Hunian",
+    meaning:
+      "Kamar tidur ditempatkan pada zona yang selaras dengan hierarki peristirahatan keluarga di pekarangan adat.",
+    fix: "Pertahankan tata letak ini.",
+    termId: "gedong-meten",
+    legalBasisVerified: true,
+    legalBasisText:
+      "Pedoman Asta Kosala-Kosali: Penempatan ruang tidur keluarga mematuhi hierarki Tri Angga.",
+  },
 };
 
 export function getRuleCopy(ruleId?: string): RuleCopy | undefined {
