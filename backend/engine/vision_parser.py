@@ -279,8 +279,8 @@ async def parse_floor_plan_image(image_bytes: bytes) -> Dict[str, Any]:
             "rooms": cached["rooms"]
         }
         
-    # 2. Panggil AI secara nyata
-    successful_model, rooms = call_gemini_vision(image_bytes)
+    # 2. Panggil AI secara nyata (threadpool: panggilan sinkron jangan blokir event loop)
+    successful_model, rooms = await asyncio.to_thread(call_gemini_vision, image_bytes)
     
     # 3. Simpan cache hasil AI yang valid
     save_cache(img_hash, successful_model, rooms)

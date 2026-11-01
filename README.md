@@ -100,7 +100,9 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 Uji endpoint backend:
 ```bash
-python scripts/test_geo_and_rotation.py
+python -m pytest tests -q
+# atau test engine deterministik:
+python -m pytest tests/test_engine.py -q
 ```
 
 ### D. Menjalankan Frontend (Next.js)

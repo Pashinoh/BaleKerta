@@ -10,7 +10,7 @@ import { MiniZoneGrid } from "@/components/map/MiniZoneGrid";
 import { SampleList } from "@/components/plan/SampleList";
 import { UploadBox } from "@/components/plan/UploadBox";
 import { OrientationPicker } from "@/components/plan/OrientationPicker";
-import { PlanCanvas } from "@/components/PlanCanvas";
+import { PlanCanvas } from "@/components/plan/PlanCanvas";
 import { RoomList } from "@/components/plan/RoomList";
 import { Verdict } from "@/components/result/Verdict";
 import { IssueCard } from "@/components/result/IssueCard";

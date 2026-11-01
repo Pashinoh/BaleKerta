@@ -1,5 +1,7 @@
 import io
 import json
+import asyncio
+import logging
 from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI, UploadFile, File, Form, Query, HTTPException
@@ -31,11 +33,20 @@ MAX_FILE_SIZE = 10 * 1024 * 1024
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def warn_if_ai_missing():
+    if not settings.GEMINI_API_KEY:
+        import logging
+        logging.getLogger(settings.PROJECT_NAME).warning(
+            "GEMINI_API_KEY kosong: endpoint /api/audit akan gagal. "
+            "Isi .env (lihat .env.example) atau gunakan endpoint preset/geo yang deterministik."
+        )
 
 @app.get("/")
 def root():
@@ -51,7 +62,6 @@ def health_check():
     return {
         "status": "healthy",
         "gemini_configured": bool(settings.GEMINI_API_KEY),
-        "groq_configured": bool(settings.GROQ_API_KEY),
         "cache_dir_ready": settings.CACHE_DIR.exists()
     }
 

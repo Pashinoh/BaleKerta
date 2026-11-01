@@ -16,16 +16,14 @@ class Settings(BaseModel):
     # AI Credentials
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
-    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-    PRIMARY_AI_PROVIDER: str = os.getenv("PRIMARY_AI_PROVIDER", "gemini") # 'gemini' or 'groq'
     
     # Server configuration
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", 8000))
+    # Wildcard "*" sengaja tidak dipakai: endpoint audit membakar kuota API key
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "*"
     ]
     
     # Directory paths

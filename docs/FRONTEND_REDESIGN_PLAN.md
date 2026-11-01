@@ -49,7 +49,7 @@ Hasil pengecekan kode dan log backend. Ini bukan soal tampilan, tapi soal **keju
 ### Fase 0 — Integritas (P0)
 
 Tugas:
-1. **Hidupkan panggilan AI yang nyata.** Buat skrip `backend/scripts/check_vision.py` yang memanggil model vision dengan `test_denah_bali.png` dan mencetak model, latensi, JSON mentah. Log **setiap percobaan model beserta error-nya** (jangan hanya error terakhir). Daftar model dari `genai.list_models()`; jadikan model utama konfigurasi `GEMINI_MODEL` di `.env` (default dipilih dari model yang benar-benar tersedia untuk key ini). Pertimbangkan migrasi ke SDK `google-genai` karena `google-generativeai` sudah usang (pesan error API merekomendasikannya). Free tier ±5 permintaan/menit → tangani 429 dengan *retry-after* (lihat 6.3).
+1. **Hidupkan panggilan AI yang nyata.** Buat skrip `backend/tools/check_vision.py` yang memanggil model vision dengan `test_denah_bali.png` dan mencetak model, latensi, JSON mentah. Log **setiap percobaan model beserta error-nya** (jangan hanya error terakhir). Daftar model dari `genai.list_models()`; jadikan model utama konfigurasi `GEMINI_MODEL` di `.env` (default dipilih dari model yang benar-benar tersedia untuk key ini). Pertimbangkan migrasi ke SDK `google-genai` karena `google-generativeai` sudah usang (pesan error API merekomendasikannya). Free tier ±5 permintaan/menit → tangani 429 dengan *retry-after* (lihat 6.3).
 2. Hapus `generate_mock_rooms_fallback()` dari jalur `/api/audit`. Preset tetap statis (itu memang data contoh).
 3. Perbaiki F2, F3, F4, F5, F6, F7 sesuai tabel.
 4. Tambahkan `source` yang jelas ke respons: `"ai:<nama-model>"`, `"cache:ai:<nama-model>"`, atau `"preset"`. UI wajib menampilkannya (lihat 5.4).
