@@ -1,3 +1,4 @@
+@import "leaflet/dist/leaflet.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -53,6 +54,11 @@ body {
 :focus-visible {
   outline: 2px solid #EDE7DA;
   outline-offset: 2px;
+}
+
+/* Dark Mode Filter for OpenStreetMap Tiles */
+.dark-map-tiles .leaflet-tile-pane {
+  filter: brightness(0.6) invert(100%) contrast(1.6) hue-rotate(205deg) saturate(0.2) brightness(0.7);
 }
 
 /* Transitions adhering to design spec (120-160ms) */
