@@ -82,6 +82,11 @@ body {
 
 /* Print Stylesheet for Official Pre-Inspection Report */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 6mm 8mm;
+  }
+
   /* 1. Sembunyikan seluruh UI aplikasi web utama agar tidak terulang/tercetak */
   header,
   nav,
@@ -97,8 +102,8 @@ body {
   body {
     background: #ffffff !important;
     color: #111111 !important;
-    font-size: 10pt !important;
-    line-height: 1.4 !important;
+    font-size: 9.5pt !important;
+    line-height: 1.3 !important;
     margin: 0 !important;
     padding: 0 !important;
     height: auto !important;
@@ -143,7 +148,7 @@ body {
   }
 
   #printable-report-body {
-    padding: 0.5cm !important;
+    padding: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
     max-height: none !important;
@@ -173,9 +178,11 @@ body {
 
   th, td {
     border: 1px solid #d1d5db !important;
-    padding: 5px 8px !important;
+    padding: 2.5px 6px !important;
     color: #111111 !important;
     background: #ffffff !important;
+    font-size: 8.5pt !important;
+    line-height: 1.2 !important;
   }
 
   th {

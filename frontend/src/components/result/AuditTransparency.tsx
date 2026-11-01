@@ -90,7 +90,7 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
               Dokumentasi Teknis & Yuridis
             </span>
             <span className="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-bone-100/10 text-bone-100 border border-bone-100/30">
-              Untuk Dewan Juri & TABG
+              Verifikasi Teknis &amp; Tim Ahli TABG
             </span>
           </div>
           <h2 className="text-[18px] sm:text-[20px] font-bold text-bone-100 tracking-tight">
