@@ -364,50 +364,29 @@ export default function Home() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : step === 2 ? (
           /* ========================================================== */
-          /* STEP 2 & 3: 2-COLUMN RESPONSIVE WORKSPACE                  */
+          /* STEP 2: FULL-WIDTH HERO CANVAS ON TOP, CONTROLS BELOW     */
           /* ========================================================== */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* LEFT PANEL: Plan Canvas (+ Room List on Step 3) */}
-            <div className="lg:col-span-7 space-y-4">
-              <PlanCanvas
-                imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
-                gridLayout={auditData?.grid_layout || null}
-                rooms={auditData?.rooms || []}
-                violations={auditData?.audit_report?.violations || []}
-                hoveredIndex={hoveredRoomIndex}
-                selectedIndex={selectedRoomIndex}
-                onHoverIndex={setHoveredRoomIndex}
-                onSelectIndex={setSelectedRoomIndex}
-                kajaBearing={kajaData.bearing_degrees}
-                kajaDirection={kajaData.cardinal_direction}
-              />
+          <div className="space-y-6">
+            {/* 1. TOP HERO: Full-Width Architectural Canvas */}
+            <PlanCanvas
+              imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
+              gridLayout={auditData?.grid_layout || null}
+              rooms={auditData?.rooms || []}
+              violations={auditData?.audit_report?.violations || []}
+              hoveredIndex={hoveredRoomIndex}
+              selectedIndex={selectedRoomIndex}
+              onHoverIndex={setHoveredRoomIndex}
+              onSelectIndex={setSelectedRoomIndex}
+              kajaBearing={kajaData.bearing_degrees}
+              kajaDirection={kajaData.cardinal_direction}
+            />
 
-              {/* On Step 3: Interactive Room List underneath Canvas */}
-              {step === 3 && auditData && (
-                <div className="p-4 bg-ink-900 border border-ink-700 rounded-lg">
-                  <RoomList
-                    rooms={auditData.rooms}
-                    violations={auditData.audit_report.violations}
-                    hoveredIndex={hoveredRoomIndex}
-                    selectedIndex={selectedRoomIndex}
-                    onHoverRoom={setHoveredRoomIndex}
-                    onSelectRoom={setSelectedRoomIndex}
-                    onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT PANEL: ACTIVE STEP CONTROLS (Step 2 or Step 3) */}
-            <div className="lg:col-span-5 space-y-5">
-
-            {/* -------------------------------------------------------- */}
-            {/* STEP 2: MASUKKAN DENAH CONTROLS                          */}
-            {/* -------------------------------------------------------- */}
-            {step === 2 && (
-              <div className="space-y-5">
+            {/* 2. BOTTOM CONTROLS: 2 Balanced Columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column (7 cols): Mode Tabs & Sample List / Upload Box */}
+              <div className="lg:col-span-7 bg-ink-900 border border-ink-700 rounded-xl p-5 sm:p-6 space-y-4">
                 <div className="space-y-1">
                   <h2 className="text-[17px] font-semibold text-bone-100">
                     2. Masukkan Denah Bangunan
@@ -447,9 +426,21 @@ export default function Home() {
                     onFileSelect={handleFileChange}
                   />
                 )}
+              </div>
+
+              {/* Right Column (5 cols): Orientation Picker & Action */}
+              <div className="lg:col-span-5 bg-ink-900 border border-ink-700 rounded-xl p-5 sm:p-6 space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-[15px] font-semibold text-bone-100">
+                    Arah Mata Angin Gambar Denah
+                  </h3>
+                  <p className="text-[12px] text-bone-400 leading-relaxed">
+                    Tentukan sisi atas gambar denah Anda menghadap ke arah mata angin mana (Utara, Timur, Selatan, Barat) agar pemetaan sumbu suci Kaja akurat.
+                  </p>
+                </div>
 
                 {/* Orientation Picker */}
-                <div className="p-3.5 bg-ink-900 border border-ink-700 rounded-lg">
+                <div className="p-3.5 bg-ink-950 border border-ink-800 rounded-lg">
                   <OrientationPicker
                     planNorthDeg={planNorthDeg}
                     onChange={setPlanNorthDeg}
@@ -498,125 +489,156 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-            )}
+            </div>
+          </div>
+        ) : (
+          /* ========================================================== */
+          /* STEP 3: FULL-WIDTH HERO CANVAS ON TOP, RESULTS BELOW       */
+          /* ========================================================== */
+          <div className="space-y-6">
+            {/* 1. TOP HERO: Full-Width Architectural Plan Canvas */}
+            <PlanCanvas
+              imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
+              gridLayout={auditData?.grid_layout || null}
+              rooms={auditData?.rooms || []}
+              violations={auditData?.audit_report?.violations || []}
+              hoveredIndex={hoveredRoomIndex}
+              selectedIndex={selectedRoomIndex}
+              onHoverIndex={setHoveredRoomIndex}
+              onSelectIndex={setSelectedRoomIndex}
+              kajaBearing={kajaData.bearing_degrees}
+              kajaDirection={kajaData.cardinal_direction}
+            />
 
-            {/* -------------------------------------------------------- */}
-            {/* STEP 3: HASIL AUDIT KEPATUHAN                            */}
-            {/* -------------------------------------------------------- */}
-            {step === 3 && auditData && (
-              <div className="space-y-5">
-                {/* Source Data Provenance Banner */}
-                <SourceBanner
-                  source={auditData.source}
-                  model={auditData.model}
-                />
-
-                {/* Verdict Summary Card */}
-                <Verdict
-                  report={auditData.audit_report}
-                  onPrintReport={() => setIsReportOpen(true)}
-                />
-
-                {/* Issues List (Violations) */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between pb-1 border-b border-ink-700">
-                    <span className="text-[14px] font-semibold text-bone-100">
-                      Catatan Perbaikan Ruang ({auditData.audit_report.violations.length})
-                    </span>
-                    <span className="text-[12px] text-bone-400 font-mono">
-                      Asta Kosala-Kosali
-                    </span>
-                  </div>
-
-                  {auditData.audit_report.violations.length === 0 ? (
-                    <div className="p-6 text-center text-bone-400 border border-ink-700 rounded-lg bg-ink-900 space-y-1">
-                      <CheckCircle2 size={24} className="text-bone-100 mx-auto mb-1" />
-                      <p className="text-[14px] font-medium text-bone-100">
-                        Tidak ditemukan pelanggaran tata letak.
-                      </p>
-                      <p className="text-[12px] text-bone-400">
-                        Seluruh ruangan memenuhi hierarki kesucian zona Sanga Mandala.
-                      </p>
-                    </div>
-                  ) : (
-                    auditData.audit_report.violations.map((violation, i) => (
-                      <IssueCard
-                        key={violation.id || i}
-                        violation={violation}
-                        index={i}
-                        onFocusRoom={() => {
-                          // Find room index in rooms array to highlight
-                          const idx = auditData.rooms.findIndex(
-                            (r) =>
-                              r.name.toLowerCase() === violation.room_name.toLowerCase() ||
-                              (violation.box &&
-                                r.box[0] === violation.box[0] &&
-                                r.box[1] === violation.box[1])
-                          );
-                          if (idx >= 0) {
-                            setSelectedRoomIndex(idx);
-                          }
-                        }}
-                        onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
-                      />
-                    ))
-                  )}
+            {/* 2. BOTTOM WORKSPACE: 2 Columns (Room List on Left, Verdict & Issues on Right) */}
+            {auditData && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* LEFT: Interactive Room List (7 cols) */}
+                <div className="lg:col-span-7 bg-ink-900 border border-ink-700 rounded-xl p-5 sm:p-6 space-y-4">
+                  <RoomList
+                    rooms={auditData.rooms}
+                    violations={auditData.audit_report.violations}
+                    hoveredIndex={hoveredRoomIndex}
+                    selectedIndex={selectedRoomIndex}
+                    onHoverRoom={setHoveredRoomIndex}
+                    onSelectRoom={setSelectedRoomIndex}
+                    onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
+                  />
                 </div>
 
-                {/* Compliances (Collapsible) */}
-                {auditData.audit_report.compliances.length > 0 && (
-                  <Disclosure
-                    title={
-                      <span className="text-[14px] font-medium text-bone-100">
-                        Ruangan yang Sudah Sesuai ({auditData.audit_report.compliances.length})
-                      </span>
-                    }
-                    subtitle="Daftar tata letak yang mematuhi pakem Asta Bumi"
-                  >
-                    <ul className="space-y-2 pt-1 text-[13px]">
-                      {auditData.audit_report.compliances.map((c, idx) => (
-                        <li
-                          key={idx}
-                          className="flex items-start gap-2 p-2 bg-ink-950 rounded border border-ink-700/60"
-                        >
-                          <CheckCircle2 size={15} className="text-bone-100 shrink-0 mt-0.5" />
-                          <div className="space-y-0.5">
-                            <span className="font-medium text-bone-100 block">
-                              {c.room_name} · <span className="text-bone-400">{c.zone_name}</span>
-                            </span>
-                            <span className="text-bone-400/90 text-[12px] block">
-                              {c.detail}
-                            </span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </Disclosure>
-                )}
+                {/* RIGHT: Verdict, Issues & Actions (5 cols) */}
+                <div className="lg:col-span-5 space-y-5">
+                  {/* Source Data Provenance Banner */}
+                  <SourceBanner
+                    source={auditData.source}
+                    model={auditData.model}
+                  />
 
-                {/* Footer Navigation Buttons */}
-                <div className="flex items-center gap-3 pt-2">
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={() => setStep(2)}
-                    icon={<ArrowLeft size={15} />}
-                  >
-                    Ganti Denah
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={() => setStep(1)}
-                  >
-                    Ubah Lokasi Tanah
-                  </Button>
+                  {/* Verdict Summary Card */}
+                  <Verdict
+                    report={auditData.audit_report}
+                    onPrintReport={() => setIsReportOpen(true)}
+                  />
+
+                  {/* Issues List (Violations) */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between pb-1 border-b border-ink-700">
+                      <span className="text-[14px] font-semibold text-bone-100">
+                        Catatan Perbaikan Ruang ({auditData.audit_report.violations.length})
+                      </span>
+                      <span className="text-[12px] text-bone-400 font-mono">
+                        Asta Kosala-Kosali
+                      </span>
+                    </div>
+
+                    {auditData.audit_report.violations.length === 0 ? (
+                      <div className="p-6 text-center text-bone-400 border border-ink-700 rounded-lg bg-ink-900 space-y-1">
+                        <CheckCircle2 size={24} className="text-bone-100 mx-auto mb-1" />
+                        <p className="text-[14px] font-medium text-bone-100">
+                          Tidak ditemukan pelanggaran tata letak.
+                        </p>
+                        <p className="text-[12px] text-bone-400">
+                          Seluruh ruangan memenuhi hierarki kesucian zona Sanga Mandala.
+                        </p>
+                      </div>
+                    ) : (
+                      auditData.audit_report.violations.map((violation, i) => (
+                        <IssueCard
+                          key={violation.id || i}
+                          violation={violation}
+                          index={i}
+                          onFocusRoom={() => {
+                            const idx = auditData.rooms.findIndex(
+                              (r) =>
+                                r.name.toLowerCase() === violation.room_name.toLowerCase() ||
+                                (violation.box &&
+                                  r.box[0] === violation.box[0] &&
+                                  r.box[1] === violation.box[1])
+                            );
+                            if (idx >= 0) {
+                              setSelectedRoomIndex(idx);
+                            }
+                          }}
+                          onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
+                        />
+                      ))
+                    )}
+                  </div>
+
+                  {/* Compliances (Collapsible) */}
+                  {auditData.audit_report.compliances.length > 0 && (
+                    <Disclosure
+                      title={
+                        <span className="text-[14px] font-medium text-bone-100">
+                          Ruangan yang Sudah Sesuai ({auditData.audit_report.compliances.length})
+                        </span>
+                      }
+                      subtitle="Daftar tata letak yang mematuhi pakem Asta Bumi"
+                    >
+                      <ul className="space-y-2 pt-1 text-[13px]">
+                        {auditData.audit_report.compliances.map((c, idx) => (
+                          <li
+                            key={idx}
+                            className="flex items-start gap-2 p-2 bg-ink-950 rounded border border-ink-700/60"
+                          >
+                            <CheckCircle2 size={15} className="text-bone-100 shrink-0 mt-0.5" />
+                            <div className="space-y-0.5">
+                              <span className="font-medium text-bone-100 block">
+                                {c.room_name} · <span className="text-bone-400">{c.zone_name}</span>
+                              </span>
+                              <span className="text-bone-400/90 text-[12px] block">
+                                {c.detail}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </Disclosure>
+                  )}
+
+                  {/* Footer Navigation Buttons */}
+                  <div className="flex items-center gap-3 pt-2">
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setStep(2)}
+                      icon={<ArrowLeft size={15} />}
+                    >
+                      Ganti Denah
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setStep(1)}
+                    >
+                      Ubah Lokasi Tanah
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
       {/* FULL-WIDTH SECTION: TRANSPARANSI PERHITUNGAN SISTEM & DASAR HUKUM PBG */}
       {step === 3 && auditData && (
