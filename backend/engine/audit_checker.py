@@ -3,10 +3,16 @@ from pathlib import Path
 from typing import List, Dict, Any
 from core.config import settings
 
+_rules_cache = None
+
 def load_perda_rules() -> Dict[str, Any]:
-    rules_file = settings.DATA_DIR / "perda_rules.json"
-    with open(rules_file, "r", encoding="utf-8") as f:
-        return json.load(f)
+    """Rules statis dari disk; cukup dibaca sekali lalu dicache module-level."""
+    global _rules_cache
+    if _rules_cache is None:
+        rules_file = settings.DATA_DIR / "perda_rules.json"
+        with open(rules_file, "r", encoding="utf-8") as f:
+            _rules_cache = json.load(f)
+    return _rules_cache
 
 def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) -> Dict[str, Any]:
     """

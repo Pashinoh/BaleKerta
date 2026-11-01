@@ -37,6 +37,7 @@ export const BALI_QUICK_LOCATIONS: QuickLocation[] = [
   { id: "buleleng", name: "Singaraja (Buleleng)", lat: -8.1120, lon: 115.0882, desc: "Bali Utara · Kaja Tenggara" },
   { id: "tabanan", name: "Tabanan", lat: -8.5414, lon: 115.1252, desc: "Bali Barat-Tengah · Kaja Timur Laut" },
   { id: "karangasem", name: "Karangasem", lat: -8.4619, lon: 115.6122, desc: "Lereng Timur · Kaja Barat Laut" },
+  { id: "jembrana", name: "Jembrana (Negara)", lat: -8.3585, lon: 114.6176, desc: "Bali Barat · Kaja Timur" },
   { id: "bangli", name: "Bangli (Kintamani)", lat: -8.4539, lon: 115.3547, desc: "Ketinggian · Kaja Timur" },
   { id: "klungkung", name: "Klungkung", lat: -8.5350, lon: 115.4039, desc: "Bali Timur-Selatan · Kaja Utara" },
 ];

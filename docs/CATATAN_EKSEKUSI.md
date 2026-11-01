@@ -3,7 +3,7 @@
 ## Fase 0: Integritas AI, Data, dan Geometri (Selesai: 1 November 2026)
 
 ### 1. Panggilan Model AI Nyata
-- **Skrip Uji:** `backend/scripts/check_vision.py` berhasil memverifikasi model aktif untuk API key Google AI Studio.
+- **Skrip Uji:** `backend/tools/check_vision.py` berhasil memverifikasi model aktif untuk API key Google AI Studio.
 - **Model Terverifikasi:** `gemini-3.5-flash-lite` berhasil mengekstrak 5 ruangan dari `test_denah_bali.png` dengan latensi 2.68 detik.
 - **Data Ekstraksi AI Nyata:**
   - `KAMAR TIDUR UTAMA` (bedroom) -> box: [50, 52, 397, 448]
