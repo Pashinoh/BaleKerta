@@ -357,20 +357,28 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
 
           {/* Reference Table: Standard System Penalty Weights */}
           <div className="p-4 bg-ink-950 border border-ink-800 rounded-lg space-y-3">
-            <h4 className="text-[13px] font-semibold text-bone-100 flex items-center justify-between">
-              <span>Tabel Matriks Bobot Penalti Resmi Engine BaleKerta</span>
-              <span className="text-[11px] font-mono text-bone-400 font-normal">
-                Transparansi Standar Pengujian
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink-800 pb-2.5">
+              <div>
+                <h4 className="text-[13px] font-semibold text-bone-100">
+                  Katalog Acuan Regulasi &amp; Kamus Bobot Penalti Sistem
+                </h4>
+                <p className="text-[11px] text-bone-400">
+                  Kamus standar pengujian: rincian bobot pengurangan skor yang dikenakan <em>hanya jika</em> denah terdeteksi melanggar aturan di bawah ini.
+                </p>
+              </div>
+              <span className="text-[11px] font-mono text-bone-400 font-normal shrink-0">
+                Standar Regulasi TABG
               </span>
-            </h4>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[12px] font-mono border border-ink-800">
-                <thead className="bg-ink-900 text-bone-400 border-b border-ink-800">
+                <thead className="bg-ink-900 text-bone-400 border-b border-ink-800 text-[11px]">
                   <tr>
                     <th className="p-2.5">Aturan Sistem</th>
                     <th className="p-2.5">Kondisi Pelanggaran</th>
                     <th className="p-2.5">Tingkat</th>
                     <th className="p-2.5">Bobot</th>
+                    <th className="p-2.5">Status pada Denah Anda</th>
                     <th className="p-2.5">Rujukan Regulasi</th>
                   </tr>
                 </thead>
@@ -396,6 +404,17 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
                           </span>
                         </td>
                         <td className="p-2.5 font-bold">{rule.points} Poin</td>
+                        <td className="p-2.5">
+                          {isFired ? (
+                            <span className="text-clay font-bold">
+                              Terlanggar ({rule.points} Poin)
+                            </span>
+                          ) : (
+                            <span className="text-bone-400 text-[10.5px]">
+                              Sesuai Adat (0 Poin)
+                            </span>
+                          )}
+                        </td>
                         <td className="p-2.5 text-bone-400">{rule.legalRef}</td>
                       </tr>
                     );

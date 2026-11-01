@@ -90,7 +90,7 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
         {/* Printable Report Document Body */}
         <div
           id="printable-report-body"
-          className="p-6 sm:p-8 overflow-y-auto space-y-4 print:space-y-2.5 text-bone-100 print:text-black print:bg-white print:p-0 print:border-none"
+          className="p-6 sm:p-8 overflow-y-auto space-y-4 print:space-y-1.5 text-bone-100 print:text-black print:bg-white print:p-0 print:border-none"
         >
           {/* Header Lembar Resmi */}
           <div className="border-b-2 border-bone-100 print:border-black pb-3 print:pb-2 text-center space-y-1 print-avoid-break">
@@ -258,7 +258,11 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
                   </div>
                   <div className="flex justify-between text-clay print:text-black">
                     <span className="text-bone-400 print:text-gray-500">Total Penalti:</span>
-                    <span>-{100 - audit_report.compliance_score} Poin</span>
+                    <span>
+                      {100 - audit_report.compliance_score > 0
+                        ? `-${100 - audit_report.compliance_score} Poin`
+                        : "0 Poin (Nir-Penalti)"}
+                    </span>
                   </div>
                   <div className="flex justify-between pt-0.5 border-t border-ink-850 print:border-gray-200 font-bold text-bone-100 print:text-black">
                     <span>Skor Akhir:</span>
@@ -315,24 +319,24 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
             <h3 className="text-[12px] print:text-[11px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
               4. Inventarisasi Ruangan Terdeteksi ({rooms.length} Ruang)
             </h3>
-            <table className="w-full text-left text-[11px] print:text-[10px]">
+            <table className="w-full text-left text-[11px] print:text-[8.5px]">
               <thead className="bg-ink-950 border-b border-ink-700 print:bg-gray-100 text-bone-400 print:text-black font-mono">
                 <tr>
-                  <th className="p-2 print:py-1 print:px-2 w-10 text-center">No</th>
-                  <th className="p-2 print:py-1 print:px-2">Nama Ruangan pada Denah</th>
-                  <th className="p-2 print:py-1 print:px-2">Klasifikasi Arsitektur Adat</th>
-                  <th className="p-2 print:py-1 print:px-2">Zona Sanga Mandala Terpetakan</th>
+                  <th className="p-2 print:py-0.5 print:px-1.5 w-10 text-center">No</th>
+                  <th className="p-2 print:py-0.5 print:px-1.5">Nama Ruangan pada Denah</th>
+                  <th className="p-2 print:py-0.5 print:px-1.5">Klasifikasi Arsitektur Adat</th>
+                  <th className="p-2 print:py-0.5 print:px-1.5">Zona Sanga Mandala Terpetakan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-800 print:divide-gray-300">
                 {rooms.map((r, i) => (
                   <tr key={`${r.name}-${i}`} className="print-avoid-break">
-                    <td className="p-2 print:py-1 print:px-2 text-center font-mono text-bone-400 print:text-gray-600">{i + 1}</td>
-                    <td className="p-2 print:py-1 print:px-2 font-medium text-bone-100 print:text-black">{r.name}</td>
-                    <td className="p-2 print:py-1 print:px-2 font-mono text-bone-300 print:text-gray-700 uppercase text-[10px] print:text-[9.5px]">
+                    <td className="p-2 print:py-0.5 print:px-1.5 text-center font-mono text-bone-400 print:text-gray-600">{i + 1}</td>
+                    <td className="p-2 print:py-0.5 print:px-1.5 font-medium text-bone-100 print:text-black">{r.name}</td>
+                    <td className="p-2 print:py-0.5 print:px-1.5 font-mono text-bone-300 print:text-gray-700 uppercase text-[10px] print:text-[8px]">
                       {r.type}
                     </td>
-                    <td className="p-2 print:py-1 print:px-2 font-mono text-bone-400 print:text-black text-[10px] print:text-[9.5px]">
+                    <td className="p-2 print:py-0.5 print:px-1.5 font-mono text-bone-400 print:text-black text-[10px] print:text-[8px]">
                       {r.zone?.zone_name || r.zone?.zone_id?.replace(/_/g, " ") || "Terpetakan"}
                     </td>
                   </tr>
@@ -373,19 +377,19 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* 6. Pengesahan & Validasi Pra-Inspeksi */}
-          <div className="pt-3 print:pt-2 border-t-2 border-bone-100 print:border-black flex justify-between items-end text-[11px] print:text-[9.5px] text-bone-400 print:text-black print-avoid-break">
+          <div className="pt-2 print:pt-1 border-t-2 border-bone-100 print:border-black flex justify-between items-end text-[11px] print:text-[9px] text-bone-400 print:text-black print-avoid-break">
             <div className="space-y-0.5">
               <p>Dihasilkan secara otomatis oleh:</p>
-              <p className="font-bold text-bone-100 print:text-black text-[13px] print:text-[11.5px]">
+              <p className="font-bold text-bone-100 print:text-black text-[13px] print:text-[11px]">
                 BaleKerta Cultural Spatial Engine
               </p>
-              <p className="font-mono text-[10px] print:text-[9px] text-bone-400 print:text-gray-600">
+              <p className="font-mono text-[10px] print:text-[8.5px] text-bone-400 print:text-gray-600">
                 Sistem Pra-Inspeksi Mandiri Tata Ruang Adat &bull; Dokumen Teknis PBG
               </p>
             </div>
             <div className="text-right space-y-0.5">
               <p>Telah Diperiksa &amp; Divalidasi:</p>
-              <div className="h-8 print:h-8"></div>
+              <div className="h-7 print:h-5"></div>
               <p className="font-mono text-bone-100 print:text-black font-semibold">
                 ( Tim Teknis / Arsitek Pemohon )
               </p>
