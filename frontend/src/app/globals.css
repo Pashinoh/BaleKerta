@@ -82,25 +82,105 @@ body {
 
 /* Print Stylesheet for Official Pre-Inspection Report */
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #111111 !important;
-    font-size: 12pt !important;
-  }
-
+  /* 1. Sembunyikan seluruh UI aplikasi web utama agar tidak terulang/tercetak */
+  header,
+  nav,
+  main,
+  footer,
+  aside,
   .no-print {
     display: none !important;
   }
 
-  .print-only {
-    display: block !important;
+  /* 2. Reset html & body ke format kertas cetak murni */
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .print-card {
-    border: 1px solid #cccccc !important;
-    background: transparent !important;
+  /* 3. Tampilkan hanya wrapper dokumen cetak resmi */
+  #printable-report-wrapper {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
     color: #111111 !important;
-    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    inset: auto !important;
+    z-index: auto !important;
+  }
+
+  #printable-report-card {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: none !important;
+    box-shadow: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  #printable-report-body {
+    padding: 0.5cm !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+    color: #111111 !important;
+    background: #ffffff !important;
+  }
+
+  /* 4. Hindari pemotongan aneh antar halaman */
+  .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  th, td {
+    border: 1px solid #d1d5db !important;
+    padding: 5px 8px !important;
+    color: #111111 !important;
+    background: #ffffff !important;
+  }
+
+  th {
+    background-color: #f3f4f6 !important;
+    font-weight: 600 !important;
   }
 }
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AuditResponse } from "@/types/audit";
-import { Printer, X } from "lucide-react";
+import { Printer, X, ShieldCheck, Compass, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "../ui/Button";
 
 export interface ReportProps {
@@ -16,23 +16,31 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
 
   const { audit_report, kaja_vector, rooms } = data;
   const isPass = audit_report.compliance_score >= 80;
+  const rthPercentage = Math.max(0, +(100 - audit_report.kdb_percentage).toFixed(1));
 
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink-950/80 flex items-center justify-center p-3 sm:p-6">
+    <div
+      id="printable-report-wrapper"
+      className="fixed inset-0 z-50 overflow-y-auto bg-ink-950/80 flex items-center justify-center p-3 sm:p-6"
+    >
       {/* Modal Card */}
-      <div className="relative w-full max-w-3xl bg-ink-900 border border-ink-700 rounded-lg shadow-2xl flex flex-col max-h-[92vh]">
-        {/* Modal Controls (No Print) */}
+      <div
+        id="printable-report-card"
+        className="relative w-full max-w-4xl bg-ink-900 border border-ink-700 rounded-lg shadow-2xl flex flex-col max-h-[92vh]"
+      >
+        {/* Modal Controls (Hidden in Print) */}
         <div className="p-4 border-b border-ink-700 flex items-center justify-between no-print">
           <div>
-            <h3 className="text-[16px] font-semibold text-bone-100">
-              Pratinjau Lembar Pra-Pemeriksaan
+            <h3 className="text-[16px] font-semibold text-bone-100 flex items-center gap-2">
+              <ShieldCheck size={18} className="text-bone-100" />
+              <span>Pratinjau Lembar Pra-Pemeriksaan PBG</span>
             </h3>
             <p className="text-[12px] text-bone-400">
-              Format standar pra-pemeriksaan arsitektur tradisional BaleKerta
+              Format dokumen resmi pra-pemeriksaan arsitektur tradisional BaleKerta
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -42,11 +50,12 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
               onClick={handlePrint}
               icon={<Printer size={15} />}
             >
-              Cetak / Unduh PDF
+              Cetak / Simpan PDF
             </Button>
             <button
               type="button"
               onClick={onClose}
+              aria-label="Tutup pratinjau"
               className="p-1.5 text-bone-400 hover:text-bone-100 hover:bg-ink-800 rounded transition-colors"
             >
               <X size={18} />
@@ -55,108 +64,219 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
         </div>
 
         {/* Printable Report Document Body */}
-        <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-bone-100 print:text-black print:bg-white print:p-0 print:border-none">
-          {/* Header */}
-          <div className="border-b-2 border-bone-100 pb-4 text-center space-y-1">
-            <h1 className="text-[18px] sm:text-[20px] font-bold tracking-tight uppercase">
-              BaleKerta — Sistem Analisis Tata Ruang Bali
+        <div
+          id="printable-report-body"
+          className="p-6 sm:p-8 overflow-y-auto space-y-6 text-bone-100 print:text-black print:bg-white print:p-0 print:border-none"
+        >
+          {/* Header Lembar Resmi */}
+          <div className="border-b-2 border-bone-100 print:border-black pb-4 text-center space-y-1 print-avoid-break">
+            <div className="text-[11px] font-mono tracking-widest text-bone-400 print:text-gray-600 uppercase">
+              Pemerintah Provinsi Bali &bull; Pra-Pemeriksaan Arsitektur Bangunan Gedung
+            </div>
+            <h1 className="text-[20px] sm:text-[22px] font-bold tracking-tight text-bone-100 print:text-black uppercase">
+              BaleKerta &mdash; Sistem Pra-Inspeksi Tata Ruang Adat Bali
             </h1>
-            <h2 className="text-[14px] font-semibold tracking-wide text-bone-400 uppercase print:text-black">
-              Lembar Pra-Pemeriksaan Kepatuhan Arsitektur Tradisional Bali
+            <h2 className="text-[13px] font-semibold tracking-wider text-bone-400 print:text-gray-800 uppercase">
+              Lembar Verifikasi Kepatuhan Asta Kosala-Kosali, Asta Bumi &amp; Perda No. 5/2005
             </h2>
-            <p className="text-[11px] text-bone-400 italic print:text-gray-600">
-              Berdasarkan Pedoman Asta Kosala-Kosali, Asta Bumi, dan Perda Prov. Bali No. 5/2005
-            </p>
-          </div>
-
-          {/* Legal Disclaimer Box */}
-          <div className="p-3 bg-ink-950 border border-ink-700 rounded text-[12px] text-bone-400 print:border-gray-400 print:bg-gray-50 print:text-gray-800 leading-relaxed">
-            <strong>Catatan Resmi:</strong> Lembar ini diterbitkan sebagai hasil pra-pemeriksaan
-            otomatis tata letak denah independen untuk membantu perancangan sebelum pengajuan perizinan.
-            Lembar ini <u>bukan dokumen keputusan resmi dinas</u> dan <u>bukan pengganti dokumen Persetujuan Bangunan Gedung (PBG)</u>.
-          </div>
-
-          {/* Project & Plot Information Table */}
-          <div className="space-y-2">
-            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
-              1. Parameter Tapak & Orientasi Kosmologis
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-[13px] font-mono">
-              <div className="p-2.5 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white">
-                <span className="block text-[11px] text-bone-400 print:text-gray-500">Lokasi / Wilayah</span>
-                <span className="font-semibold text-bone-100 print:text-black truncate block">
-                  {kaja_vector.location}
-                </span>
-              </div>
-              <div className="p-2.5 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white">
-                <span className="block text-[11px] text-bone-400 print:text-gray-500">Arah Suci (Kaja)</span>
-                <span className="font-semibold text-bone-100 print:text-black">
-                  {kaja_vector.cardinal_direction} ({kaja_vector.bearing_degrees.toFixed(1)}°)
-                </span>
-              </div>
-              <div className="p-2.5 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white">
-                <span className="block text-[11px] text-bone-400 print:text-gray-500">Jarak ke Gn. Agung</span>
-                <span className="font-semibold text-bone-100 print:text-black">
-                  {kaja_vector.distance_km ? `${kaja_vector.distance_km.toFixed(1)} km` : "Terpetakan"}
-                </span>
-              </div>
+            <div className="flex items-center justify-center gap-4 text-[11px] font-mono text-bone-400 print:text-gray-600 pt-1">
+              <span>Tanggal: {new Date().toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</span>
+              <span>&bull;</span>
+              <span>Metode: Geodesic Sanga Mandala Matrix Engine</span>
             </div>
           </div>
 
-          {/* Compliance Verdict Section */}
-          <div className="space-y-2">
-            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
-              2. Ringkasan Hasil Kepatuhan
-            </h3>
-            <div className="p-4 rounded border border-ink-700 bg-ink-950 space-y-2 print:border-gray-400 print:bg-white">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-semibold text-bone-100 print:text-black">
-                  Status Kelayakan Tata Ruang:
-                </span>
-                <span className="text-[13px] font-mono font-bold uppercase">
-                  {isPass ? "Memenuhi Kepatuhan Adat (Layak)" : "Perlu Penyesuaian Tata Ruang"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-[13px] text-bone-400 print:text-black font-mono">
-                <span>Skor Kepatuhan Spasial:</span>
-                <span className="font-bold text-bone-100 print:text-black">
+          {/* Catatan Legalitas PBG */}
+          <div className="p-3 bg-ink-950 border border-ink-700 rounded text-[11px] text-bone-400 print:border-gray-400 print:bg-gray-50 print:text-gray-800 leading-relaxed print-avoid-break">
+            <strong>Catatan Resmi:</strong> Lembar ini diterbitkan sebagai hasil pra-pemeriksaan otomatis tata letak denah independen untuk membantu perancangan dan telaah mandiri sebelum sidang Tim Ahli Bangunan Gedung (TABG). Dokumen ini <u>bukan pengganti resmi sertifikat Persetujuan Bangunan Gedung (PBG)</u> yang diterbitkan oleh Dinas PUPR / Penanaman Modal.
+          </div>
+
+          {/* 1. Ringkasan Eksekutif & Status Kepatuhan */}
+          <div className="p-4 rounded-lg border border-ink-700 bg-ink-950 print:bg-white print:border-gray-400 print-avoid-break space-y-2.5">
+            <div className="flex items-center justify-between pb-2 border-b border-ink-800 print:border-gray-300">
+              <span className="text-[13px] font-bold uppercase tracking-wider text-bone-100 print:text-black">
+                1. Status Kelayakan Tata Ruang Adat
+              </span>
+              <span
+                className={`text-[12px] font-mono font-bold px-2.5 py-0.5 rounded border uppercase ${
+                  isPass
+                    ? "bg-bone-100/10 text-bone-100 border-bone-100/30 print:border-black print:text-black print:bg-gray-100"
+                    : "bg-clay/10 text-clay border-clay print:border-black print:text-black"
+                }`}
+              >
+                {isPass ? "Memenuhi Kepatuhan Adat (Layak PBG)" : "Perlu Penyesuaian Ruang"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[12px] font-mono">
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px]">Skor Kepatuhan:</span>
+                <span className="text-[16px] font-bold text-bone-100 print:text-black">
                   {audit_report.compliance_score} / 100
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[13px] text-bone-400 print:text-black font-mono">
-                <span>Perkiraan Luas Bangunan (KDB):</span>
-                <span className="font-bold text-bone-100 print:text-black">
-                  {audit_report.kdb_percentage}% (Maksimal 60%)
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px]">Luas Terbangun (KDB):</span>
+                <span className="text-[16px] font-bold text-bone-100 print:text-black">
+                  {audit_report.kdb_percentage}%
+                </span>
+                <span className="text-[10px] text-bone-400 print:text-gray-500 block">Maks. 60.0%</span>
+              </div>
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px]">Ruang Terbuka Hijau:</span>
+                <span className="text-[16px] font-bold text-bone-100 print:text-black">
+                  {rthPercentage}%
+                </span>
+                <span className="text-[10px] text-bone-400 print:text-gray-500 block">Natah &amp; Taman</span>
+              </div>
+              <div className="p-2 bg-ink-900 border border-ink-800 rounded print:border-gray-300 print:bg-gray-50">
+                <span className="text-bone-400 print:text-gray-600 block text-[10px]">Jumlah Ruangan:</span>
+                <span className="text-[16px] font-bold text-bone-100 print:text-black">
+                  {rooms.length} Ruang
+                </span>
+                <span className="text-[10px] text-bone-400 print:text-gray-500 block">
+                  {audit_report.violations.length === 0 ? "Nir-Pelanggaran" : `${audit_report.violations.length} Catatan`}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Violations / Issues Details */}
-          <div className="space-y-2">
-            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
+          {/* 2. Ringkasan Perhitungan Sistem (Format Mudah Dibaca Juri & Dinas PUPR) */}
+          <div className="space-y-2 print-avoid-break">
+            <h3 className="text-[13px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black flex items-center justify-between">
+              <span>2. Ringkasan Perhitungan Sistem (Untuk Dewan Juri &amp; Tim Ahli TABG)</span>
+              <span className="text-[11px] font-mono text-bone-400 print:text-gray-600 font-normal">
+                Verifikasi Formula
+              </span>
+            </h3>
+
+            {/* 3-Column Scorecard Table */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px] font-mono">
+              {/* Kolom A: Hitungan Geodesik */}
+              <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1.5">
+                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 flex items-center gap-1.5">
+                  <Compass size={14} />
+                  <span>A. Sumbu Geodesik Kaja</span>
+                </div>
+                <div className="space-y-1 text-bone-300 print:text-gray-800">
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">Tapak:</span>
+                    <span className="font-semibold truncate max-w-[140px]">{kaja_vector.location}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">Koordinat:</span>
+                    <span>{kaja_vector.latitude.toFixed(4)}&deg;, {kaja_vector.longitude.toFixed(4)}&deg;</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">Target Kaja:</span>
+                    <span>Gn. Agung (-8.3433&deg;)</span>
+                  </div>
+                  <div className="flex justify-between pt-1 border-t border-ink-850 print:border-gray-200 font-bold text-bone-100 print:text-black">
+                    <span>Sudut Geodesik:</span>
+                    <span>{kaja_vector.bearing_degrees.toFixed(1)}&deg; ({kaja_vector.cardinal_direction})</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">Jarak Tapak:</span>
+                    <span>{kaja_vector.distance_km ? `${kaja_vector.distance_km.toFixed(1)} km` : "Terpetakan"}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-bone-400 print:text-gray-500">Kuadran Suci:</span>
+                    <span>{kaja_vector.kaja_quadrant}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Kolom B: Hitungan KDB */}
+              <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1.5">
+                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1">
+                  B. Rasio KDB Pekarangan
+                </div>
+                <div className="space-y-1 text-bone-300 print:text-gray-800">
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">Formula KDB:</span>
+                    <span>(Luas_Atap / Tapak) &times; 100%</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-bone-100 print:text-black">
+                    <span>Luas Bangunan:</span>
+                    <span>{audit_report.kdb_percentage}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">RTH (Resapan):</span>
+                    <span>{rthPercentage}% (Natah &amp; Taman)</span>
+                  </div>
+                  <div className="flex justify-between pt-1 border-t border-ink-850 print:border-gray-200">
+                    <span className="text-bone-400 print:text-gray-500">Batas Perda Ps. 12:</span>
+                    <span>Maksimal 60.0%</span>
+                  </div>
+                  <div className="flex justify-between pt-1 font-bold">
+                    <span className="text-bone-400 print:text-gray-500">Status KDB:</span>
+                    <span className={audit_report.kdb_percentage <= 60 ? "text-bone-100 print:text-black" : "text-clay"}>
+                      {audit_report.kdb_percentage <= 60 ? "MEMENUHI" : "MELEBIHI BATAS"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Kolom C: Matriks Skor Kepatuhan */}
+              <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1.5">
+                <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1">
+                  C. Formulasi Skor Kepatuhan
+                </div>
+                <div className="space-y-1 text-bone-300 print:text-gray-800">
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">Formula Skor:</span>
+                    <span>max(0, 100 - &Sigma; Penalti)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-bone-400 print:text-gray-500">Skor Dasar:</span>
+                    <span>100 Poin</span>
+                  </div>
+                  <div className="flex justify-between text-clay print:text-black">
+                    <span className="text-bone-400 print:text-gray-500">Total Penalti:</span>
+                    <span>-{100 - audit_report.compliance_score} Poin</span>
+                  </div>
+                  <div className="flex justify-between pt-1 border-t border-ink-850 print:border-gray-200 font-bold text-bone-100 print:text-black">
+                    <span>Skor Akhir:</span>
+                    <span>{audit_report.compliance_score} / 100</span>
+                  </div>
+                  <div className="flex justify-between pt-1 font-bold">
+                    <span className="text-bone-400 print:text-gray-500">Kelayakan PBG:</span>
+                    <span>{isPass ? "LAYAK (MEMENUHI)" : "BELUM LAYAK"}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Catatan Penyesuaian Ruang */}
+          <div className="space-y-2 print-avoid-break">
+            <h3 className="text-[13px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
               3. Catatan Penyesuaian Ruang ({audit_report.violations.length})
             </h3>
             {audit_report.violations.length === 0 ? (
-              <p className="text-[13px] text-bone-400 print:text-gray-700 italic">
-                Tidak ditemukan pelanggaran tata letak pada pemeriksaan denah ini.
-              </p>
+              <div className="p-3 border border-ink-700 rounded bg-ink-950 print:border-gray-300 print:bg-gray-50 text-[12px] text-bone-300 print:text-gray-700 flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-bone-100 print:text-black shrink-0" />
+                <span>
+                  <strong>Nir-Pelanggaran Spasial:</strong> Seluruh peruntukan ruangan mematuhi hierarki kesucian Sanga Mandala dan Koefisien Dasar Bangunan (KDB).
+                </span>
+              </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 text-[12px]">
                 {audit_report.violations.map((v, i) => (
                   <div
                     key={v.id || i}
-                    className="p-3 border border-ink-700 rounded bg-ink-950/60 print:border-gray-400 print:bg-white space-y-1 text-[13px]"
+                    className="p-3 border border-ink-700 rounded bg-ink-950/60 print:border-gray-400 print:bg-white space-y-1 print-avoid-break"
                   >
-                    <div className="font-semibold text-bone-100 print:text-black">
-                      {i + 1}. {v.issue}
+                    <div className="font-semibold text-bone-100 print:text-black flex items-center gap-1.5">
+                      <AlertCircle size={14} className="text-clay print:text-black shrink-0" />
+                      <span>{i + 1}. {v.issue}</span>
                     </div>
-                    <div className="text-bone-400 print:text-gray-700">
-                      <strong>Rekomendasi:</strong> {v.recommendation}
+                    <div className="text-bone-400 print:text-gray-700 pl-5">
+                      <strong>Rekomendasi Perbaikan:</strong> {v.recommendation}
                     </div>
                     {v.legal_reference && (
-                      <div className="text-[11px] text-bone-400 print:text-gray-600 font-mono italic">
-                        Dasar pedoman: {v.legal_reference}
+                      <div className="text-[11px] text-bone-400 print:text-gray-600 font-mono italic pl-5">
+                        Dasar Pedoman: {v.legal_reference}
                       </div>
                     )}
                   </div>
@@ -165,26 +285,30 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
             )}
           </div>
 
-          {/* Rooms Inventory */}
-          <div className="space-y-2">
-            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
-              4. Inventaris Ruangan ({rooms.length})
+          {/* 4. Inventarisasi Ruangan ({rooms.length}) */}
+          <div className="space-y-2 print-avoid-break">
+            <h3 className="text-[13px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
+              4. Inventarisasi Ruangan Terdeteksi ({rooms.length} Ruang)
             </h3>
-            <table className="w-full text-left text-[12px] border border-ink-700 print:border-gray-400">
-              <thead className="bg-ink-950 border-b border-ink-700 print:bg-gray-100 print:border-gray-400 text-bone-400 print:text-black">
+            <table className="w-full text-left text-[11px]">
+              <thead className="bg-ink-950 border-b border-ink-700 print:bg-gray-100 text-bone-400 print:text-black font-mono">
                 <tr>
-                  <th className="p-2">No</th>
-                  <th className="p-2">Nama Ruangan</th>
-                  <th className="p-2">Zona Sanga Mandala</th>
+                  <th className="p-2 w-12 text-center">No</th>
+                  <th className="p-2">Nama Ruangan pada Denah</th>
+                  <th className="p-2">Klasifikasi Arsitektur Adat</th>
+                  <th className="p-2">Zona Sanga Mandala Terpetakan</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ink-700 print:divide-gray-300">
+              <tbody className="divide-y divide-ink-800 print:divide-gray-300">
                 {rooms.map((r, i) => (
-                  <tr key={`${r.name}-${i}`}>
-                    <td className="p-2 font-mono">{i + 1}</td>
-                    <td className="p-2 font-medium">{r.name}</td>
-                    <td className="p-2 font-mono text-bone-400 print:text-black">
-                      {r.zone?.zone_id || "Terpetakan"}
+                  <tr key={`${r.name}-${i}`} className="print-avoid-break">
+                    <td className="p-2 text-center font-mono text-bone-400 print:text-gray-600">{i + 1}</td>
+                    <td className="p-2 font-medium text-bone-100 print:text-black">{r.name}</td>
+                    <td className="p-2 font-mono text-bone-300 print:text-gray-700 uppercase text-[10px]">
+                      {r.type}
+                    </td>
+                    <td className="p-2 font-mono text-bone-400 print:text-black text-[10px]">
+                      {r.zone?.zone_name || r.zone?.zone_id?.replace(/_/g, " ") || "Terpetakan"}
                     </td>
                   </tr>
                 ))}
@@ -193,74 +317,52 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           </div>
 
           {/* 5. Dasar Hukum & Regulasi PBG */}
-          <div className="space-y-2">
-            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
-              5. Dasar Hukum Regulasi PBG & Rujukan Naskah Adat
+          <div className="space-y-2 print-avoid-break">
+            <h3 className="text-[13px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black">
+              5. Landasan Hukum &amp; Ketentuan Perda PBG
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px]">
-              <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+              <div className="p-2.5 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
                 <span className="font-bold text-bone-100 print:text-black block font-mono">
                   Perda Prov. Bali No. 5 Tahun 2005
                 </span>
-                <ul className="text-bone-400 print:text-gray-700 space-y-1 list-disc pl-4 text-[11px]">
-                  <li><strong>Pasal 5 & 8:</strong> Kewajiban prinsip Tri Hita Karana & konsepsi hierarki Tri Angga.</li>
-                  <li><strong>Pasal 9:</strong> Orientasi sumbu suci Kaja-Kelod & Sanga Mandala 9 zona.</li>
-                  <li><strong>Pasal 12:</strong> Batas Koefisien Dasar Bangunan (KDB) hunian maksimal 60%.</li>
-                  <li><strong>Pasal 14:</strong> Fasilitas tempat suci keluarga (Pemerajan) di sudut Kaja-Kangin.</li>
+                <ul className="text-bone-400 print:text-gray-700 space-y-0.5 list-disc pl-4 text-[10.5px]">
+                  <li><strong>Pasal 5 &amp; 8:</strong> Kewajiban filosofi Tri Hita Karana &amp; konsepsi hierarki Tri Angga.</li>
+                  <li><strong>Pasal 9:</strong> Orientasi sumbu suci Kaja-Kelod &amp; 9 zona Sanga Mandala.</li>
+                  <li><strong>Pasal 12:</strong> Koefisien Dasar Bangunan (KDB) hunian maksimal 60.0%.</li>
+                  <li><strong>Pasal 14:</strong> Fasilitas tempat ibadah keluarga (Pemerajan) di sudut Kaja-Kangin.</li>
                 </ul>
               </div>
 
-              <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
+              <div className="p-2.5 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-1">
                 <span className="font-bold text-bone-100 print:text-black block font-mono">
-                  UU No. 28/2002 & Naskah Lontar
+                  UU No. 28/2002 &amp; Lontar Adat
                 </span>
-                <ul className="text-bone-400 print:text-gray-700 space-y-1 list-disc pl-4 text-[11px]">
-                  <li><strong>UU No. 28/2002 jo. PP 16/2021:</strong> Kewajiban keselarasan arsitektur gedung terhadap kearifan lokal dalam PBG.</li>
-                  <li><strong>Lontar Asta Kosala-Kosali:</strong> Larangan kamar tidur utama di zona Teba (limbah/kandang) & penataan bale pekarangan.</li>
+                <ul className="text-bone-400 print:text-gray-700 space-y-0.5 list-disc pl-4 text-[10.5px]">
+                  <li><strong>UU 28/2002 jo. PP 16/2021:</strong> Kewajiban keselarasan arsitektur gedung terhadap kearifan lokal dalam PBG.</li>
+                  <li><strong>Lontar Asta Kosala-Kosali:</strong> Larangan kamar tidur utama di zona Teba (limbah/kandang).</li>
                   <li><strong>Lontar Asta Bumi:</strong> Pemeliharaan Natah di pusat pekarangan sebagai sumbu Akasa-Pertiwi.</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* 6. Transparansi Formula Perhitungan Sistem (Untuk Juri & TABG) */}
-          <div className="space-y-2">
-            <h3 className="text-[14px] font-bold uppercase tracking-wider border-b border-ink-700 pb-1 text-bone-100 print:text-black">
-              6. Transparansi Formula Perhitungan Sistem (Dewan Juri & TABG)
-            </h3>
-            <div className="p-3 bg-ink-950 border border-ink-700 rounded print:border-gray-300 print:bg-white space-y-2 font-mono text-[11px] text-bone-300 print:text-black">
-              <div>
-                <strong className="text-bone-100 print:text-black">Formula Azimuth Geodesik:</strong> θ = atan2(sin(Δλ)·cos(φ_2), cos(φ_1)sin(φ_2) - sin(φ_1)cos(φ_2)cos(Δλ)) → Sudut Kaja: <strong>{kaja_vector.bearing_degrees.toFixed(1)}° ({kaja_vector.cardinal_direction})</strong>
-              </div>
-              <div>
-                <strong className="text-bone-100 print:text-black">Formula Haversine Jarak:</strong> d = 2R · arcsin(√(sin²(Δφ/2) + cos(φ_1)cos(φ_2)sin²(Δλ/2))) → Jarak ke Puncak: <strong>{kaja_vector.distance_km ? `${kaja_vector.distance_km.toFixed(1)} km` : "Terpetakan"}</strong>
-              </div>
-              <div>
-                <strong className="text-bone-100 print:text-black">Formula Koefisien Dasar Bangunan:</strong> KDB = (Σ Luas_Ruang / Luas_Pekarangan) × 100% → <strong>{audit_report.kdb_percentage}% (Maks. 60.0%)</strong>
-              </div>
-              <div>
-                <strong className="text-bone-100 print:text-black">Formula Algoritma Skor:</strong> Skor = max(0, 100 - Σ Penalti) → Skor Akhir: <strong>{audit_report.compliance_score} / 100 ({isPass ? "Layak PBG" : "Perlu Penyesuaian"})</strong>
-              </div>
-            </div>
-          </div>
-
-          {/* Signatures / Closing */}
-          <div className="pt-6 border-t border-ink-700 flex justify-between text-[12px] text-bone-400 print:text-black">
-            <div>
+          {/* 6. Pengesahan & Validasi Pra-Inspeksi */}
+          <div className="pt-4 border-t-2 border-bone-100 print:border-black flex justify-between items-end text-[11px] text-bone-400 print:text-black print-avoid-break">
+            <div className="space-y-1">
               <p>Dihasilkan secara otomatis oleh:</p>
-              <p className="font-semibold text-bone-100 print:text-black">
+              <p className="font-bold text-bone-100 print:text-black text-[13px]">
                 BaleKerta Cultural Spatial Engine
               </p>
-              <p className="font-mono text-[11px]">Bali DigiFest 2026 Submission</p>
+              <p className="font-mono text-[10px]">
+                Versi 1.2 &bull; Bali DigiFest 2026 Submission
+              </p>
             </div>
-            <div className="text-right">
-              <p>Tanggal Pemeriksaan:</p>
+            <div className="text-right space-y-1">
+              <p>Telah Diperiksa &amp; Divalidasi:</p>
+              <div className="h-10"></div>
               <p className="font-mono text-bone-100 print:text-black font-semibold">
-                {new Date().toLocaleDateString("id-ID", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                ( Tim Teknis / Arsitek Pemohon )
               </p>
             </div>
           </div>

@@ -50,6 +50,7 @@ export interface KajaGeoResponse {
 
 export interface RoomZoneInfo {
   zone_id: string;
+  zone_name?: string;
   row?: number;
   col?: number;
   grid_row?: number;
