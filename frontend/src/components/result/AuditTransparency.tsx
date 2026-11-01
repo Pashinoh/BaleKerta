@@ -150,15 +150,25 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
                 <span className="text-[11px] font-mono text-bone-400">Spherical Trigonometry</span>
               </div>
 
-              {/* Mathematical Formula Display */}
-              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-1 overflow-x-auto leading-relaxed">
-                <div className="text-bone-400"># Forward Azimuth Spherical Law:</div>
-                <div>Δλ = λ_Agung - λ_Tapak</div>
-                <div>x = cos(φ_Tapak)·sin(φ_Agung) - sin(φ_Tapak)·cos(φ_Agung)·cos(Δλ)</div>
-                <div>y = sin(Δλ)·cos(φ_Agung)</div>
-                <div className="text-bone-100 font-bold">θ_Kaja = (atan2(y, x) · 180 / π + 360) mod 360°</div>
-                <div className="pt-1 text-bone-400"># Haversine Distance (Radius Bumi R = 6.371 km):</div>
-                <div>d = 2R · arcsin(√(sin²(Δφ/2) + cos(φ_1)cos(φ_2)sin²(Δλ/2)))</div>
+              {/* Intuitive Geodesic Calculation Card */}
+              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-2 leading-relaxed">
+                <div className="text-bone-100 font-semibold flex items-center justify-between">
+                  <span>Metode Penentuan Arah Suci Kaja:</span>
+                  <span className="text-[11px] text-bone-400 font-normal">Sumbu Geodesik</span>
+                </div>
+                <p className="text-bone-300 text-[11.5px] font-sans">
+                  Sistem menarik garis lurus lengkung bumi dari titik GPS tanah Anda langsung menuju puncak Gunung Agung (3.142 mdpl). Arah kompas hasil tarikan garis ini menjadi poros suci pekarangan.
+                </p>
+                <div className="pt-1.5 border-t border-ink-800 grid grid-cols-2 gap-2 text-[11px] font-mono">
+                  <div>
+                    <span className="text-bone-400 block text-[10px]">Arah Kompas Kaja:</span>
+                    <strong className="text-bone-100">{kajaVector.bearing_degrees.toFixed(1)}&deg; ({kajaVector.cardinal_direction})</strong>
+                  </div>
+                  <div>
+                    <span className="text-bone-400 block text-[10px]">Jarak Tapak ke Puncak:</span>
+                    <strong className="text-bone-100">{kajaVector.distance_km != null ? `${kajaVector.distance_km.toFixed(1)} km` : "Terpetakan"}</strong>
+                  </div>
+                </div>
               </div>
 
               {/* Real Parameters Input & Substitution */}
@@ -207,12 +217,24 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
                 <span className="text-[11px] font-mono text-bone-400">Dynamic 3x3 Grid</span>
               </div>
 
-              {/* Rotation Formula */}
-              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-1 overflow-x-auto leading-relaxed">
-                <div className="text-bone-400"># Penyesuaian Sudut Relatif Denah terhadap Arah Kaja:</div>
-                <div className="text-bone-100 font-bold">Δθ = (θ_Kaja - θ_DenahUtara) mod 360°</div>
-                <div className="text-bone-400 pt-1">
-                  θ_Kaja: {kajaVector.bearing_degrees.toFixed(1)}° | θ_DenahUtara: {planNorthDeg}° → Δθ = {((kajaVector.bearing_degrees - planNorthDeg + 360) % 360).toFixed(1)}°
+              {/* Intuitive Sanga Mandala Mapping */}
+              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-2 leading-relaxed">
+                <div className="text-bone-100 font-semibold flex items-center justify-between">
+                  <span>Prinsip Pembagian 9 Zona Adat:</span>
+                  <span className="text-[11px] text-bone-400 font-normal">3 Baris &times; 3 Kolom</span>
+                </div>
+                <p className="text-bone-300 text-[11.5px] font-sans">
+                  Pekarangan dibagi menjadi 9 zona secara proporsional. Sudut paling suci (Utamaning Utama) otomatis diputar menghadap arah Gunung Agung, sedangkan Natah dikunci di pusat pekarangan.
+                </p>
+                <div className="pt-1.5 border-t border-ink-800 flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-bone-400">Posisi Tempat Suci (Sanggah):</span>
+                  <strong className="text-bone-100 bg-ink-950 px-2 py-0.5 rounded border border-ink-700">
+                    Pojok {kajaVector.kaja_quadrant.replace(/_/g, " ")}
+                  </strong>
+                </div>
+                <div className="pt-1 flex items-center justify-between text-[10.5px] font-mono text-bone-400">
+                  <span>Arah Hadap Gambar Denah:</span>
+                  <span>Sisi Atas Menghadap {planNorthDeg}&deg; (Utara)</span>
                 </div>
               </div>
 
@@ -256,11 +278,18 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
                 <span className="text-[11px] font-mono text-bone-400">Perda No. 5/2005 Ps. 12</span>
               </div>
 
-              {/* KDB Formula */}
-              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-1 overflow-x-auto leading-relaxed">
-                <div className="text-bone-400"># Formula Koefisien Dasar Bangunan:</div>
-                <div className="text-bone-100 font-bold">KDB = (Σ Luas_Ruangan / Luas_Pekarangan) × 100%</div>
-                <div className="text-bone-400 pt-0.5">Batas Maksimum Permukiman Adat: ≤ 60.0%</div>
+              {/* Intuitive KDB Formula */}
+              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-2 leading-relaxed">
+                <div className="text-bone-100 font-semibold flex items-center justify-between">
+                  <span>Rumus Kepadatan Bangunan (KDB):</span>
+                  <span className="text-[11px] text-bone-400 font-normal">Maks. 60.0%</span>
+                </div>
+                <div className="p-2 bg-ink-950 rounded border border-ink-800 text-[12px] text-bone-100 font-bold text-center">
+                  (Luas Bangunan Beratap &divide; Luas Total Tanah) &times; 100%
+                </div>
+                <p className="text-bone-400 text-[11px] font-sans">
+                  Halaman terbuka seperti Natah dan Taman dihitung sebagai Ruang Terbuka Hijau (daerah resapan), bukan bangunan beratap.
+                </p>
               </div>
 
               {/* Real Calculation Breakdown */}
@@ -308,13 +337,18 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
                 <span className="text-[11px] font-mono text-bone-400">Auditing Matrix</span>
               </div>
 
-              {/* Scoring Formula */}
-              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-1 overflow-x-auto leading-relaxed">
-                <div className="text-bone-400"># Algoritma Penilaian Kepatuhan Spasial:</div>
-                <div className="text-bone-100 font-bold">
-                  Skor_Kepatuhan = max(0, 100 - Σ Bobot_Penalti)
+              {/* Intuitive Scoring Formula */}
+              <div className="bg-ink-900 border border-ink-800 p-3 rounded font-mono text-[12px] text-bone-300 space-y-2 leading-relaxed">
+                <div className="text-bone-100 font-semibold flex items-center justify-between">
+                  <span>Rumus Nilai Kepatuhan Adat:</span>
+                  <span className="text-[11px] text-bone-400 font-normal">Skala 0 &ndash; 100</span>
                 </div>
-                <div className="text-bone-400">Basis Skor: 100 Poin | Penalti Kritis: -30 s.d. -35 | Peringatan: -15 s.d. -20</div>
+                <div className="p-2 bg-ink-950 rounded border border-ink-800 text-[12px] text-bone-100 font-bold text-center">
+                  Nilai Akhir = 100 Poin &minus; Total Potongan Penalti
+                </div>
+                <p className="text-bone-400 text-[11px] font-sans">
+                  Sistem berawal dari nilai dasar 100. Poin hanya berkurang jika terdapat ruangan yang menyimpang dari hierarki kesucian atau melanggar KDB.
+                </p>
               </div>
 
               {/* Summary Calculation of Current Plan */}

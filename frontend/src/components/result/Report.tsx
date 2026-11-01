@@ -169,95 +169,91 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
           {/* 2. Ringkasan Perhitungan Teknis Sistem */}
           <div className="space-y-1.5 print-avoid-break">
             <h3 className="text-[12px] print:text-[11px] font-bold uppercase tracking-wider border-b border-ink-700 print:border-gray-400 pb-1 text-bone-100 print:text-black flex items-center justify-between">
-              <span>2. Ringkasan Perhitungan Teknis Sistem (Verifikasi Teknis &amp; Tim Ahli TABG)</span>
+              <span>2. Ringkasan Perhitungan Sistem (Metode &amp; Evaluasi Spasial)</span>
               <span className="text-[11px] print:text-[9.5px] font-mono text-bone-400 print:text-gray-600 font-normal">
-                Verifikasi Formula
+                Verifikasi Teknis
               </span>
             </h3>
 
-            {/* 3-Column Scorecard Table */}
+            {/* 3-Column Scorecard Table (Disederhanakan Tanpa Simbol Rumit) */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] print:text-[10px] font-mono">
-              {/* Kolom A: Hitungan Geodesik */}
+              {/* Kolom A: Arah Suci Kaja */}
               <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1">
                 <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 flex items-center gap-1.5 text-[11.5px] print:text-[10.5px]">
                   <Compass size={14} />
-                  <span>A. Sumbu Geodesik Kaja</span>
+                  <span>A. Arah Suci Kaja (Geodesik)</span>
                 </div>
                 <div className="space-y-1 text-bone-300 print:text-gray-800 leading-snug">
                   <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">Tapak:</span>
-                    <span className="font-semibold truncate max-w-[140px]">{kaja_vector.location}</span>
+                    <span className="text-bone-400 print:text-gray-500">Lokasi Tapak:</span>
+                    <span className="font-semibold truncate max-w-[130px]">{kaja_vector.location}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">Koordinat:</span>
-                    <span>{kaja_vector.latitude.toFixed(4)}&deg;, {kaja_vector.longitude.toFixed(4)}&deg;</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">Target Kaja:</span>
-                    <span>Gn. Agung (-8.3433&deg;)</span>
+                    <span className="text-bone-400 print:text-gray-500">Titik Acuan:</span>
+                    <span>Puncak Gn. Agung</span>
                   </div>
                   <div className="flex justify-between pt-0.5 border-t border-ink-850 print:border-gray-200 font-bold text-bone-100 print:text-black">
-                    <span>Sudut Geodesik:</span>
+                    <span>Arah Kompas Kaja:</span>
                     <span>{kaja_vector.bearing_degrees.toFixed(1)}&deg; ({kaja_vector.cardinal_direction})</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">Jarak Tapak:</span>
+                    <span className="text-bone-400 print:text-gray-500">Jarak ke Puncak:</span>
                     <span>{kaja_vector.distance_km ? `${kaja_vector.distance_km.toFixed(1)} km` : "Terpetakan"}</span>
                   </div>
                   <div className="flex justify-between text-[10px] print:text-[9px]">
-                    <span className="text-bone-400 print:text-gray-500">Kuadran Suci:</span>
-                    <span>{kaja_vector.kaja_quadrant}</span>
+                    <span className="text-bone-400 print:text-gray-500">Posisi Tempat Suci:</span>
+                    <span>Sudut {kaja_vector.kaja_quadrant.replace(/_/g, " ")}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Kolom B: Hitungan KDB */}
+              {/* Kolom B: KDB & Kepadatan Bangunan */}
               <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1">
                 <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 text-[11.5px] print:text-[10.5px]">
-                  B. Rasio KDB Pekarangan
+                  B. Rasio KDB (Kepadatan)
                 </div>
                 <div className="space-y-1 text-bone-300 print:text-gray-800 leading-snug">
                   <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">Formula KDB:</span>
-                    <span>(Luas_Atap / Tapak) &times; 100%</span>
+                    <span className="text-bone-400 print:text-gray-500">Cara Hitung:</span>
+                    <span>Luas Bangunan &divide; Luas Tanah</span>
                   </div>
                   <div className="flex justify-between font-bold text-bone-100 print:text-black">
-                    <span>Luas Bangunan:</span>
+                    <span>Bangunan Beratap:</span>
                     <span>{audit_report.kdb_percentage}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">RTH (Resapan):</span>
+                    <span className="text-bone-400 print:text-gray-500">Area Terbuka Hijau:</span>
                     <span>{rthPercentage}% (Natah &amp; Taman)</span>
                   </div>
                   <div className="flex justify-between pt-0.5 border-t border-ink-850 print:border-gray-200">
-                    <span className="text-bone-400 print:text-gray-500">Batas Perda Ps. 12:</span>
-                    <span>Maksimal 60.0%</span>
+                    <span className="text-bone-400 print:text-gray-500">Batas Maksimal:</span>
+                    <span>Maks. 60.0% (Perda 5/2005)</span>
                   </div>
                   <div className="flex justify-between pt-0.5 font-bold">
                     <span className="text-bone-400 print:text-gray-500">Status KDB:</span>
                     <span className={audit_report.kdb_percentage <= 60 ? "text-bone-100 print:text-black" : "text-clay"}>
-                      {audit_report.kdb_percentage <= 60 ? "MEMENUHI" : "MELEBIHI BATAS"}
+                      {audit_report.kdb_percentage <= 60 ? "MEMENUHI ATURAN" : "MELEBIHI BATAS"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Kolom C: Matriks Skor Kepatuhan */}
+              {/* Kolom C: Nilai Kepatuhan Tata Ruang */}
               <div className="p-2.5 print:p-2 bg-ink-950 border border-ink-700 rounded print:border-gray-400 print:bg-white space-y-1">
                 <div className="font-bold text-bone-100 print:text-black border-b border-ink-800 print:border-gray-300 pb-1 text-[11.5px] print:text-[10.5px]">
-                  C. Formulasi Skor Kepatuhan
+                  C. Nilai Kepatuhan Tata Ruang
                 </div>
                 <div className="space-y-1 text-bone-300 print:text-gray-800 leading-snug">
                   <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">Formula Skor:</span>
-                    <span>max(0, 100 - &Sigma; Penalti)</span>
+                    <span className="text-bone-400 print:text-gray-500">Cara Hitung:</span>
+                    <span>Nilai Awal 100 &minus; Penalti</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-bone-400 print:text-gray-500">Skor Dasar:</span>
+                    <span className="text-bone-400 print:text-gray-500">Nilai Awal:</span>
                     <span>100 Poin</span>
                   </div>
                   <div className="flex justify-between text-clay print:text-black">
-                    <span className="text-bone-400 print:text-gray-500">Total Penalti:</span>
+                    <span className="text-bone-400 print:text-gray-500">Total Potongan:</span>
                     <span>
                       {100 - audit_report.compliance_score > 0
                         ? `-${100 - audit_report.compliance_score} Poin`
@@ -265,11 +261,11 @@ export const Report: React.FC<ReportProps> = ({ isOpen, onClose, data }) => {
                     </span>
                   </div>
                   <div className="flex justify-between pt-0.5 border-t border-ink-850 print:border-gray-200 font-bold text-bone-100 print:text-black">
-                    <span>Skor Akhir:</span>
+                    <span>Nilai Akhir:</span>
                     <span>{audit_report.compliance_score} / 100</span>
                   </div>
                   <div className="flex justify-between pt-0.5 font-bold">
-                    <span className="text-bone-400 print:text-gray-500">Kelayakan PBG:</span>
+                    <span className="text-bone-400 print:text-gray-500">Rekomendasi PBG:</span>
                     <span>{isPass ? "LAYAK (MEMENUHI)" : "BELUM LAYAK"}</span>
                   </div>
                 </div>
