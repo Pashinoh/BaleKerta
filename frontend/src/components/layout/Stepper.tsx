@@ -45,12 +45,12 @@ export const Stepper: React.FC<StepperProps> = ({
               )}
 
               {/* Step Button */}
-              <li className="flex-1 max-w-[260px]">
+              <li className={`min-w-0 ${isActive ? "flex-[2] sm:flex-1" : "flex-none sm:flex-1"} max-w-[260px]`}>
                 <button
                   type="button"
                   disabled={!isClickable}
                   onClick={() => isClickable && onSelectStep(s.step)}
-                  className={`w-full flex items-center gap-2.5 p-1.5 rounded-md text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-bone-100 ${
+                  className={`w-full flex items-center gap-2 sm:gap-2.5 p-1.5 rounded-md text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-bone-100 ${
                     isActive
                       ? "bg-ink-800 text-bone-100"
                       : isClickable
@@ -76,8 +76,8 @@ export const Stepper: React.FC<StepperProps> = ({
                     )}
                   </div>
 
-                  {/* Step Label */}
-                  <div className="min-w-0">
+                  {/* Step Label (Desktop & Tablet) */}
+                  <div className="min-w-0 hidden sm:block">
                     <p
                       className={`text-[13px] sm:text-[14px] leading-tight font-medium truncate ${
                         isActive ? "text-bone-100" : "text-bone-400"
@@ -88,6 +88,15 @@ export const Stepper: React.FC<StepperProps> = ({
                     <p className="hidden md:block text-[12px] text-bone-400/80 truncate">
                       {s.description}
                     </p>
+                  </div>
+
+                  {/* Step Label (Compact on Mobile: show title for active step only) */}
+                  <div className="min-w-0 sm:hidden">
+                    {isActive && (
+                      <p className="text-[12px] font-medium text-bone-100 truncate">
+                        {s.label}
+                      </p>
+                    )}
                   </div>
                 </button>
               </li>

@@ -238,7 +238,7 @@ export default function Home() {
           /* ========================================================== */
           <div className="space-y-6">
             {/* 1. TOP HERO: Full-Width Interactive Map */}
-            <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4">
+            <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4 overflow-hidden">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-ink-800">
                 <div>
                   <h2 className="text-[17px] font-semibold text-bone-100 flex items-center gap-2">

@@ -219,8 +219,8 @@ export default function KajaMap({
   return (
     <div className={`flex flex-col space-y-3 ${className}`}>
       {/* Quick Location Chips Bar */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[13px]">
+      <div className="flex items-center justify-between gap-2 min-w-0 w-full overflow-hidden">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[13px] min-w-0 flex-1">
           <span className="text-bone-400 shrink-0 text-[12px] mr-1">
             Pilih cepat:
           </span>
