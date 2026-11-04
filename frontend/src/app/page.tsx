@@ -280,7 +280,7 @@ export default function Home() {
           /* ========================================================== */
           <div className="space-y-10">
             {/* 1. TOP: Peta tanpa heading kartu */}
-            <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4 overflow-hidden">
+            <div className="reveal bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4 overflow-hidden">
               {/* Quick location controls */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -344,13 +344,13 @@ export default function Home() {
             </div>
 
             {/* 2. BOTTOM DASHBOARD */}
-            <div className="bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6">
-              <h3 className="text-[15px] font-semibold text-bone-100 mb-4">
+            <div className="reveal bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6">
+              <h3 className="text-[15px] font-semibold text-bone-100 mb-4 motif-compass">
                 Hasil Analisis Tapak
               </h3>
               
               {/* Summary Card - quick skimmable facts */}
-              <div className="flex flex-col sm:flex-row gap-4 p-4 bg-ink-950/50 border border-ink-700 rounded-lg mb-6">
+              <div className="reveal-left flex flex-col sm:flex-row gap-4 p-4 bg-ink-950/50 border border-ink-700 rounded-lg mb-6">
                 <div className="flex items-center gap-2">
                   <Compass size={16} className="shrink-0 text-bone-100" />
                   <span className="text-[14px] font-medium text-bone-100">Arah Kaja:</span>
@@ -364,10 +364,10 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-center">
-                <div>
+                <div className="reveal-right">
                   <MiniZoneGrid kajaQuadrant={kajaData.kaja_quadrant} />
                 </div>
-                <div className="space-y-4">
+                <div className="reveal-left space-y-4">
                   <p className="text-[14px] text-bone-100 leading-relaxed">
                     <Compass size={16} className="inline-block mr-1" />Arah Kaja lahan Anda menghadap ke {cardinalSingular(kajaData.cardinal_direction)}. Sesuai aturan Sanga Mandala, area paling suci (Utamaning Utama) berada di {cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))} denah Anda.
                   </p>
@@ -375,11 +375,11 @@ export default function Home() {
               </div>
 
               {/* Disclosure moved below grid, full-width */}
-              <Disclosure title="Lihat Detail Teknis & Koordinat" defaultOpen={false}>
+              <Disclosure title="Lihat Detail Teknis & Koordinat" defaultOpen={false} className="reveal">
                 <div className="space-y-4">
                   {/* 3 Metric Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                    <div className="reveal delay-1 p-3 bg-ink-950 border border-ink-800 rounded-lg">
                       <span className="text-[11px] text-bone-300 block mb-1">Koordinat Tanah</span>
                       <span className="text-[13px] font-mono font-medium text-bone-100 block">
                         {lat.toFixed(4)}°, {lon.toFixed(4)}°
@@ -389,7 +389,7 @@ export default function Home() {
                       </span>
                     </div>
 
-                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                    <div className="reveal delay-2 p-3 bg-ink-950 border border-ink-800 rounded-lg">
                       <span className="text-[11px] text-bone-300 block mb-1">Sudut Geodesik Kaja</span>
                       <span className="text-[15px] font-mono font-semibold text-bone-100 block">
                         {kajaData.bearing_degrees.toFixed(1)}°
@@ -399,7 +399,7 @@ export default function Home() {
                       </span>
                     </div>
 
-                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                    <div className="reveal delay-3 p-3 bg-ink-950 border border-ink-800 rounded-lg">
                       <span className="text-[11px] text-bone-300 block mb-1">Jarak ke Gn. Agung</span>
                       <span className="text-[15px] font-mono font-semibold text-bone-100 block">
                         {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
@@ -411,7 +411,7 @@ export default function Home() {
                   </div>
 
                   {/* Cultural rule note */}
-                  <div className="p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
+                  <div className="reveal delay-4 p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
                     <p className="leading-relaxed">
                       <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja mengarah ke Timur Laut. Di Bali Utara (Buleleng), Kaja mengarah ke Selatan.
                     </p>
@@ -427,7 +427,7 @@ export default function Home() {
             </div>
 
             {/* CTA Button below both cards */}
-            <div className="w-full">
+            <div className="reveal w-full">
               <Button
                 variant="primary"
                 size="lg"
@@ -459,15 +459,16 @@ export default function Home() {
               onSelectIndex={setSelectedRoomIndex}
               kajaBearing={kajaData.bearing_degrees}
               kajaDirection={kajaData.cardinal_direction}
+              className="reveal"
             />
 
             {/* 2. BOTTOM CONTROLS: Single Unified Card */}
-            <header className="step-header">
+            <header className="reveal step-header">
               <h2 className="step-title">Masukkan Denah Bangunan</h2>
               <span className="step-subtitle">Langkah 2 dari 3</span>
             </header>
 
-            <div className="step-card">
+            <div className="reveal step-card">
               {/* Mode Selector Tabs */}
               <Tabs
                 tabs={[
@@ -523,7 +524,7 @@ export default function Home() {
               )}
 
               {/* Action Row */}
-              <div className="action-row">
+              <div className="reveal action-row">
                 <Button
                   variant="secondary"
                   size="md"
@@ -573,13 +574,14 @@ export default function Home() {
               onSelectIndex={setSelectedRoomIndex}
               kajaBearing={kajaData.bearing_degrees}
               kajaDirection={kajaData.cardinal_direction}
+              className="reveal"
             />
 
             {/* 2. BOTTOM WORKSPACE: Unified Cards */}
             {auditData && (
               <>
                 {/* Header ringkas + SourceBanner compact */}
-                <header className="step-header">
+                <header className="reveal step-header">
                   <h2 className="step-title">Hasil Pemeriksaan</h2>
                   <SourceBanner
                     source={auditData.source}
@@ -592,28 +594,30 @@ export default function Home() {
                 <Verdict
                   report={auditData.audit_report}
                   onPrintReport={() => setIsReportOpen(true)}
+                  className="reveal"
                 />
 
                 {/* Issues List in unified card */}
-                <div className="step-card">
+                <div className="reveal step-card">
                   <header className="section-header">
                     <span className="section-title">Perbaikan Diperlukan</span>
                     <span className="text-[12px] font-mono text-bone-400">Asta Kosala-Kosali</span>
                   </header>
                   {auditData.audit_report.violations.length === 0 ? (
-                    <div className="p-6 text-center text-bone-400 bg-ink-950/50 rounded-lg border border-ink-700/50 space-y-1">
+                    <div className="reveal p-6 text-center text-bone-400 bg-ink-950/50 rounded-lg border border-ink-700/50 space-y-1">
                       <CheckCircle2 size={28} className="text-bone-100 mx-auto" />
                       <p className="text-[14px] font-medium text-bone-100">
                         Semua ruangan sudah sesuai pakem Asta Bumi. Tidak ada pelanggaran.
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="reveal space-y-3">
                       {auditData.audit_report.violations.map((violation, i) => (
                         <IssueCard
                           key={violation.id || i}
                           violation={violation}
                           index={i}
+                          className={`reveal delay-${(i % 5) + 1}`}
                           onFocusRoom={() => {
                             const idx = auditData.rooms.findIndex(
                               (r) =>
@@ -642,12 +646,13 @@ export default function Home() {
                       </span>
                     }
                     subtitle="Daftar tata letak yang mematuhi pakem Asta Bumi"
+                    className="reveal"
                   >
                     <ul className="space-y-2 pt-1 text-[13px]">
                       {auditData.audit_report.compliances.map((c, idx) => (
                         <li
                           key={idx}
-                          className="flex items-start gap-2 p-2 bg-ink-950/50 rounded border border-ink-700/50"
+                          className={`reveal delay-${(idx % 5) + 1} flex items-start gap-2 p-2 bg-ink-950/50 rounded border border-ink-700/50`}
                         >
                           <CheckCircle2 size={15} className="text-bone-100 shrink-0 mt-0.5" />
                           <div className="space-y-0.5">
@@ -665,7 +670,7 @@ export default function Home() {
                 )}
 
                 {/* Footer Action Row */}
-                <div className="action-row">
+                <div className="reveal action-row">
                   <Button
                     variant="secondary"
                     size="md"

@@ -49,7 +49,15 @@ body {
   background-color: #0E0D0C !important;
 }
 
-/* Transitions adhering to design spec (120-160ms) */
+/* Motion System — MOTION 2 (subtle transitions + scroll-reveal) */
+:root {
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 280ms;
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -58,6 +66,152 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Base transition utilities */
+.transition-base {
+  transition: all var(--motion-base) var(--ease-out);
+}
+.transition-fast {
+  transition: all var(--motion-fast) var(--ease-out);
+}
+.transition-slow {
+  transition: all var(--motion-slow) var(--ease-in-out);
+}
+
+/* Entrance animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up var(--motion-slow) var(--ease-out) forwards;
+}
+.animate-fade-in {
+  animation: fade-in var(--motion-base) var(--ease-out) forwards;
+}
+.animate-slide-in-right {
+  animation: slide-in-right var(--motion-base) var(--ease-out) forwards;
+}
+.animate-scale-in {
+  animation: scale-in var(--motion-base) var(--ease-out) forwards;
+}
+
+/* Stagger delays for lists */
+.delay-1 { animation-delay: 60ms; }
+.delay-2 { animation-delay: 120ms; }
+.delay-3 { animation-delay: 180ms; }
+.delay-4 { animation-delay: 240ms; }
+.delay-5 { animation-delay: 300ms; }
+
+/* Scroll reveal (IntersectionObserver will add .in-view) */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity var(--motion-slow) var(--ease-out), transform var(--motion-slow) var(--ease-out);
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity var(--motion-slow) var(--ease-out), transform var(--motion-slow) var(--ease-out);
+}
+.reveal-left.in-view {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity var(--motion-slow) var(--ease-out), transform var(--motion-slow) var(--ease-out);
+}
+.reveal-right.in-view {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Focus visible — clear, accessible */
+:focus-visible {
+  outline: 2px solid #EDE7DA;
+  outline-offset: 2px;
+}
+
+/* Identity Motif — Sanga Mandala geometric accent */
+.motif-compass::before {
+  content: "";
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='2' x2='12' y2='22'/%3E%3Cline x1='2' y1='12' x2='22' y2='12'/%3E%3Cline x1='4.93' y1='4.93' x2='19.07' y2='19.07'/%3E%3Cline x1='19.07' y1='4.93' x2='4.93' y2='19.07'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='2' x2='12' y2='22'/%3E%3Cline x1='2' y1='12' x2='22' y2='12'/%3E%3Cline x1='4.93' y1='4.93' x2='19.07' y2='19.07'/%3E%3Cline x1='19.07' y1='4.93' x2='4.93' y2='19.07'/%3E%3C/svg%3E") center/contain no-repeat;
+  background: currentColor;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #2A2622 25%, #3A352F 50%, #2A2622 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #A39B8B;
+}
+.empty-state-icon {
+  margin: 0 auto 0.75rem;
+  color: #A39B8B80;
+}
+.empty-state-title {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #EDE7DA;
+  margin-bottom: 0.25rem;
+}
+.empty-state-desc {
+  font-size: 0.8125rem;
+  color: #A39B8B;
+}
+
+/* Toast/notification */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  animation: slide-in-right var(--motion-base) var(--ease-out);
+}
+.toast-success { background: #151311; border-color: #EDE7DA4D; color: #EDE7DA; }
+.toast-error { background: #151311; border-color: #D2603F4D; color: #D2603F; }
+.toast-info { background: #151311; border-color: #EDE7DA4D; color: #A39B8B; }
 
 /* Print Stylesheet for Official Pre-Inspection Report */
 @media print {
