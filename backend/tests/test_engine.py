@@ -9,8 +9,8 @@ from engine.sanga_mandala import (
     rotate_matrix_clockwise,
     ZONE_KEYS,
 )
-from engine.audit_checker import run_spatial_audit
-from engine.vision_parser import classify_and_normalize_room, normalize_box
+from engine.audit_checker import run_spatial_audit, compute_boxes_union_area
+from engine.vision_parser import classify_and_normalize_room, normalize_box, enrich_bare_room_name
 
 
 # ---------------------------------------------------------------- rotasi matriks
@@ -182,7 +182,7 @@ def test_multiple_rooms_blocking_natah_deduplicates_score_penalty():
         ],
         None,
     )
-    natah_viols = [v for v in report["violations"] and report["violations"] if v["rule_id"] == "NATAH_BLOCKED"]
+    natah_viols = [v for v in report["violations"] if v["rule_id"] == "NATAH_BLOCKED"]
     assert len(natah_viols) == 2
     assert report["compliance_score"] == 85  # 100 - 15 (bukan 100 - 30)
 
@@ -207,6 +207,25 @@ def test_kdb_ok_small_build():
     assert not any(v["rule_id"] == "KDB_EXCEEDED" for v in report["violations"])
 
 
+def test_compute_boxes_union_area_no_double_counting():
+    """Kotak yang beririsan penuh atau sebagian tidak dihitung ganda dalam luas KDB."""
+    outer = [100, 100, 500, 500]  # 400 x 400 = 160_000
+    inner = [200, 200, 400, 400]  # sepenuhnya di dalam outer
+    assert compute_boxes_union_area([outer, inner]) == 160_000
+
+
+def test_insufficient_room_labels_on_sparse_plan():
+    """Denah dengan grid aktif tetapi < 3 ruangan terdeteksi diberi peringatan INSUFFICIENT_ROOM_LABELS."""
+    grid = build_sanga_mandala_grid("TOP_RIGHT", 0)
+    report = run_spatial_audit(
+        [room("natah_open_space", "MADYANING_MADYA", name="Natah Open Space")],
+        grid,
+    )
+    rules = [v["rule_id"] for v in report["violations"]]
+    assert "INSUFFICIENT_ROOM_LABELS" in rules
+    assert report["compliance_score"] == 65  # 100 - 20 (NO_PEMERAJAN) - 15 (INSUFFICIENT_ROOM_LABELS)
+
+
 # ---------------------------------------------------------------- normalisasi ruangan
 def test_classify_synonyms():
     assert classify_and_normalize_room("Sanggah Keluarga") == "pemerajan_sanggah"
@@ -216,6 +235,12 @@ def test_classify_synonyms():
     assert classify_and_normalize_room("Kamar Tidur Utama") == "bale_daja"
     assert classify_and_normalize_room("Bale Dangin") == "bale_dangin"
     assert classify_and_normalize_room("Zona Misterius") == "ruang_tamu"
+
+
+def test_enrich_bare_room_name():
+    assert enrich_bare_room_name("A", "pemerajan_sanggah") == "Kode A (Pemerajan / Sanggah)"
+    assert enrich_bare_room_name("12", "pemerajan_sanggah") == "Kode 12 (Pemerajan / Sanggah)"
+    assert enrich_bare_room_name("Bale Daja", "bale_daja") == "Bale Daja"
 
 
 def test_normalize_box():
