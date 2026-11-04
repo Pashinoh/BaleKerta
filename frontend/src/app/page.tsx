@@ -33,7 +33,7 @@ import {
   ApiError,
 } from "@/lib/api";
 import { DEFAULT_LOCATION, BALI_QUICK_LOCATIONS, isInBali } from "@/lib/geo";
-import { ArrowRight, ArrowLeft, RefreshCw, CheckCircle2, Locate, AlertCircle, X } from "lucide-react";
+import { ArrowRight, ArrowLeft, RefreshCw, CheckCircle2, Locate, AlertCircle, X, Compass, Landmark } from "lucide-react";
 
 // Dynamic import for Leaflet map to disable SSR
 const KajaMap = dynamic(() => import("@/components/map/KajaMap"), {
@@ -44,6 +44,32 @@ const KajaMap = dynamic(() => import("@/components/map/KajaMap"), {
     </div>
   ),
 });
+
+// Helper: cardinal direction to singular Indonesian (remove NE/E/NW etc)
+function cardinalSingular(cardinal: string): string {
+  const map: Record<string, string> = {
+    "Timur Laut (NE)": "Timur Laut",
+    "Timur (E)": "Timur",
+    "Timur Daya (SE)": "Timur Daya",
+    "Selatan (S)": "Selatan",
+    "Barat Daya (SW)": "Barat Daya",
+    "Barat (W)": "Barat",
+    "Barat Laut (NW)": "Barat Laut",
+    "Utara (N)": "Utara",
+  };
+  return map[cardinal] || cardinal.replace(/\s*\([A-Z]{1,2}\)/, "");
+}
+
+// Helper: corner label to capitalized Indonesian
+function cornerCapitalized(corner: string): string {
+  const map: Record<string, string> = {
+    "kanan-atas": "Sudut Kanan Atas",
+    "kanan-bawah": "Sudut Kanan Bawah",
+    "kiri-bawah": "Sudut Kiri Bawah",
+    "kiri-atas": "Sudut Kiri Atas",
+  };
+  return map[corner] || corner;
+}
 
 export default function Home() {
   // Stepper state
@@ -322,65 +348,82 @@ export default function Home() {
               <h3 className="text-[15px] font-semibold text-bone-100 mb-4">
                 Hasil Analisis Tapak
               </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              
+              {/* Summary Card - quick skimmable facts */}
+              <div className="flex flex-col sm:flex-row gap-4 p-4 bg-ink-950/50 border border-ink-700 rounded-lg mb-6">
+                <div className="flex items-center gap-2">
+                  <Compass size={16} className="shrink-0 text-bone-100" />
+                  <span className="text-[14px] font-medium text-bone-100">Arah Kaja:</span>
+                  <span className="text-[14px] text-bone-300">{cardinalSingular(kajaData.cardinal_direction)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Landmark size={16} className="shrink-0 text-bone-100" />
+                  <span className="text-[14px] font-medium text-bone-100">Area Sanggah:</span>
+                  <span className="text-[14px] text-bone-300">{cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-center">
                 <div>
                   <MiniZoneGrid kajaQuadrant={kajaData.kaja_quadrant} />
                 </div>
                 <div className="space-y-4">
                   <p className="text-[14px] text-bone-100 leading-relaxed">
-                    Berdasarkan lokasi Anda di {kajaData.location_label?.replace(/\s*\(-?\d{1,3}\.\d+,\s*-?\d{1,3}\.\d+\)/, "") || "Wilayah Bali"}, Arah Kaja menghadap {kajaData.cardinal_direction}. Area suci (Utamaning Utama) berada di sudut {sacredCornerLabel(kajaData.kaja_quadrant).charAt(0).toUpperCase() + sacredCornerLabel(kajaData.kaja_quadrant).slice(1)} denah Anda.
+                    <Compass size={16} className="inline-block mr-1" />Arah Kaja lahan Anda menghadap ke {cardinalSingular(kajaData.cardinal_direction)}. Sesuai aturan Sanga Mandala, area paling suci (Utamaning Utama) berada di {cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))} denah Anda.
                   </p>
-                  <Disclosure title="Lihat Detail Parameter Spasial" defaultOpen={false}>
-                    <div className="space-y-4">
-                      {/* 3 Metric Cards */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                          <span className="text-[11px] text-bone-300 block mb-1">Koordinat Tanah</span>
-                          <span className="text-[13px] font-mono font-medium text-bone-100 block">
-                            {lat.toFixed(4)}°, {lon.toFixed(4)}°
-                          </span>
-                          <span className="text-[11px] text-bone-300 mt-1 block truncate">
-                            {kajaData.location_label || "Wilayah Bali"}
-                          </span>
-                        </div>
-
-                        <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                          <span className="text-[11px] text-bone-300 block mb-1">Sudut Geodesik Kaja</span>
-                          <span className="text-[15px] font-mono font-semibold text-bone-100 block">
-                            {kajaData.bearing_degrees.toFixed(1)}°
-                          </span>
-                          <span className="text-[11px] text-clay font-medium mt-1 block">
-                            Arah {kajaData.cardinal_direction}
-                          </span>
-                        </div>
-
-                        <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                          <span className="text-[11px] text-bone-300 block mb-1">Jarak ke Gn. Agung</span>
-                          <span className="text-[15px] font-mono font-semibold text-bone-100 block">
-                            {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
-                          </span>
-                          <span className="text-[11px] text-bone-300 mt-1 block">
-                            Puncak 3.142 mdpl
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Cultural rule note */}
-                      <div className="p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
-                        <p className="leading-relaxed">
-                          <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja mengarah ke Timur Laut. Di Bali Utara (Buleleng), Kaja mengarah ke Selatan.
-                        </p>
-                        <p className="text-[12px] text-bone-300">
-                          Sistem kami mengunci orientasi ini agar denah bangunan yang diaudit pada Langkah 2 dievaluasi secara akurat.
-                        </p>
-                      </div>
-                      <div className="text-[11px] font-mono text-bone-300">
-                        Asta Bumi Geodesic Engine
-                      </div>
-                    </div>
-                  </Disclosure>
                 </div>
               </div>
+
+              {/* Disclosure moved below grid, full-width */}
+              <Disclosure title="Lihat Detail Teknis & Koordinat" defaultOpen={false}>
+                <div className="space-y-4">
+                  {/* 3 Metric Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[11px] text-bone-300 block mb-1">Koordinat Tanah</span>
+                      <span className="text-[13px] font-mono font-medium text-bone-100 block">
+                        {lat.toFixed(4)}°, {lon.toFixed(4)}°
+                      </span>
+                      <span className="text-[11px] text-bone-300 mt-1 block truncate">
+                        {kajaData.location_label || "Wilayah Bali"}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[11px] text-bone-300 block mb-1">Sudut Geodesik Kaja</span>
+                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                        {kajaData.bearing_degrees.toFixed(1)}°
+                      </span>
+                      <span className="text-[11px] text-clay font-medium mt-1 block">
+                        Arah {kajaData.cardinal_direction}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[11px] text-bone-300 block mb-1">Jarak ke Gn. Agung</span>
+                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                        {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
+                      </span>
+                      <span className="text-[11px] text-bone-300 mt-1 block">
+                        Puncak 3.142 mdpl
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cultural rule note */}
+                  <div className="p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
+                    <p className="leading-relaxed">
+                      <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja mengarah ke Timur Laut. Di Bali Utara (Buleleng), Kaja mengarah ke Selatan.
+                    </p>
+                    <p className="text-[12px] text-bone-300">
+                      Sistem kami mengunci orientasi ini agar denah bangunan yang diaudit pada Langkah 2 dievaluasi secara akurat.
+                    </p>
+                  </div>
+                  <div className="text-[11px] font-mono text-bone-300">
+                    Asta Bumi Geodesic Engine
+                  </div>
+                </div>
+              </Disclosure>
             </div>
 
             {/* CTA Button below both cards */}

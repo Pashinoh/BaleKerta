@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Compass, Landmark } from "lucide-react";
 
 export interface MiniZoneGridProps {
   bearing?: number;
@@ -45,9 +45,37 @@ export function sacredCornerLabel(
   return "kiri-atas";
 }
 
+// Helper: cardinal direction to singular Indonesian
+function cardinalSingular(cardinal?: string): string {
+  if (!cardinal) return "Timur";
+  const map: Record<string, string> = {
+    "Timur Laut (NE)": "Timur Laut",
+    "Timur (E)": "Timur",
+    "Timur Daya (SE)": "Timur Daya",
+    "Selatan (S)": "Selatan",
+    "Barat Daya (SW)": "Barat Daya",
+    "Barat (W)": "Barat",
+    "Barat Laut (NW)": "Barat Laut",
+    "Utara (N)": "Utara",
+  };
+  return map[cardinal] || cardinal.replace(/\s*\([A-Z]{1,2}\)/, "");
+}
+
+// Helper: corner label to capitalized Indonesian
+function cornerCapitalized(corner: string): string {
+  const map: Record<string, string> = {
+    "kanan-atas": "Sudut Kanan Atas",
+    "kanan-bawah": "Sudut Kanan Bawah",
+    "kiri-bawah": "Sudut Kiri Bawah",
+    "kiri-atas": "Sudut Kiri Atas",
+  };
+  return map[corner] || corner;
+}
+
 export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
   kajaQuadrant,
   planNorthDeg = 0,
+  cardinalDirection,
 }) => {
   // Determine sacred cell (row, col) based on quadrant and plan rotation
   const sacredPos = useMemo(() => {
@@ -78,6 +106,10 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
     return { row: r, col: c };
   }, [kajaQuadrant, planNorthDeg]);
 
+  const cornerLabel = sacredCornerLabel(kajaQuadrant, planNorthDeg);
+  const cardSingular = cardinalSingular(cardinalDirection);
+  const cornerCap = cornerCapitalized(cornerLabel);
+
   return (
     <div>
       {/* 3x3 Mini Grid */}
@@ -86,17 +118,21 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
           [0, 1, 2].map((c) => {
             const isSacred = r === sacredPos.row && c === sacredPos.col;
             const isCenter = r === 1 && c === 1;
+            const isMadya = isCenter || (r === 1 && c !== 1) || (c === 1 && r !== 1); // center + 4 cardinal sides
+
+            let cellClass = "flex flex-col items-center justify-center p-1 rounded text-center transition-all border border-ink-700 ";
+            if (isSacred) {
+              cellClass += "bg-bone-100 text-ink-950 border-bone-100";
+            } else if (isMadya) {
+              cellClass += "bg-bone-100/15 text-bone-100";
+            } else {
+              cellClass += "bg-ink-950/50 text-bone-400";
+            }
 
             return (
               <div
                 key={`${r}-${c}`}
-                className={`flex flex-col items-center justify-center p-1 rounded text-center transition-all ${
-                  isSacred
-                    ? "border border-bone-100 bg-bone-100 text-ink-950"
-                    : isCenter
-                    ? "border border-ink-700 bg-ink-900/80 text-bone-400"
-                    : "border border-ink-700/60 bg-ink-900/40 text-bone-400/80"
-                }`}
+                className={cellClass}
               >
                 {isSacred ? (
                   <>
@@ -113,12 +149,12 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
                     <span className="text-[15px] font-medium text-bone-100 leading-tight">
                       Natah
                     </span>
-                    <span className="text-[13px] text-bone-400 font-mono">
+                    <span className="text-[13px] text-bone-100 font-mono">
                       (Halaman)
                     </span>
                   </>
                 ) : (
-                  <span className="text-[15px] text-bone-400/90 leading-tight">
+                  <span className="text-[15px] leading-tight">
                     {r === 0 ? "Kaja" : r === 2 ? "Kelod" : ""}{" "}
                     {c === 0 ? "Kauh" : c === 2 ? "Kangin" : ""}
                   </span>
@@ -127,6 +163,14 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
             );
           })
         )}
+      </div>
+
+      {/* Cultural Meaning Explanation - simplified human-friendly */}
+      <div className="mt-3 text-[13px] text-bone-300 bg-ink-950 p-3 rounded border border-ink-700/60 leading-relaxed">
+        <Compass size={14} className="inline-block mr-1 text-bone-100" />
+        Kaja = arah ke Gunung Agung ({cardSingular}).{" "}
+        <Landmark size={14} className="inline-block mr-1 text-bone-100" />
+        Area suci (Utamaning Utama, tempat Sanggah/Pemerajan) = {cornerCap} denah Anda.
       </div>
     </div>
   );
