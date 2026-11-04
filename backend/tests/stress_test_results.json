@@ -1,0 +1,2120 @@
+[
+  {
+    "index": 1,
+    "test_case": {
+      "id": "denah_01",
+      "title": "1. Rumah Adat Tradisional Bali (Sanga Mandala Murni)",
+      "source": "Indonesian Heritage Vol. 6 / Wikimedia Commons",
+      "filename": "denah_1_tradisional_bali.jpg",
+      "regency": "gianyar",
+      "plan_north_deg": 0,
+      "category": "Tradisional Murni (Legenda Nomor)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.1,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 12,
+    "kdb_percentage": 38.8,
+    "compliance_score": 25,
+    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
+    "violations_count": 5,
+    "violation_rules": [
+      "PEMERAJAN_OFF_CORNER",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "PEMERAJAN_OFF_CORNER"
+    ],
+    "rooms": [
+      {
+        "name": "1",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          380,
+          455,
+          775,
+          588
+        ]
+      },
+      {
+        "name": "2",
+        "type": "pemerajan_sanggah",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          185,
+          388,
+          330,
+          550
+        ]
+      },
+      {
+        "name": "3",
+        "type": "bale_daja",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          231,
+          224,
+          456,
+          508
+        ]
+      },
+      {
+        "name": "4",
+        "type": "bale_dangin",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          228,
+          539,
+          424,
+          784
+        ]
+      },
+      {
+        "name": "5",
+        "type": "bale_dauh",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          408,
+          225,
+          617,
+          493
+        ]
+      },
+      {
+        "name": "6",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          344,
+          513,
+          617,
+          779
+        ]
+      },
+      {
+        "name": "7",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          553,
+          530,
+          780,
+          789
+        ]
+      },
+      {
+        "name": "8",
+        "type": "ruang_tamu",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          286,
+          741,
+          512,
+          910
+        ]
+      },
+      {
+        "name": "9",
+        "type": "dapur_paon",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          389,
+          839,
+          496,
+          975
+        ]
+      },
+      {
+        "name": "10",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          615,
+          431,
+          738,
+          485
+        ]
+      },
+      {
+        "name": "11",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          607,
+          487,
+          677,
+          521
+        ]
+      },
+      {
+        "name": "12",
+        "type": "pemerajan_sanggah",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          404,
+          80,
+          479,
+          122
+        ]
+      }
+    ]
+  },
+  {
+    "index": 2,
+    "test_case": {
+      "id": "denah_02",
+      "title": "2. Umah Hati Villa — Floor Plan (Sayan, Ubud)",
+      "source": "Studio Jencquel / ArchDaily",
+      "filename": "denah_2_umah_hati_ubud.jpg",
+      "regency": "gianyar",
+      "plan_north_deg": 0,
+      "category": "Villa Vernakular Modern (Teks Mandarin)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash",
+    "rooms_count": 6,
+    "kdb_percentage": 3.1,
+    "compliance_score": 80,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
+    "violation_rules": [
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "露台",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          308,
+          458,
+          483,
+          672
+        ]
+      },
+      {
+        "name": "露台",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          442,
+          292,
+          597,
+          412
+        ]
+      },
+      {
+        "name": "中庭",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          484,
+          492,
+          575,
+          604
+        ]
+      },
+      {
+        "name": "办公",
+        "type": "bale_dauh",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          503,
+          419,
+          574,
+          492
+        ]
+      },
+      {
+        "name": "办公",
+        "type": "bale_dauh",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          503,
+          604,
+          574,
+          694
+        ]
+      },
+      {
+        "name": "连廊",
+        "type": "ruang_tamu",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          462,
+          726,
+          604,
+          863
+        ]
+      }
+    ]
+  },
+  {
+    "index": 3,
+    "test_case": {
+      "id": "denah_03",
+      "title": "3. Umah Hati Villa — Master Site Plan (Sayan, Ubud)",
+      "source": "Studio Jencquel / ArchDaily",
+      "filename": "denah_2_umah_hati_site.jpg",
+      "regency": "gianyar",
+      "plan_north_deg": 0,
+      "category": "Site Plan Kontur Lanskap"
+    },
+    "http_status": 422,
+    "elapsed_s": 13.67,
+    "error": {
+      "error": "no_rooms_detected",
+      "message": "Model AI tidak mendeteksi teks batas ruangan pada denah yang diunggah. Pastikan gambar denah memiliki tulisan label ruangan yang jelas."
+    }
+  },
+  {
+    "index": 4,
+    "test_case": {
+      "id": "denah_04",
+      "title": "4. Oberoi Villa — Main House Ground Floor (Seminyak)",
+      "source": "Arkana Architects / ArchDaily",
+      "filename": "denah_3_oberoi_mainhouse.jpg",
+      "regency": "badung",
+      "plan_north_deg": 0,
+      "category": "Villa Modern (Label Inggris + Nomor)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 6,
+    "kdb_percentage": 15.6,
+    "compliance_score": 20,
+    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
+    "violations_count": 5,
+    "violation_rules": [
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "1. Entrance",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          371,
+          344,
+          561,
+          426
+        ]
+      },
+      {
+        "name": "2. Foyer",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          229,
+          429,
+          562,
+          600
+        ]
+      },
+      {
+        "name": "3. Main Living Area",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          230,
+          430,
+          408,
+          605
+        ]
+      },
+      {
+        "name": "4. Bedroom",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          561,
+          491,
+          761,
+          600
+        ]
+      },
+      {
+        "name": "5. Bathroom",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          539,
+          426,
+          759,
+          500
+        ]
+      },
+      {
+        "name": "6. Terrace",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          224,
+          602,
+          544,
+          648
+        ]
+      }
+    ]
+  },
+  {
+    "index": 5,
+    "test_case": {
+      "id": "denah_05",
+      "title": "5. Oberoi Villa — Compound Master Plan (Seminyak)",
+      "source": "Arkana Architects / ArchDaily",
+      "filename": "denah_3_oberoi_masterplan.jpg",
+      "regency": "badung",
+      "plan_north_deg": 0,
+      "category": "Master Plan Kompleks Villa"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash",
+    "rooms_count": 8,
+    "kdb_percentage": 12.5,
+    "compliance_score": 80,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
+    "violation_rules": [
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "Entrance",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          550,
+          250,
+          610,
+          310
+        ]
+      },
+      {
+        "name": "Small Amphitheater",
+        "type": "natah_open_space",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          269,
+          237,
+          597,
+          385
+        ]
+      },
+      {
+        "name": "Motor Access",
+        "type": "garasi",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          417,
+          105,
+          545,
+          163
+        ]
+      },
+      {
+        "name": "Badminton Court",
+        "type": "taman",
+        "zone_id": "NISTANING_UTAMA",
+        "box": [
+          108,
+          140,
+          452,
+          276
+        ]
+      },
+      {
+        "name": "Common Area",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          116,
+          281,
+          281,
+          404
+        ]
+      },
+      {
+        "name": "Guest House",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          175,
+          411,
+          360,
+          532
+        ]
+      },
+      {
+        "name": "Pool Area",
+        "type": "taman",
+        "zone_id": "UTAMANING_UTAMA",
+        "box": [
+          237,
+          603,
+          420,
+          792
+        ]
+      },
+      {
+        "name": "Main House",
+        "type": "bale_daja",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          398,
+          725,
+          785,
+          908
+        ]
+      }
+    ]
+  },
+  {
+    "index": 6,
+    "test_case": {
+      "id": "denah_06",
+      "title": "6. Terrace Villa Level +0 (Ubud)",
+      "source": "Studio Neba / ArchDaily",
+      "filename": "denah_4_terrace_villa_neba.jpg",
+      "regency": "gianyar",
+      "plan_north_deg": 0,
+      "category": "Villa Tropis Kontemporer (CAD Halus)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 7,
+    "kdb_percentage": 10.7,
+    "compliance_score": 35,
+    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
+    "violations_count": 4,
+    "violation_rules": [
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "Common Kitchen",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          253,
+          388,
+          435,
+          555
+        ]
+      },
+      {
+        "name": "One Bedroom Unit",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          252,
+          595,
+          388,
+          730
+        ]
+      },
+      {
+        "name": "Mezzanine - Lounge",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          400,
+          603,
+          567,
+          730
+        ]
+      },
+      {
+        "name": "Mezzanine - Lounge",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          569,
+          603,
+          735,
+          730
+        ]
+      },
+      {
+        "name": "Mezzanine - Lounge",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          736,
+          603,
+          864,
+          730
+        ]
+      },
+      {
+        "name": "Pool",
+        "type": "taman",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          465,
+          421,
+          735,
+          514
+        ]
+      },
+      {
+        "name": "Pond",
+        "type": "taman",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          386,
+          614,
+          439,
+          730
+        ]
+      }
+    ]
+  },
+  {
+    "index": 7,
+    "test_case": {
+      "id": "denah_07",
+      "title": "7. 321 Canggu Residence (Canggu)",
+      "source": "ArchDaily Indonesia",
+      "filename": "denah_5_canggu_321.jpg",
+      "regency": "badung",
+      "plan_north_deg": 0,
+      "category": "Hunian Modern Canggu"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 21,
+    "kdb_percentage": 15.9,
+    "compliance_score": 0,
+    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
+    "violations_count": 5,
+    "violation_rules": [
+      "BEDROOM_IN_TEBA",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "TOILET_IN_SACRED",
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "1. Carport",
+        "type": "garasi",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          574,
+          363,
+          790,
+          472
+        ]
+      },
+      {
+        "name": "2. Storage",
+        "type": "ruang_tamu",
+        "zone_id": "NISTANING_NISTA",
+        "box": [
+          632,
+          290,
+          729,
+          360
+        ]
+      },
+      {
+        "name": "3. Maid Room",
+        "type": "kamar_tidur",
+        "zone_id": "NISTANING_NISTA",
+        "box": [
+          631,
+          224,
+          729,
+          289
+        ]
+      },
+      {
+        "name": "4. Service Area",
+        "type": "dapur_paon",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          566,
+          223,
+          632,
+          329
+        ]
+      },
+      {
+        "name": "5. Mait Toilet",
+        "type": "toilet",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          613,
+          223,
+          669,
+          273
+        ]
+      },
+      {
+        "name": "6. Main Entrance",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          521,
+          518,
+          572,
+          535
+        ]
+      },
+      {
+        "name": "7. Floating Bridge",
+        "type": "taman",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          210,
+          337,
+          414,
+          363
+        ]
+      },
+      {
+        "name": "8. Pool",
+        "type": "taman",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          210,
+          365,
+          414,
+          485
+        ]
+      },
+      {
+        "name": "9. Sunbath Pod",
+        "type": "taman",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          210,
+          367,
+          308,
+          424
+        ]
+      },
+      {
+        "name": "10. Living Room",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          420,
+          369,
+          508,
+          472
+        ]
+      },
+      {
+        "name": "11. Kitchen",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          383,
+          607,
+          508,
+          715
+        ]
+      },
+      {
+        "name": "12. Toilet",
+        "type": "toilet",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          383,
+          717,
+          456,
+          747
+        ]
+      },
+      {
+        "name": "13. Pantry & Dining Space",
+        "type": "dapur_paon",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          419,
+          224,
+          542,
+          364
+        ]
+      },
+      {
+        "name": "14. Bedroom A",
+        "type": "kamar_tidur",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          381,
+          224,
+          493,
+          333
+        ]
+      },
+      {
+        "name": "15. Bathroom A",
+        "type": "toilet",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          390,
+          224,
+          487,
+          273
+        ]
+      },
+      {
+        "name": "16. Bedroom B",
+        "type": "kamar_tidur",
+        "zone_id": "NISTANING_UTAMA",
+        "box": [
+          210,
+          224,
+          333,
+          334
+        ]
+      },
+      {
+        "name": "17. Bathroom B",
+        "type": "toilet",
+        "zone_id": "NISTANING_UTAMA",
+        "box": [
+          210,
+          224,
+          381,
+          273
+        ]
+      },
+      {
+        "name": "18. Master Bedroom",
+        "type": "bale_daja",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          210,
+          492,
+          333,
+          597
+        ]
+      },
+      {
+        "name": "19. Walk-in Closet",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          210,
+          597,
+          333,
+          697
+        ]
+      },
+      {
+        "name": "20. Master Bathroom",
+        "type": "toilet",
+        "zone_id": "UTAMANING_UTAMA",
+        "box": [
+          210,
+          697,
+          333,
+          746
+        ]
+      },
+      {
+        "name": "21. Garden",
+        "type": "taman",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          683,
+          537,
+          771,
+          723
+        ]
+      }
+    ]
+  },
+  {
+    "index": 8,
+    "test_case": {
+      "id": "denah_08",
+      "title": "8. Suncoast Villa (Canggu)",
+      "source": "Biombo Architects / ArchDaily",
+      "filename": "denah_6_suncoast_canggu.jpg",
+      "regency": "badung",
+      "plan_north_deg": 0,
+      "category": "Villa Komersial Multi-Massa"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash",
+    "rooms_count": 17,
+    "kdb_percentage": 12.3,
+    "compliance_score": 0,
+    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
+    "violations_count": 9,
+    "violation_rules": [
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "PARKING",
+        "type": "garasi",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          325,
+          381,
+          383,
+          458
+        ]
+      },
+      {
+        "name": "GARDEN",
+        "type": "taman",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          308,
+          471,
+          387,
+          574
+        ]
+      },
+      {
+        "name": "BARBEQUE",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          308,
+          575,
+          387,
+          701
+        ]
+      },
+      {
+        "name": "RETAIL 1",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          389,
+          380,
+          545,
+          458
+        ]
+      },
+      {
+        "name": "RETAIL 2",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          555,
+          335,
+          715,
+          407
+        ]
+      },
+      {
+        "name": "LIVING",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          390,
+          471,
+          544,
+          575
+        ]
+      },
+      {
+        "name": "DINING",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          544,
+          471,
+          641,
+          575
+        ]
+      },
+      {
+        "name": "KITCHEN",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          641,
+          471,
+          715,
+          575
+        ]
+      },
+      {
+        "name": "STORAGE",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          646,
+          431,
+          715,
+          469
+        ]
+      },
+      {
+        "name": "TOILET",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          596,
+          431,
+          646,
+          469
+        ]
+      },
+      {
+        "name": "WC",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          555,
+          431,
+          596,
+          469
+        ]
+      },
+      {
+        "name": "TERRACE",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          501,
+          575,
+          715,
+          701
+        ]
+      },
+      {
+        "name": "SWIMMING POOL",
+        "type": "taman",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          308,
+          622,
+          501,
+          701
+        ]
+      },
+      {
+        "name": "GARDEN",
+        "type": "taman",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          308,
+          701,
+          501,
+          786
+        ]
+      },
+      {
+        "name": "TERRACE",
+        "type": "ruang_tamu",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          501,
+          701,
+          544,
+          786
+        ]
+      },
+      {
+        "name": "BEDROOM 2",
+        "type": "kamar_tidur",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          544,
+          701,
+          655,
+          786
+        ]
+      },
+      {
+        "name": "BATHROOM 2",
+        "type": "toilet",
+        "zone_id": "UTAMANING_NISTA",
+        "box": [
+          655,
+          701,
+          715,
+          786
+        ]
+      }
+    ]
+  },
+  {
+    "index": 9,
+    "test_case": {
+      "id": "denah_09",
+      "title": "9. Cala Blanca Villa Bali",
+      "source": "ArchDaily Indonesia",
+      "filename": "denah_7_cala_blanca.jpg",
+      "regency": "badung",
+      "plan_north_deg": 0,
+      "category": "Villa Modern Minimalis"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 1,
+    "kdb_percentage": 0.0,
+    "compliance_score": 80,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
+    "violation_rules": [
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "Natah Open Space",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          219,
+          321,
+          804,
+          663
+        ]
+      }
+    ]
+  },
+  {
+    "index": 10,
+    "test_case": {
+      "id": "denah_10",
+      "title": "10. Bandido Bali — La Lourdes & La Matilde (Pecatu)",
+      "source": "Javi Diaz / ArchDaily",
+      "filename": "denah_8_bandido_bali.jpg",
+      "regency": "badung",
+      "plan_north_deg": 0,
+      "category": "Kompleks Villa Kembar"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.1-flash-lite",
+    "rooms_count": 9,
+    "kdb_percentage": 8.8,
+    "compliance_score": 65,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 2,
+    "violation_rules": [
+      "NATAH_BLOCKED",
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "09.sleep",
+        "type": "kamar_tidur",
+        "zone_id": "NISTANING_UTAMA",
+        "box": [
+          250,
+          65,
+          410,
+          135
+        ]
+      },
+      {
+        "name": "10.shower & dress",
+        "type": "toilet",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          415,
+          65,
+          535,
+          135
+        ]
+      },
+      {
+        "name": "07.chill & swim",
+        "type": "taman",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          350,
+          210,
+          530,
+          320
+        ]
+      },
+      {
+        "name": "09.sleep",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          450,
+          300,
+          620,
+          380
+        ]
+      },
+      {
+        "name": "07.chill & swim",
+        "type": "taman",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          150,
+          580,
+          350,
+          700
+        ]
+      },
+      {
+        "name": "09.sleep",
+        "type": "kamar_tidur",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          350,
+          700,
+          520,
+          780
+        ]
+      },
+      {
+        "name": "09.sleep",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          650,
+          510,
+          820,
+          590
+        ]
+      },
+      {
+        "name": "09.sleep",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          650,
+          620,
+          820,
+          700
+        ]
+      },
+      {
+        "name": "09.sleep",
+        "type": "kamar_tidur",
+        "zone_id": "UTAMANING_NISTA",
+        "box": [
+          650,
+          730,
+          820,
+          810
+        ]
+      }
+    ]
+  },
+  {
+    "index": 11,
+    "test_case": {
+      "id": "denah_11",
+      "title": "11. Diagram Tata Ruang Pura Bali (Tri Mandala)",
+      "source": "Wikimedia Commons (Bali Temple Diagram)",
+      "filename": "denah_9_bali_temple.jpg",
+      "regency": "karangasem",
+      "plan_north_deg": 0,
+      "category": "Arsitektur Sakral Pura (Tri Mandala)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 14,
+    "kdb_percentage": 37.5,
+    "compliance_score": 85,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
+    "violation_rules": [
+      "PEMERAJAN_OFF_CORNER"
+    ],
+    "rooms": [
+      {
+        "name": "Shrines",
+        "type": "pemerajan_sanggah",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          4,
+          43,
+          240,
+          955
+        ]
+      },
+      {
+        "name": "Gedong Pariman",
+        "type": "bale_daja",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          151,
+          399,
+          237,
+          600
+        ]
+      },
+      {
+        "name": "Inner Courtyard (Jeroan)",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          243,
+          44,
+          401,
+          955
+        ]
+      },
+      {
+        "name": "Gate (Kori Agung)",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          403,
+          375,
+          451,
+          624
+        ]
+      },
+      {
+        "name": "Paon Bale",
+        "type": "dapur_paon",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          429,
+          68,
+          517,
+          332
+        ]
+      },
+      {
+        "name": "Wantilan",
+        "type": "bale_dangin",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          429,
+          740,
+          517,
+          931
+        ]
+      },
+      {
+        "name": "Middle Courtyard (Jaba Tengah)",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          403,
+          44,
+          608,
+          955
+        ]
+      },
+      {
+        "name": "Bale",
+        "type": "bale_dauh",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          566,
+          68,
+          654,
+          332
+        ]
+      },
+      {
+        "name": "Gate (Candi Bentar)",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          611,
+          375,
+          659,
+          624
+        ]
+      },
+      {
+        "name": "Outer Courtyard (Jaba)",
+        "type": "natah_open_space",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          611,
+          44,
+          996,
+          955
+        ]
+      },
+      {
+        "name": "Bale",
+        "type": "bale_daja",
+        "zone_id": "UTAMANING_NISTA",
+        "box": [
+          662,
+          68,
+          750,
+          233
+        ]
+      },
+      {
+        "name": "Bale",
+        "type": "bale_dangin",
+        "zone_id": "NISTANING_NISTA",
+        "box": [
+          662,
+          740,
+          750,
+          905
+        ]
+      },
+      {
+        "name": "Bale",
+        "type": "bale_dauh",
+        "zone_id": "UTAMANING_NISTA",
+        "box": [
+          837,
+          68,
+          925,
+          233
+        ]
+      },
+      {
+        "name": "Entrance Gate",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          948,
+          375,
+          995,
+          624
+        ]
+      }
+    ]
+  },
+  {
+    "index": 12,
+    "test_case": {
+      "id": "denah_12",
+      "title": "12. Desa Hay Sanctuary Resort (Canggu)",
+      "source": "ArchDaily Indonesia",
+      "filename": "denah_10_desa_hay.jpg",
+      "regency": "badung",
+      "plan_north_deg": 0,
+      "category": "Resort / Boutique Sanctuary"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 8,
+    "kdb_percentage": 5.5,
+    "compliance_score": 5,
+    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
+    "violations_count": 6,
+    "violation_rules": [
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED",
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "Entrance",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          247,
+          451,
+          303,
+          626
+        ]
+      },
+      {
+        "name": "Bedroom",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          303,
+          447,
+          501,
+          574
+        ]
+      },
+      {
+        "name": "Toilet",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          303,
+          368,
+          385,
+          439
+        ]
+      },
+      {
+        "name": "Bathroom",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          386,
+          368,
+          467,
+          438
+        ]
+      },
+      {
+        "name": "Shower",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          468,
+          368,
+          550,
+          439
+        ]
+      },
+      {
+        "name": "Bathup",
+        "type": "toilet",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          550,
+          368,
+          582,
+          439
+        ]
+      },
+      {
+        "name": "Deck",
+        "type": "taman",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          501,
+          451,
+          559,
+          626
+        ]
+      },
+      {
+        "name": "Plunge Pool",
+        "type": "taman",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          303,
+          575,
+          497,
+          646
+        ]
+      }
+    ]
+  },
+  {
+    "index": 13,
+    "test_case": {
+      "id": "denah_13",
+      "title": "13. Chameleon Villa (Buwit, Tabanan)",
+      "source": "Word of Mouth Architecture / ArchDaily",
+      "filename": "denah_11_chameleon.jpg",
+      "regency": "tabanan",
+      "plan_north_deg": 0,
+      "category": "Villa Lereng Sungai (Denah Vertikal Panjang)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.02,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 11,
+    "kdb_percentage": 2.2,
+    "compliance_score": 80,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
+    "violation_rules": [
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "PARKING AREA",
+        "type": "garasi",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          683,
+          506,
+          771,
+          658
+        ]
+      },
+      {
+        "name": "POND",
+        "type": "taman",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          577,
+          290,
+          638,
+          512
+        ]
+      },
+      {
+        "name": "SWIMMING POOL",
+        "type": "taman",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          579,
+          286,
+          639,
+          514
+        ]
+      },
+      {
+        "name": "ROOF GARDEN",
+        "type": "taman",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          537,
+          658,
+          617,
+          741
+        ]
+      },
+      {
+        "name": "ROOF GARDEN",
+        "type": "taman",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          538,
+          152,
+          671,
+          287
+        ]
+      },
+      {
+        "name": "STAFF PANTRY",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          759,
+          456,
+          786,
+          495
+        ]
+      },
+      {
+        "name": "LAUNDRY",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          782,
+          457,
+          807,
+          499
+        ]
+      },
+      {
+        "name": "STAFF BEDROOM",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          756,
+          503,
+          785,
+          555
+        ]
+      },
+      {
+        "name": "STAFF BATHROOM",
+        "type": "toilet",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          784,
+          504,
+          808,
+          554
+        ]
+      },
+      {
+        "name": "STORAGE",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          781,
+          556,
+          808,
+          588
+        ]
+      },
+      {
+        "name": "GARAGE",
+        "type": "garasi",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          760,
+          560,
+          808,
+          616
+        ]
+      }
+    ]
+  },
+  {
+    "index": 14,
+    "test_case": {
+      "id": "denah_14",
+      "title": "14. Iron Wood House Bali",
+      "source": "ArchDaily Indonesia",
+      "filename": "denah_12_iron_wood.jpg",
+      "regency": "gianyar",
+      "plan_north_deg": 0,
+      "category": "Rumah Kayu Ulin Kontemporer"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.02,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 9,
+    "kdb_percentage": 8.2,
+    "compliance_score": 65,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 2,
+    "violation_rules": [
+      "NATAH_BLOCKED",
+      "NO_PEMERAJAN"
+    ],
+    "rooms": [
+      {
+        "name": "Kamar Tidur Utama",
+        "type": "bale_daja",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          261,
+          690,
+          452,
+          878
+        ]
+      },
+      {
+        "name": "Kamar Mandi",
+        "type": "toilet",
+        "zone_id": "UTAMANING_MADYA",
+        "box": [
+          388,
+          778,
+          476,
+          852
+        ]
+      },
+      {
+        "name": "Kamar Tidur",
+        "type": "kamar_tidur",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          579,
+          97,
+          669,
+          185
+        ]
+      },
+      {
+        "name": "Kamar Tidur",
+        "type": "kamar_tidur",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          579,
+          224,
+          669,
+          311
+        ]
+      },
+      {
+        "name": "Kamar Tidur",
+        "type": "kamar_tidur",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          578,
+          318,
+          669,
+          405
+        ]
+      },
+      {
+        "name": "Kamar Mandi",
+        "type": "toilet",
+        "zone_id": "NISTANING_NISTA",
+        "box": [
+          669,
+          225,
+          761,
+          310
+        ]
+      },
+      {
+        "name": "Kamar Mandi",
+        "type": "toilet",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          669,
+          319,
+          761,
+          405
+        ]
+      },
+      {
+        "name": "Taman",
+        "type": "taman",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          584,
+          421,
+          756,
+          617
+        ]
+      },
+      {
+        "name": "Kolam Renang",
+        "type": "taman",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          73,
+          138,
+          418,
+          597
+        ]
+      }
+    ]
+  },
+  {
+    "index": 15,
+    "test_case": {
+      "id": "denah_15",
+      "title": "15. Zenubud Jungle Villa (Ubud)",
+      "source": "ANTI Architecture / ArchDaily",
+      "filename": "denah_13_zenubud.jpg",
+      "regency": "gianyar",
+      "plan_north_deg": 0,
+      "category": "Villa Geometri Non-Ortogonal (Miring)"
+    },
+    "http_status": 422,
+    "elapsed_s": 5.75,
+    "error": {
+      "error": "no_rooms_detected",
+      "message": "Model AI tidak mendeteksi teks batas ruangan pada denah yang diunggah. Pastikan gambar denah memiliki tulisan label ruangan yang jelas."
+    }
+  },
+  {
+    "index": 16,
+    "test_case": {
+      "id": "denah_16",
+      "title": "16. Bale Meten Sakutus — Kasus 1 (Jurnal Undagi)",
+      "source": "Jurnal Ilmiah Arsitektur Undagi Univ. Warmadewa",
+      "filename": "denah_14_undagi_meten_kasus1.jpg",
+      "regency": "bangli",
+      "plan_north_deg": 0,
+      "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 8,
+    "kdb_percentage": 13.9,
+    "compliance_score": 85,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
+    "violation_rules": [
+      "NATAH_BLOCKED"
+    ],
+    "rooms": [
+      {
+        "name": "A",
+        "type": "pemerajan_sanggah",
+        "zone_id": "UTAMANING_UTAMA",
+        "box": [
+          210,
+          597,
+          417,
+          832
+        ]
+      },
+      {
+        "name": "B",
+        "type": "bale_daja",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          251,
+          551,
+          342,
+          648
+        ]
+      },
+      {
+        "name": "C",
+        "type": "bale_dangin",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          472,
+          561,
+          576,
+          695
+        ]
+      },
+      {
+        "name": "D",
+        "type": "bale_dauh",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          383,
+          425,
+          476,
+          508
+        ]
+      },
+      {
+        "name": "E",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          607,
+          508,
+          698,
+          641
+        ]
+      },
+      {
+        "name": "F",
+        "type": "ruang_tamu",
+        "zone_id": "UTAMANING_NISTA",
+        "box": [
+          606,
+          629,
+          805,
+          797
+        ]
+      },
+      {
+        "name": "G",
+        "type": "toilet",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          625,
+          345,
+          738,
+          434
+        ]
+      },
+      {
+        "name": "H",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          513,
+          342,
+          591,
+          399
+        ]
+      }
+    ]
+  },
+  {
+    "index": 17,
+    "test_case": {
+      "id": "denah_17",
+      "title": "17. Bale Meten Sakutus — Kasus 2 (Jurnal Undagi)",
+      "source": "Jurnal Ilmiah Arsitektur Undagi Univ. Warmadewa",
+      "filename": "denah_15_undagi_meten_kasus2.jpg",
+      "regency": "bangli",
+      "plan_north_deg": 0,
+      "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
+    },
+    "http_status": 200,
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
+    "rooms_count": 6,
+    "kdb_percentage": 5.1,
+    "compliance_score": 85,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
+    "violation_rules": [
+      "NATAH_BLOCKED"
+    ],
+    "rooms": [
+      {
+        "name": "A",
+        "type": "pemerajan_sanggah",
+        "zone_id": "UTAMANING_UTAMA",
+        "box": [
+          176,
+          650,
+          313,
+          762
+        ]
+      },
+      {
+        "name": "B",
+        "type": "bale_daja",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          140,
+          483,
+          273,
+          629
+        ]
+      },
+      {
+        "name": "C",
+        "type": "bale_dangin",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          396,
+          513,
+          451,
+          622
+        ]
+      },
+      {
+        "name": "D",
+        "type": "bale_dauh",
+        "zone_id": "NISTANING_UTAMA",
+        "box": [
+          212,
+          298,
+          276,
+          353
+        ]
+      },
+      {
+        "name": "E",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          535,
+          332,
+          603,
+          401
+        ]
+      },
+      {
+        "name": "F",
+        "type": "angkul_angkul_pintu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          539,
+          439,
+          597,
+          477
+        ]
+      }
+    ]
+  },
+  {
+    "index": 18,
+    "test_case": {
+      "id": "denah_18",
+      "title": "18. Bale Meten Sakutus — Kasus 3 (Jurnal Undagi)",
+      "source": "Jurnal Ilmiah Arsitektur Undagi Univ. Warmadewa",
+      "filename": "denah_16_undagi_meten_kasus3.jpg",
+      "regency": "bangli",
+      "plan_north_deg": 0,
+      "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
+    },
+    "http_status": 200,
+    "elapsed_s": 10.86,
+    "source": "ai:gemini-3.5-flash-lite",
+    "rooms_count": 7,
+    "kdb_percentage": 11.0,
+    "compliance_score": 55,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 3,
+    "violation_rules": [
+      "PEMERAJAN_OFF_CORNER",
+      "NATAH_BLOCKED",
+      "NATAH_BLOCKED"
+    ],
+    "rooms": [
+      {
+        "name": "A",
+        "type": "pemerajan_sanggah",
+        "zone_id": "MADYANING_UTAMA",
+        "box": [
+          156,
+          321,
+          411,
+          471
+        ]
+      },
+      {
+        "name": "B",
+        "type": "bale_daja",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          382,
+          558,
+          485,
+          686
+        ]
+      },
+      {
+        "name": "C",
+        "type": "bale_dangin",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          513,
+          545,
+          626,
+          689
+        ]
+      },
+      {
+        "name": "D",
+        "type": "ruang_tamu",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          421,
+          511,
+          517,
+          574
+        ]
+      },
+      {
+        "name": "E",
+        "type": "dapur_paon",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          599,
+          326,
+          706,
+          471
+        ]
+      },
+      {
+        "name": "F",
+        "type": "bale_dauh",
+        "zone_id": "MADYANING_NISTA",
+        "box": [
+          643,
+          616,
+          755,
+          691
+        ]
+      },
+      {
+        "name": "G",
+        "type": "garasi",
+        "zone_id": "NISTANING_NISTA",
+        "box": [
+          743,
+          215,
+          829,
+          362
+        ]
+      }
+    ]
+  }
+]
