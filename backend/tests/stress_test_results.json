@@ -11,19 +11,17 @@
       "category": "Tradisional Murni (Legenda Nomor)"
     },
     "http_status": 200,
-    "elapsed_s": 0.1,
+    "elapsed_s": 0.07,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 12,
-    "kdb_percentage": 38.8,
-    "compliance_score": 25,
-    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
-    "violations_count": 5,
+    "kdb_percentage": 67.3,
+    "compliance_score": 70,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 3,
     "violation_rules": [
       "PEMERAJAN_OFF_CORNER",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "PEMERAJAN_OFF_CORNER"
+      "PEMERAJAN_OFF_CORNER",
+      "KDB_EXCEEDED"
     ],
     "rooms": [
       {
@@ -51,7 +49,7 @@
       {
         "name": "3",
         "type": "bale_daja",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_UTAMA",
         "box": [
           231,
           224,
@@ -73,7 +71,7 @@
       {
         "name": "5",
         "type": "bale_dauh",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           408,
           225,
@@ -95,7 +93,7 @@
       {
         "name": "7",
         "type": "dapur_paon",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           553,
           530,
@@ -139,7 +137,7 @@
       {
         "name": "11",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           607,
           487,
@@ -175,7 +173,7 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash",
     "rooms_count": 6,
-    "kdb_percentage": 3.1,
+    "kdb_percentage": 17.0,
     "compliance_score": 80,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
     "violations_count": 1,
@@ -186,7 +184,7 @@
       {
         "name": "露台",
         "type": "natah_open_space",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_UTAMA",
         "box": [
           308,
           458,
@@ -197,7 +195,7 @@
       {
         "name": "露台",
         "type": "natah_open_space",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           442,
           292,
@@ -208,7 +206,7 @@
       {
         "name": "中庭",
         "type": "natah_open_space",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           484,
           492,
@@ -219,7 +217,7 @@
       {
         "name": "办公",
         "type": "bale_dauh",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           503,
           419,
@@ -230,7 +228,7 @@
       {
         "name": "办公",
         "type": "bale_dauh",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           503,
           604,
@@ -241,7 +239,7 @@
       {
         "name": "连廊",
         "type": "ruang_tamu",
-        "zone_id": "UTAMANING_MADYA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           462,
           726,
@@ -263,7 +261,7 @@
       "category": "Site Plan Kontur Lanskap"
     },
     "http_status": 422,
-    "elapsed_s": 13.67,
+    "elapsed_s": 23.39,
     "error": {
       "error": "no_rooms_detected",
       "message": "Model AI tidak mendeteksi teks batas ruangan pada denah yang diunggah. Pastikan gambar denah memiliki tulisan label ruangan yang jelas."
@@ -284,22 +282,19 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 6,
-    "kdb_percentage": 15.6,
-    "compliance_score": 20,
-    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
-    "violations_count": 5,
+    "kdb_percentage": 88.6,
+    "compliance_score": 65,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 2,
     "violation_rules": [
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
+      "KDB_EXCEEDED",
       "NO_PEMERAJAN"
     ],
     "rooms": [
       {
         "name": "1. Entrance",
         "type": "angkul_angkul_pintu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           371,
           344,
@@ -310,7 +305,7 @@
       {
         "name": "2. Foyer",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_UTAMA",
         "box": [
           229,
           429,
@@ -332,7 +327,7 @@
       {
         "name": "4. Bedroom",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           561,
           491,
@@ -343,7 +338,7 @@
       {
         "name": "5. Bathroom",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           539,
           426,
@@ -354,7 +349,7 @@
       {
         "name": "6. Terrace",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           224,
           602,
@@ -379,7 +374,7 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash",
     "rooms_count": 8,
-    "kdb_percentage": 12.5,
+    "kdb_percentage": 21.2,
     "compliance_score": 80,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
     "violations_count": 1,
@@ -390,7 +385,7 @@
       {
         "name": "Entrance",
         "type": "angkul_angkul_pintu",
-        "zone_id": "NISTANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           550,
           250,
@@ -434,7 +429,7 @@
       {
         "name": "Common Area",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_UTAMA",
+        "zone_id": "NISTANING_UTAMA",
         "box": [
           116,
           281,
@@ -467,7 +462,7 @@
       {
         "name": "Main House",
         "type": "bale_daja",
-        "zone_id": "UTAMANING_MADYA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           398,
           725,
@@ -492,21 +487,18 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 7,
-    "kdb_percentage": 10.7,
-    "compliance_score": 35,
-    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
-    "violations_count": 4,
+    "kdb_percentage": 47.4,
+    "compliance_score": 80,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
     "violation_rules": [
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
       "NO_PEMERAJAN"
     ],
     "rooms": [
       {
         "name": "Common Kitchen",
         "type": "dapur_paon",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_UTAMA",
         "box": [
           253,
           388,
@@ -517,7 +509,7 @@
       {
         "name": "One Bedroom Unit",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_UTAMA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           252,
           595,
@@ -528,7 +520,7 @@
       {
         "name": "Mezzanine - Lounge",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_MADYA",
         "box": [
           400,
           603,
@@ -539,7 +531,7 @@
       {
         "name": "Mezzanine - Lounge",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_MADYA",
         "box": [
           569,
           603,
@@ -550,7 +542,7 @@
       {
         "name": "Mezzanine - Lounge",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           736,
           603,
@@ -561,7 +553,7 @@
       {
         "name": "Pool",
         "type": "taman",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           465,
           421,
@@ -572,7 +564,7 @@
       {
         "name": "Pond",
         "type": "taman",
-        "zone_id": "UTAMANING_MADYA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           386,
           614,
@@ -597,13 +589,12 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 21,
-    "kdb_percentage": 15.9,
-    "compliance_score": 0,
+    "kdb_percentage": 48.5,
+    "compliance_score": 10,
     "status_label": "MELANGGAR REGULASI ADAT & PERDA",
-    "violations_count": 5,
+    "violations_count": 4,
     "violation_rules": [
       "BEDROOM_IN_TEBA",
-      "NATAH_BLOCKED",
       "NATAH_BLOCKED",
       "TOILET_IN_SACRED",
       "NO_PEMERAJAN"
@@ -656,7 +647,7 @@
       {
         "name": "5. Mait Toilet",
         "type": "toilet",
-        "zone_id": "NISTANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           613,
           223,
@@ -678,7 +669,7 @@
       {
         "name": "7. Floating Bridge",
         "type": "taman",
-        "zone_id": "MADYANING_UTAMA",
+        "zone_id": "NISTANING_UTAMA",
         "box": [
           210,
           337,
@@ -722,7 +713,7 @@
       {
         "name": "11. Kitchen",
         "type": "dapur_paon",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_MADYA",
         "box": [
           383,
           607,
@@ -810,7 +801,7 @@
       {
         "name": "19. Walk-in Closet",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_UTAMA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           210,
           597,
@@ -832,7 +823,7 @@
       {
         "name": "21. Garden",
         "type": "taman",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           683,
           537,
@@ -857,26 +848,20 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash",
     "rooms_count": 17,
-    "kdb_percentage": 12.3,
-    "compliance_score": 0,
-    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
-    "violations_count": 9,
+    "kdb_percentage": 62.1,
+    "compliance_score": 50,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 3,
     "violation_rules": [
       "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
+      "KDB_EXCEEDED",
       "NO_PEMERAJAN"
     ],
     "rooms": [
       {
         "name": "PARKING",
         "type": "garasi",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_UTAMA",
         "box": [
           325,
           381,
@@ -887,7 +872,7 @@
       {
         "name": "GARDEN",
         "type": "taman",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_UTAMA",
         "box": [
           308,
           471,
@@ -898,7 +883,7 @@
       {
         "name": "BARBEQUE",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_UTAMA",
         "box": [
           308,
           575,
@@ -909,7 +894,7 @@
       {
         "name": "RETAIL 1",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           389,
           380,
@@ -920,7 +905,7 @@
       {
         "name": "RETAIL 2",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           555,
           335,
@@ -942,7 +927,7 @@
       {
         "name": "DINING",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           544,
           471,
@@ -964,7 +949,7 @@
       {
         "name": "STORAGE",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           646,
           431,
@@ -975,7 +960,7 @@
       {
         "name": "TOILET",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           596,
           431,
@@ -986,7 +971,7 @@
       {
         "name": "WC",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           555,
           431,
@@ -997,7 +982,7 @@
       {
         "name": "TERRACE",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           501,
           575,
@@ -1008,7 +993,7 @@
       {
         "name": "SWIMMING POOL",
         "type": "taman",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           308,
           622,
@@ -1019,7 +1004,7 @@
       {
         "name": "GARDEN",
         "type": "taman",
-        "zone_id": "UTAMANING_MADYA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           308,
           701,
@@ -1041,7 +1026,7 @@
       {
         "name": "BEDROOM 2",
         "type": "kamar_tidur",
-        "zone_id": "UTAMANING_MADYA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           544,
           701,
@@ -1110,10 +1095,10 @@
       "category": "Kompleks Villa Kembar"
     },
     "http_status": 200,
-    "elapsed_s": 0.01,
+    "elapsed_s": 0.0,
     "source": "cache:ai:gemini-3.1-flash-lite",
     "rooms_count": 9,
-    "kdb_percentage": 8.8,
+    "kdb_percentage": 16.2,
     "compliance_score": 65,
     "status_label": "PERLU PENYESUAIAN TATA RUANG",
     "violations_count": 2,
@@ -1169,7 +1154,7 @@
       {
         "name": "07.chill & swim",
         "type": "taman",
-        "zone_id": "MADYANING_UTAMA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           150,
           580,
@@ -1202,7 +1187,7 @@
       {
         "name": "09.sleep",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           650,
           620,
@@ -1238,13 +1223,11 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 14,
-    "kdb_percentage": 37.5,
-    "compliance_score": 85,
+    "kdb_percentage": 39.6,
+    "compliance_score": 100,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
-    "violations_count": 1,
-    "violation_rules": [
-      "PEMERAJAN_OFF_CORNER"
-    ],
+    "violations_count": 0,
+    "violation_rules": [],
     "rooms": [
       {
         "name": "Shrines",
@@ -1417,15 +1400,11 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 8,
-    "kdb_percentage": 5.5,
-    "compliance_score": 5,
-    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
-    "violations_count": 6,
+    "kdb_percentage": 53.9,
+    "compliance_score": 65,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 2,
     "violation_rules": [
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED",
       "NATAH_BLOCKED",
       "NO_PEMERAJAN"
     ],
@@ -1455,7 +1434,7 @@
       {
         "name": "Toilet",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_UTAMA",
         "box": [
           303,
           368,
@@ -1466,7 +1445,7 @@
       {
         "name": "Bathroom",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           386,
           368,
@@ -1477,7 +1456,7 @@
       {
         "name": "Shower",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           468,
           368,
@@ -1488,7 +1467,7 @@
       {
         "name": "Bathup",
         "type": "toilet",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           550,
           368,
@@ -1499,7 +1478,7 @@
       {
         "name": "Deck",
         "type": "taman",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           501,
           451,
@@ -1510,7 +1489,7 @@
       {
         "name": "Plunge Pool",
         "type": "taman",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_MADYA",
         "box": [
           303,
           575,
@@ -1532,10 +1511,10 @@
       "category": "Villa Lereng Sungai (Denah Vertikal Panjang)"
     },
     "http_status": 200,
-    "elapsed_s": 0.02,
+    "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 11,
-    "kdb_percentage": 2.2,
+    "kdb_percentage": 12.6,
     "compliance_score": 80,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
     "violations_count": 1,
@@ -1546,7 +1525,7 @@
       {
         "name": "PARKING AREA",
         "type": "garasi",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           683,
           506,
@@ -1557,7 +1536,7 @@
       {
         "name": "POND",
         "type": "taman",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_UTAMA",
         "box": [
           577,
           290,
@@ -1568,7 +1547,7 @@
       {
         "name": "SWIMMING POOL",
         "type": "taman",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_UTAMA",
         "box": [
           579,
           286,
@@ -1579,7 +1558,7 @@
       {
         "name": "ROOF GARDEN",
         "type": "taman",
-        "zone_id": "UTAMANING_MADYA",
+        "zone_id": "UTAMANING_UTAMA",
         "box": [
           537,
           658,
@@ -1590,7 +1569,7 @@
       {
         "name": "ROOF GARDEN",
         "type": "taman",
-        "zone_id": "NISTANING_MADYA",
+        "zone_id": "NISTANING_UTAMA",
         "box": [
           538,
           152,
@@ -1645,7 +1624,7 @@
       {
         "name": "STORAGE",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           781,
           556,
@@ -1656,7 +1635,7 @@
       {
         "name": "GARAGE",
         "type": "garasi",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           760,
           560,
@@ -1678,15 +1657,16 @@
       "category": "Rumah Kayu Ulin Kontemporer"
     },
     "http_status": 200,
-    "elapsed_s": 0.02,
+    "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 9,
-    "kdb_percentage": 8.2,
-    "compliance_score": 65,
-    "status_label": "PERLU PENYESUAIAN TATA RUANG",
-    "violations_count": 2,
+    "kdb_percentage": 14.1,
+    "compliance_score": 40,
+    "status_label": "MELANGGAR REGULASI ADAT & PERDA",
+    "violations_count": 3,
     "violation_rules": [
-      "NATAH_BLOCKED",
+      "BEDROOM_IN_TEBA",
+      "BEDROOM_IN_TEBA",
       "NO_PEMERAJAN"
     ],
     "rooms": [
@@ -1715,7 +1695,7 @@
       {
         "name": "Kamar Tidur",
         "type": "kamar_tidur",
-        "zone_id": "NISTANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           579,
           97,
@@ -1726,7 +1706,7 @@
       {
         "name": "Kamar Tidur",
         "type": "kamar_tidur",
-        "zone_id": "NISTANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           579,
           224,
@@ -1737,7 +1717,7 @@
       {
         "name": "Kamar Tidur",
         "type": "kamar_tidur",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           578,
           318,
@@ -1803,7 +1783,7 @@
       "category": "Villa Geometri Non-Ortogonal (Miring)"
     },
     "http_status": 422,
-    "elapsed_s": 5.75,
+    "elapsed_s": 19.13,
     "error": {
       "error": "no_rooms_detected",
       "message": "Model AI tidak mendeteksi teks batas ruangan pada denah yang diunggah. Pastikan gambar denah memiliki tulisan label ruangan yang jelas."
@@ -1821,16 +1801,14 @@
       "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
     },
     "http_status": 200,
-    "elapsed_s": 0.01,
+    "elapsed_s": 0.0,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 8,
-    "kdb_percentage": 13.9,
-    "compliance_score": 85,
+    "kdb_percentage": 44.1,
+    "compliance_score": 100,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
-    "violations_count": 1,
-    "violation_rules": [
-      "NATAH_BLOCKED"
-    ],
+    "violations_count": 0,
+    "violation_rules": [],
     "rooms": [
       {
         "name": "A",
@@ -1868,7 +1846,7 @@
       {
         "name": "D",
         "type": "bale_dauh",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           383,
           425,
@@ -1879,7 +1857,7 @@
       {
         "name": "E",
         "type": "dapur_paon",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           607,
           508,
@@ -1901,7 +1879,7 @@
       {
         "name": "G",
         "type": "toilet",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           625,
           345,
@@ -1912,7 +1890,7 @@
       {
         "name": "H",
         "type": "angkul_angkul_pintu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_MADYA",
         "box": [
           513,
           342,
@@ -1934,16 +1912,14 @@
       "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
     },
     "http_status": 200,
-    "elapsed_s": 0.01,
+    "elapsed_s": 0.0,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 6,
-    "kdb_percentage": 5.1,
-    "compliance_score": 85,
+    "kdb_percentage": 22.1,
+    "compliance_score": 100,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
-    "violations_count": 1,
-    "violation_rules": [
-      "NATAH_BLOCKED"
-    ],
+    "violations_count": 0,
+    "violation_rules": [],
     "rooms": [
       {
         "name": "A",
@@ -1992,7 +1968,7 @@
       {
         "name": "E",
         "type": "dapur_paon",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "NISTANING_NISTA",
         "box": [
           535,
           332,
@@ -2003,7 +1979,7 @@
       {
         "name": "F",
         "type": "angkul_angkul_pintu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           539,
           439,
@@ -2025,17 +2001,15 @@
       "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
     },
     "http_status": 200,
-    "elapsed_s": 10.86,
-    "source": "ai:gemini-3.5-flash-lite",
+    "elapsed_s": 0.01,
+    "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 7,
-    "kdb_percentage": 11.0,
-    "compliance_score": 55,
-    "status_label": "PERLU PENYESUAIAN TATA RUANG",
-    "violations_count": 3,
+    "kdb_percentage": 31.8,
+    "compliance_score": 85,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 1,
     "violation_rules": [
-      "PEMERAJAN_OFF_CORNER",
-      "NATAH_BLOCKED",
-      "NATAH_BLOCKED"
+      "PEMERAJAN_OFF_CORNER"
     ],
     "rooms": [
       {
@@ -2052,7 +2026,7 @@
       {
         "name": "B",
         "type": "bale_daja",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_MADYA",
         "box": [
           382,
           558,
@@ -2063,7 +2037,7 @@
       {
         "name": "C",
         "type": "bale_dangin",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_MADYA",
         "box": [
           513,
           545,
@@ -2074,7 +2048,7 @@
       {
         "name": "D",
         "type": "ruang_tamu",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "UTAMANING_MADYA",
         "box": [
           421,
           511,
@@ -2085,7 +2059,7 @@
       {
         "name": "E",
         "type": "dapur_paon",
-        "zone_id": "MADYANING_MADYA",
+        "zone_id": "MADYANING_NISTA",
         "box": [
           599,
           326,
@@ -2096,7 +2070,7 @@
       {
         "name": "F",
         "type": "bale_dauh",
-        "zone_id": "MADYANING_NISTA",
+        "zone_id": "UTAMANING_NISTA",
         "box": [
           643,
           616,

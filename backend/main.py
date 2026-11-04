@@ -17,7 +17,7 @@ from engine.azimuth import (
     resolve_kaja_vector,
     is_in_bali
 )
-from engine.sanga_mandala import build_sanga_mandala_grid, map_room_to_zone
+from engine.sanga_mandala import build_sanga_mandala_grid, map_room_to_zone, compute_compound_bounds
 from engine.vision_parser import parse_floor_plan_image
 from engine.audit_checker import run_spatial_audit, load_perda_rules
 
@@ -278,8 +278,14 @@ async def audit_floor_plan(
     kaja_vector = resolve_kaja_vector(regency, target_lat, target_lon)
     
     # 3. Proyeksikan 9 Grid Sanga Mandala dengan normalisasi rotasi orientasi denah
+    #    dan penyesuaian batas amplop tapak (compound_bounds) agar tidak terdistorsi margin kertas/legenda
     normalized_north = round(((plan_north_deg % 360) + 360) % 360 / 90) * 90 % 360
-    grid_config = build_sanga_mandala_grid(kaja_vector["kaja_quadrant"], normalized_north)
+    compound_bounds = compute_compound_bounds(raw_rooms)
+    grid_config = build_sanga_mandala_grid(
+        kaja_vector["kaja_quadrant"],
+        normalized_north,
+        bounds=compound_bounds
+    )
     
     # 4. Petakan koordinat ruangan ke zona adat
     mapped_rooms = []
