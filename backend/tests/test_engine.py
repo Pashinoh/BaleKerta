@@ -4,6 +4,8 @@ import pytest
 
 from engine.sanga_mandala import (
     build_sanga_mandala_grid,
+    compute_compound_bounds,
+    map_room_to_zone,
     rotate_matrix_clockwise,
     ZONE_KEYS,
 )
@@ -61,6 +63,27 @@ def test_grid_structure():
     assert grid["plan_north_deg"] == 0
     assert all(c["zone_id"] in ZONE_KEYS for c in grid["cells"])
     assert len({c["zone_id"] for c in grid["cells"]}) == 9
+
+
+def test_compute_compound_bounds_and_adaptive_grid():
+    """Batas amplop tapak menyesuaikan grid 3x3 terhadap margin kertas/legenda."""
+    rooms = [
+        {"name": "Sanggah", "box": [200, 600, 280, 700]},
+        {"name": "Bale Daja", "box": [200, 350, 280, 500]},
+        {"name": "Paon", "box": [550, 350, 650, 480]},
+        {"name": "Bale Delod", "box": [550, 520, 650, 700]},
+    ]
+    bounds = compute_compound_bounds(rooms)
+    assert bounds is not None
+    assert 180 <= bounds[0] <= 200
+    assert 330 <= bounds[1] <= 350
+    assert 650 <= bounds[2] <= 670
+    assert 700 <= bounds[3] <= 720
+
+    grid = build_sanga_mandala_grid("TOP_RIGHT", 0, bounds=bounds)
+    assert grid["lot_bounds"] == bounds
+    sanggah_zone = map_room_to_zone(rooms[0]["box"], grid)
+    assert sanggah_zone["zone_id"] == "UTAMANING_UTAMA"
 
 
 # ---------------------------------------------------------------- helper ruangan
@@ -128,11 +151,40 @@ def test_natah_preserved_is_compliant():
     assert not any(v["rule_id"] == "NATAH_BLOCKED" for v in report["violations"])
 
 
+def test_natah_preserved_suppresses_bordering_room_false_positive():
+    """Jika Natah terbuka sudah ada di Madyaning Madya, bale di tepi tengah tidak memicu NATAH_BLOCKED."""
+    report = run_spatial_audit(
+        [
+            room("natah_open_space", "MADYANING_MADYA", name="Natah"),
+            room("ruang_tamu", "MADYANING_MADYA", name="Bale Dangin"),
+            pemerajan(),
+        ],
+        None,
+    )
+    assert any(c["rule_id"] == "NATAH_OK" for c in report["compliances"])
+    assert not any(v["rule_id"] == "NATAH_BLOCKED" for v in report["violations"])
+
+
 def test_bedroom_blocking_natah_central():
     report = run_spatial_audit(
         [room("kamar_tidur", "MADYANING_MADYA", name="Kamar Tidur"), pemerajan()], None
     )
     assert any(v["rule_id"] == "NATAH_BLOCKED" for v in report["violations"])
+
+
+def test_multiple_rooms_blocking_natah_deduplicates_score_penalty():
+    """Beberapa sub-ruang di tengah tetap tercatat, tetapi penalti skor hanya -15 satu kali."""
+    report = run_spatial_audit(
+        [
+            room("kamar_tidur", "MADYANING_MADYA", name="Kamar 1"),
+            room("ruang_tamu", "MADYANING_MADYA", name="Ruang Keluarga"),
+            pemerajan(),
+        ],
+        None,
+    )
+    natah_viols = [v for v in report["violations"] and report["violations"] if v["rule_id"] == "NATAH_BLOCKED"]
+    assert len(natah_viols) == 2
+    assert report["compliance_score"] == 85  # 100 - 15 (bukan 100 - 30)
 
 
 def test_bedroom_in_teba_violation():

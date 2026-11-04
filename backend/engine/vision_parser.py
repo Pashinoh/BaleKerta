@@ -1,3 +1,4 @@
+import asyncio
 import json
 import hashlib
 import io
@@ -189,19 +190,27 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
         
     genai.configure(api_key=settings.GEMINI_API_KEY)
     
-    # Model target dengan urutan prioritas
+    # Model target dengan urutan prioritas (mengganti gemini-2.5-flash yang sudah 404/deprecated)
     candidate_models = [
         settings.GEMINI_MODEL,
         "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
         "gemini-3.5-flash",
-        "gemini-2.5-flash",
-        "gemini-flash-latest"
+        "gemini-3.8-flash",
+        "gemini-flash-lite-latest"
     ]
     # Hapus duplikat sambil mempertahankan urutan
     seen = set()
     models_to_try = [m for m in candidate_models if m and not (m in seen or seen.add(m))]
     
     image = Image.open(io.BytesIO(image_bytes))
+    if image.mode not in ("RGB", "L"):
+        image = image.convert("RGB")
+    # Downscale proporsional maks 1280px untuk mencegah 504 Deadline Expired pada gambar resolusi sangat besar
+    # (Tidak mengubah skala koordinat karena Gemini selalu mengembalikan skala normalisasi 0-1000)
+    if max(image.size) > 1280:
+        image.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
+
     response = None
     successful_model = None
     last_error: Optional[Exception] = None
@@ -217,16 +226,14 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
             )
             response = model.generate_content(
                 [VISION_SYSTEM_PROMPT, image],
-                request_options={"timeout": 20}
+                request_options={"timeout": 35}
             )
             if response and response.text:
                 successful_model = m_name
                 break
         except Exception as e:
             last_error = e
-            err_str = str(e).lower()
-            # Jika terkena limit kuota per menit (429 / ResourceExhausted), catat dan coba model lain atau lempar
-            print(f"[AI MODEL ATTEMPT] {m_name} gagal: {e}")
+            print(f"[AI MODEL ATTEMPT] {m_name} gagal: {e}", flush=True)
             continue
             
     if not response or not response.text or not successful_model:
@@ -254,9 +261,6 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
                 "box": box
             })
             
-    if not valid_rooms:
-        raise ValueError("Model AI berhasil dipanggil, tetapi tidak menemukan batas ruangan yang valid pada gambar denah.")
-        
     return successful_model, valid_rooms
 
 async def parse_floor_plan_image(image_bytes: bytes) -> Dict[str, Any]:

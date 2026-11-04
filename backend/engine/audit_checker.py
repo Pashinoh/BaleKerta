@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from core.config import settings
 
 _rules_cache = None
@@ -14,7 +14,7 @@ def load_perda_rules() -> Dict[str, Any]:
             _rules_cache = json.load(f)
     return _rules_cache
 
-def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) -> Dict[str, Any]:
+def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Melakukan verifikasi deterministik terhadap posisi ruangan
     berdasarkan aturan Perda No. 5/2005 dan Asta Kosala-Kosali.
@@ -27,19 +27,45 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
     score = 100
     
     # Hitung perkiraan kasar luas bangunan vs total tapak (KDB)
+    lot_bounds = (grid_config or {}).get("lot_bounds", [0, 0, 1000, 1000])
     total_room_area = 0
-    total_canvas_area = 1000 * 1000
+    total_canvas_area = max(1, (lot_bounds[2] - lot_bounds[0]) * (lot_bounds[3] - lot_bounds[1]))
     
     has_pemerajan = False
     pemerajan_in_utama = False
     has_natah = False
     natah_preserved = True
+    natah_penalty_applied = False
+    pemerajan_off_corner_penalized = False
+
+    sacred_cell_box = None
+    for cell in (grid_config or {}).get("cells", []):
+        if cell.get("zone_id") == "UTAMANING_UTAMA":
+            sacred_cell_box = cell.get("box")
+            break
+
+    def _box_covers_sacred(r_box: List[int]) -> bool:
+        if not sacred_cell_box or not r_box or len(r_box) != 4:
+            return False
+        ry1, rx1, ry2, rx2 = r_box
+        sy1, sx1, sy2, sx2 = sacred_cell_box
+        oy = max(0, min(ry2, sy2) - max(ry1, sy1))
+        ox = max(0, min(rx2, sx2) - max(rx1, sx1))
+        s_area = max(1, (sy2 - sy1) * (sx2 - sx1))
+        return (oy * ox) / s_area >= 0.25
 
     # Pra-pengecekan: Apakah pekarangan sudah memiliki tempat suci utama di Utamaning Utama
     has_primary_pemerajan_in_utama = any(
         any(p in r.get("type", "").lower() or p in r.get("name", "").lower() for p in ["pemerajan", "sanggah", "altar"])
         and not any(g in r.get("type", "").lower() or g in r.get("name", "").lower() for g in ["taman", "kebun", "halaman"])
-        and r.get("zone", {}).get("zone_id") == "UTAMANING_UTAMA"
+        and (r.get("zone", {}).get("zone_id") == "UTAMANING_UTAMA" or _box_covers_sacred(r.get("box", [])))
+        for r in rooms
+    )
+
+    # Pra-pengecekan: Apakah pekarangan sudah memiliki ruang terbuka Natah eksplisit di Madyaning Madya
+    has_central_natah = any(
+        any(p in r.get("type", "").lower() or p in r.get("name", "").lower() for p in ["natah", "open_space", "taman_tengah", "courtyard", "plaza"])
+        and r.get("zone", {}).get("zone_id") == "MADYANING_MADYA"
         for r in rooms
     )
     
@@ -102,7 +128,7 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 })
         elif any(p in rtype or p in name.lower() for p in ["pemerajan", "sanggah", "sembahyang", "altar"]):
             has_pemerajan = True
-            if zone_id == "UTAMANING_UTAMA":
+            if zone_id == "UTAMANING_UTAMA" or _box_covers_sacred(box):
                 pemerajan_in_utama = True
                 compliances.append({
                     "rule_id": "PEMERAJAN_OK",
@@ -129,7 +155,9 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 })
             elif not has_primary_pemerajan_in_utama:
                 # Hanya beri peringatan jika pekarangan BELUM memiliki pemerajan utama di Utamaning Utama
-                score -= 15
+                if not pemerajan_off_corner_penalized:
+                    score -= 15
+                    pemerajan_off_corner_penalized = True
                 violations.append({
                     "id": f"viol_{len(violations)+1}",
                     "rule_id": "PEMERAJAN_OFF_CORNER",
@@ -193,10 +221,12 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                     "detail": "Natah (halaman tengah) terpelihara sebagai ruang terbuka keseimbangan kosmik (Akasa-Pertiwi)."
                 })
                 
-        # Jika bangunan masif menutupi zona tengah
-        if zone_id == "MADYANING_MADYA" and any(p in rtype for p in ["kamar", "ruang_tamu", "dapur", "toilet"]):
+        # Jika bangunan masif menutupi zona tengah (dan tidak ada Natah terbuka eksplisit di Madyaning Madya)
+        if zone_id == "MADYANING_MADYA" and not has_central_natah and any(p in rtype for p in ["kamar", "ruang_tamu", "dapur", "toilet"]):
             natah_preserved = False
-            score -= 15
+            if not natah_penalty_applied:
+                score -= 15
+                natah_penalty_applied = True
             violations.append({
                 "id": f"viol_{len(violations)+1}",
                 "rule_id": "NATAH_BLOCKED",
@@ -240,7 +270,7 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
                 })
 
     # Evaluasi KDB (Koefisien Dasar Bangunan - Perkiraan Kasar)
-    kdb_percentage = round((total_room_area / total_canvas_area) * 100, 1)
+    kdb_percentage = min(100.0, round((total_room_area / total_canvas_area) * 100, 1))
     kdb_status = "MEMENUHI"
     if kdb_percentage > 60:
         kdb_status = "MELEBIHI_BATAS"
@@ -251,7 +281,7 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             "verified": True,
             "room_name": "Koefisien Dasar Bangunan (KDB)",
             "room_type": "kdb_assessment",
-            "box": [0, 0, 1000, 1000],
+            "box": lot_bounds,
             "zone_id": "GLOBAL",
             "zone_name": "Seluruh Tapak",
             "severity": "WARNING",
@@ -277,7 +307,7 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Dict[str, Any]) 
             "verified": True,
             "room_name": "Pemerajan / Sanggah",
             "room_type": "missing_required_facility",
-            "box": [0, 667, 333, 1000],
+            "box": sacred_cell_box or [0, 667, 333, 1000],
             "zone_id": "UTAMANING_UTAMA",
             "zone_name": "Utamaning Utama",
             "severity": "CRITICAL",
