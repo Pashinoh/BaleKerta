@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { Stepper } from "@/components/layout/Stepper";
 import { GlossaryDrawer } from "@/components/glossary/GlossaryDrawer";
-import { MiniZoneGrid } from "@/components/map/MiniZoneGrid";
+import { MiniZoneGrid, sacredCornerLabel } from "@/components/map/MiniZoneGrid";
 import { SampleList } from "@/components/plan/SampleList";
 import { UploadBox } from "@/components/plan/UploadBox";
 import { OrientationPicker } from "@/components/plan/OrientationPicker";
@@ -252,7 +252,7 @@ export default function Home() {
           /* ========================================================== */
           /* STEP 1: RESTRUCTURED FOCUS LAYOUT                         */
           /* ========================================================== */
-          <div className="space-y-8">
+          <div className="space-y-10">
             {/* 1. TOP: Peta tanpa heading kartu */}
             <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4 overflow-hidden">
               {/* Quick location controls */}
@@ -318,47 +318,19 @@ export default function Home() {
             </div>
 
             {/* 2. BOTTOM DASHBOARD */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              {/* MiniZoneGrid Card (lebih besar) */}
-              <div className="lg:col-span-6 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col justify-between space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-ink-800 pb-2">
-                    <h3 className="text-[15px] font-semibold text-bone-100">
-                      Orientasi 9 Zona Sanga Mandala
-                    </h3>
-                    <span className="text-[12px] font-mono text-clay">
-                      {kajaData.cardinal_direction}
-                    </span>
-                  </div>
-                  <p className="text-[12px] text-bone-300 leading-relaxed">
-                    Zona suci teratas (<em>Utamaning Utama</em>) berputar otomatis menyesuaikan sudut geodesik tanah Anda menuju Gunung Agung.
-                  </p>
-                  <MiniZoneGrid
-                    bearing={kajaData.bearing_degrees}
-                    cardinalDirection={kajaData.cardinal_direction}
-                    kajaQuadrant={kajaData.kaja_quadrant}
-                    locationLabel={kajaData.location_label}
-                  />
+            <div className="bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6">
+              <h3 className="text-[15px] font-semibold text-bone-100 mb-4">
+                Hasil Analisis Tapak
+              </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                <div>
+                  <MiniZoneGrid kajaQuadrant={kajaData.kaja_quadrant} />
                 </div>
-              </div>
-
-              {/* Ringkasan Parameter Spasial */}
-              <div className="lg:col-span-6 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-ink-800 pb-2">
-                    <h3 className="text-[15px] font-semibold text-bone-100">
-                      Parameter Spasial Adat Tapak
-                    </h3>
-                  </div>
-
-                  <div className="text-[14px] text-bone-100">
-                    <span className="font-medium">Arah Kaja: {kajaData.bearing_degrees.toFixed(1)}° · {kajaData.cardinal_direction}</span>
-                    {kajaData.location_label && (
-                      <span className="block text-[13px] text-bone-300 mt-1">{kajaData.location_label}</span>
-                    )}
-                  </div>
-
-                  <Disclosure title="Detail Parameter Spasial" defaultOpen={false}>
+                <div className="space-y-4">
+                  <p className="text-[14px] text-bone-100 leading-relaxed">
+                    Berdasarkan lokasi Anda di {kajaData.location_label?.replace(/\s*\(-?\d{1,3}\.\d+,\s*-?\d{1,3}\.\d+\)/, "") || "Wilayah Bali"}, Arah Kaja menghadap {kajaData.cardinal_direction}. Area suci (Utamaning Utama) berada di sudut {sacredCornerLabel(kajaData.kaja_quadrant).charAt(0).toUpperCase() + sacredCornerLabel(kajaData.kaja_quadrant).slice(1)} denah Anda.
+                  </p>
+                  <Disclosure title="Lihat Detail Parameter Spasial" defaultOpen={false}>
                     <div className="space-y-4">
                       {/* 3 Metric Cards */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

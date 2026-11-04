@@ -22,7 +22,7 @@ import { AlertCircle } from "lucide-react";
 export interface KajaMapProps {
   lat: number;
   lon: number;
-  bearing: number;
+  bearing?: number;
   cardinalDirection: string;
   distanceKm?: number;
   onChangeLocation: (lat: number, lon: number) => void;
@@ -149,9 +149,7 @@ function MapPanController({
 export default function KajaMap({
   lat,
   lon,
-  bearing,
   cardinalDirection,
-  distanceKm,
   onChangeLocation,
   className = "",
 }: KajaMapProps) {
@@ -290,8 +288,7 @@ export default function KajaMap({
               permanent
               className="bg-ink-950/95 text-bone-100 border border-ink-700 rounded px-2.5 py-1 text-[12px] font-mono shadow-lg"
             >
-              Kaja: {cardinalDirection} · {bearing.toFixed(1)}°
-              {distanceKm ? ` (${distanceKm.toFixed(1)} km)` : ""}
+              Kaja: {cardinalDirection}
             </Tooltip>
           </Polyline>
         </MapContainer>
