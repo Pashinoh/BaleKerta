@@ -11,7 +11,7 @@ import { SampleList } from "@/components/plan/SampleList";
 import { UploadBox } from "@/components/plan/UploadBox";
 import { OrientationPicker } from "@/components/plan/OrientationPicker";
 import { PlanCanvas } from "@/components/plan/PlanCanvas";
-import { RoomList } from "@/components/plan/RoomList";
+
 import { Verdict } from "@/components/result/Verdict";
 import { IssueCard } from "@/components/result/IssueCard";
 import { SourceBanner } from "@/components/result/SourceBanner";
@@ -33,7 +33,7 @@ import {
   ApiError,
 } from "@/lib/api";
 import { DEFAULT_LOCATION, BALI_QUICK_LOCATIONS, isInBali } from "@/lib/geo";
-import { ArrowRight, ArrowLeft, RefreshCw, CheckCircle2, Locate, AlertCircle, X, Compass, Landmark } from "lucide-react";
+import { ArrowRight, ArrowLeft, RefreshCw, CheckCircle2, Locate, AlertCircle, X, Compass, Landmark, Printer } from "lucide-react";
 
 // Dynamic import for Leaflet map to disable SSR
 const KajaMap = dynamic(() => import("@/components/map/KajaMap"), {
@@ -444,7 +444,7 @@ export default function Home() {
           </div>
         ) : step === 2 ? (
           /* ========================================================== */
-          /* STEP 2: FULL-WIDTH HERO CANVAS ON TOP, CONTROLS BELOW     */
+          /* STEP 2: SINGLE UNIFIED CARD (consistent with Step 1)      */
           /* ========================================================== */
           <div className="space-y-6">
             {/* 1. TOP HERO: Full-Width Architectural Canvas */}
@@ -461,117 +461,104 @@ export default function Home() {
               kajaDirection={kajaData.cardinal_direction}
             />
 
-            {/* 2. BOTTOM CONTROLS: 2 Balanced Columns */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column (7 cols): Mode Tabs & Sample List / Upload Box */}
-              <div className="lg:col-span-7 bg-ink-900 border border-ink-700 rounded-xl p-5 sm:p-6 space-y-4">
-                <div className="space-y-1">
-                  <h2 className="text-[17px] font-semibold text-bone-100">
-                    2. Masukkan Denah Bangunan
-                  </h2>
-                  <p className="text-[13px] text-bone-400 leading-relaxed">
-                    Gunakan denah contoh terkalibrasi untuk pengujian instan, atau unggah
-                    gambar denah arsitektur Anda untuk dibaca oleh model AI.
-                  </p>
-                </div>
+            {/* 2. BOTTOM CONTROLS: Single Unified Card */}
+            <header className="step-header">
+              <h2 className="step-title">Masukkan Denah Bangunan</h2>
+              <span className="step-subtitle">Langkah 2 dari 3</span>
+            </header>
 
-                {/* Mode Selector Tabs */}
-                <Tabs
-                  tabs={[
-                    { id: "sample", label: "Pilih Denah Contoh" },
-                    { id: "upload", label: "Unggah Denah Saya" },
-                  ]}
-                  activeTab={inputTab}
-                  onChange={(id) => {
-                    setInputTab(id);
+            <div className="step-card">
+              {/* Mode Selector Tabs */}
+              <Tabs
+                tabs={[
+                  { id: "sample", label: "Pilih Denah Contoh" },
+                  { id: "upload", label: "Unggah Denah Saya" },
+                ]}
+                activeTab={inputTab}
+                onChange={(id) => {
+                  setInputTab(id);
+                  setAuditError(null);
+                }}
+                className="w-full"
+              />
+
+              {/* Sample List or Upload Box */}
+              {inputTab === "sample" ? (
+                <SampleList
+                  selectedPresetId={selectedPresetId}
+                  onSelectPreset={(id) => {
+                    setSelectedPresetId(id);
                     setAuditError(null);
                   }}
-                  className="w-full justify-center"
                 />
+              ) : (
+                <UploadBox
+                  selectedFile={selectedFile}
+                  onFileSelect={handleFileChange}
+                />
+              )}
 
-                {/* Sample List or Upload Box */}
-                {inputTab === "sample" ? (
-                  <SampleList
-                    selectedPresetId={selectedPresetId}
-                    onSelectPreset={(id) => {
-                      setSelectedPresetId(id);
-                      setAuditError(null);
-                    }}
-                  />
-                ) : (
-                  <UploadBox
-                    selectedFile={selectedFile}
-                    onFileSelect={handleFileChange}
-                  />
-                )}
+              {/* Orientation Picker inline */}
+              <div className="p-4 bg-ink-950/50 border border-ink-700 rounded-lg space-y-3">
+                <div className="flex items-center gap-2">
+                  <Compass size={16} className="inline-icon" />
+                  <span className="text-[14px] font-medium text-bone-100">Arah Hadap Denah</span>
+                </div>
+                <p className="text-[12px] text-bone-300 ml-6">
+                  Atur arah hadap denah (Utara/Timur/Selatan/Barat) agar sumbu Kaja akurat.
+                </p>
+                <OrientationPicker
+                  planNorthDeg={planNorthDeg}
+                  onChange={setPlanNorthDeg}
+                />
               </div>
 
-              {/* Right Column (5 cols): Orientation Picker & Action */}
-              <div className="lg:col-span-5 bg-ink-900 border border-ink-700 rounded-xl p-5 sm:p-6 space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-[15px] font-semibold text-bone-100">
-                    Arah Mata Angin Gambar Denah
-                  </h3>
-                  <p className="text-[12px] text-bone-400 leading-relaxed">
-                    Tentukan sisi atas gambar denah Anda menghadap ke arah mata angin mana (Utara, Timur, Selatan, Barat) agar pemetaan sumbu suci Kaja akurat.
-                  </p>
-                </div>
+              {/* Error Banner if any */}
+              {auditError && (
+                <SourceBanner
+                  error={auditError.message}
+                  retryAfterS={auditError.retryAfterS}
+                  onRetry={handleExecuteAudit}
+                />
+              )}
 
-                {/* Orientation Picker */}
-                <div className="p-3.5 bg-ink-950 border border-ink-800 rounded-lg">
-                  <OrientationPicker
-                    planNorthDeg={planNorthDeg}
-                    onChange={setPlanNorthDeg}
-                  />
-                </div>
+              {/* Action Row */}
+              <div className="action-row">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setStep(1)}
+                  icon={<ArrowLeft size={15} />}
+                >
+                  Kembali
+                </Button>
 
-                {/* Error Banner if any */}
-                {auditError && (
-                  <SourceBanner
-                    error={auditError.message}
-                    retryAfterS={auditError.retryAfterS}
-                    onRetry={handleExecuteAudit}
-                  />
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-3 pt-2">
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={() => setStep(1)}
-                    icon={<ArrowLeft size={15} />}
-                  >
-                    Kembali
-                  </Button>
-
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="flex-1"
-                    disabled={isAuditing || (inputTab === "upload" && !selectedFile)}
-                    onClick={handleExecuteAudit}
-                    icon={
-                      isAuditing ? (
-                        <RefreshCw size={15} className="animate-spin" />
-                      ) : (
-                        <ArrowRight size={15} />
-                      )
-                    }
-                  >
-                    {isAuditing
-                      ? inputTab === "upload"
-                        ? "AI sedang membaca denah..."
-                        : "Memproses evaluasi..."
-                      : "Periksa Denah Ini"}
-                  </Button>
-                </div>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
+                  disabled={isAuditing || (inputTab === "upload" && !selectedFile)}
+                  onClick={handleExecuteAudit}
+                  icon={
+                    isAuditing ? (
+                      <RefreshCw size={15} className="animate-spin" />
+                    ) : (
+                      <ArrowRight size={15} />
+                    )
+                  }
+                >
+                  {isAuditing
+                    ? inputTab === "upload"
+                      ? "AI sedang membaca denah..."
+                      : "Memproses evaluasi..."
+                    : "Periksa Denah Ini"}
+                </Button>
               </div>
             </div>
           </div>
         ) : (
           /* ========================================================== */
-          /* STEP 3: FULL-WIDTH HERO CANVAS ON TOP, RESULTS BELOW       */
+          /* STEP 3: SINGLE UNIFIED CARDS (consistent with Step 1/2)   */
           /* ========================================================== */
           <div className="space-y-6">
             {/* 1. TOP HERO: Full-Width Architectural Plan Canvas */}
@@ -588,59 +575,41 @@ export default function Home() {
               kajaDirection={kajaData.cardinal_direction}
             />
 
-            {/* 2. BOTTOM WORKSPACE: 2 Columns (Room List on Left, Verdict & Issues on Right) */}
+            {/* 2. BOTTOM WORKSPACE: Unified Cards */}
             {auditData && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* LEFT: Interactive Room List (7 cols) */}
-                <div className="lg:col-span-7 bg-ink-900 border border-ink-700 rounded-xl p-5 sm:p-6 space-y-4">
-                  <RoomList
-                    rooms={auditData.rooms}
-                    violations={auditData.audit_report.violations}
-                    hoveredIndex={hoveredRoomIndex}
-                    selectedIndex={selectedRoomIndex}
-                    onHoverRoom={setHoveredRoomIndex}
-                    onSelectRoom={setSelectedRoomIndex}
-                    onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
-                  />
-                </div>
-
-                {/* RIGHT: Verdict, Issues & Actions (5 cols) */}
-                <div className="lg:col-span-5 space-y-5">
-                  {/* Source Data Provenance Banner */}
+              <>
+                {/* Header ringkas + SourceBanner compact */}
+                <header className="step-header">
+                  <h2 className="step-title">Hasil Pemeriksaan</h2>
                   <SourceBanner
                     source={auditData.source}
                     model={auditData.model}
+                    compact
                   />
+                </header>
 
-                  {/* Verdict Summary Card */}
-                  <Verdict
-                    report={auditData.audit_report}
-                    onPrintReport={() => setIsReportOpen(true)}
-                  />
+                {/* Verdict Summary Card - existing */}
+                <Verdict
+                  report={auditData.audit_report}
+                  onPrintReport={() => setIsReportOpen(true)}
+                />
 
-                  {/* Issues List (Violations) */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between pb-1 border-b border-ink-700">
-                      <span className="text-[14px] font-semibold text-bone-100">
-                        Catatan Perbaikan Ruang ({auditData.audit_report.violations.length})
-                      </span>
-                      <span className="text-[12px] text-bone-400 font-mono">
-                        Asta Kosala-Kosali
-                      </span>
+                {/* Issues List in unified card */}
+                <div className="step-card">
+                  <header className="section-header">
+                    <span className="section-title">Perbaikan Diperlukan</span>
+                    <span className="text-[12px] font-mono text-bone-400">Asta Kosala-Kosali</span>
+                  </header>
+                  {auditData.audit_report.violations.length === 0 ? (
+                    <div className="p-6 text-center text-bone-400 bg-ink-950/50 rounded-lg border border-ink-700/50 space-y-1">
+                      <CheckCircle2 size={28} className="text-bone-100 mx-auto" />
+                      <p className="text-[14px] font-medium text-bone-100">
+                        Semua ruangan sudah sesuai pakem Asta Bumi. Tidak ada pelanggaran.
+                      </p>
                     </div>
-
-                    {auditData.audit_report.violations.length === 0 ? (
-                      <div className="p-6 text-center text-bone-400 border border-ink-700 rounded-lg bg-ink-900 space-y-1">
-                        <CheckCircle2 size={24} className="text-bone-100 mx-auto mb-1" />
-                        <p className="text-[14px] font-medium text-bone-100">
-                          Tidak ditemukan pelanggaran tata letak.
-                        </p>
-                        <p className="text-[12px] text-bone-400">
-                          Seluruh ruangan memenuhi hierarki kesucian zona Sanga Mandala.
-                        </p>
-                      </div>
-                    ) : (
-                      auditData.audit_report.violations.map((violation, i) => (
+                  ) : (
+                    <div className="space-y-3">
+                      {auditData.audit_report.violations.map((violation, i) => (
                         <IssueCard
                           key={violation.id || i}
                           violation={violation}
@@ -659,61 +628,63 @@ export default function Home() {
                           }}
                           onOpenGlossaryDrawer={handleOpenGlossaryWithTerm}
                         />
-                      ))
-                    )}
-                  </div>
-
-                  {/* Compliances (Collapsible) */}
-                  {auditData.audit_report.compliances.length > 0 && (
-                    <Disclosure
-                      title={
-                        <span className="text-[14px] font-medium text-bone-100">
-                          Ruangan yang Sudah Sesuai ({auditData.audit_report.compliances.length})
-                        </span>
-                      }
-                      subtitle="Daftar tata letak yang mematuhi pakem Asta Bumi"
-                    >
-                      <ul className="space-y-2 pt-1 text-[13px]">
-                        {auditData.audit_report.compliances.map((c, idx) => (
-                          <li
-                            key={idx}
-                            className="flex items-start gap-2 p-2 bg-ink-950 rounded border border-ink-700/60"
-                          >
-                            <CheckCircle2 size={15} className="text-bone-100 shrink-0 mt-0.5" />
-                            <div className="space-y-0.5">
-                              <span className="font-medium text-bone-100 block">
-                                {c.room_name} · <span className="text-bone-400">{c.zone_name}</span>
-                              </span>
-                              <span className="text-bone-400/90 text-[12px] block">
-                                {c.detail}
-                              </span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </Disclosure>
+                      ))}
+                    </div>
                   )}
-
-                  {/* Footer Navigation Buttons */}
-                  <div className="flex items-center gap-3 pt-2">
-                    <Button
-                      variant="secondary"
-                      size="md"
-                      onClick={() => setStep(2)}
-                      icon={<ArrowLeft size={15} />}
-                    >
-                      Ganti Denah
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="md"
-                      onClick={() => setStep(1)}
-                    >
-                      Ubah Lokasi Tanah
-                    </Button>
-                  </div>
                 </div>
-              </div>
+
+                {/* Compliances (Collapsible) */}
+                {auditData.audit_report.compliances.length > 0 && (
+                  <Disclosure
+                    title={
+                      <span className="text-[14px] font-medium text-bone-100">
+                        Ruangan yang Sudah Sesuai ({auditData.audit_report.compliances.length})
+                      </span>
+                    }
+                    subtitle="Daftar tata letak yang mematuhi pakem Asta Bumi"
+                  >
+                    <ul className="space-y-2 pt-1 text-[13px]">
+                      {auditData.audit_report.compliances.map((c, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-2 p-2 bg-ink-950/50 rounded border border-ink-700/50"
+                        >
+                          <CheckCircle2 size={15} className="text-bone-100 shrink-0 mt-0.5" />
+                          <div className="space-y-0.5">
+                            <span className="font-medium text-bone-100 block">
+                              {c.room_name} · <span className="text-bone-400">{c.zone_name}</span>
+                            </span>
+                            <span className="text-bone-400/90 text-[12px] block">
+                              {c.detail}
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </Disclosure>
+                )}
+
+                {/* Footer Action Row */}
+                <div className="action-row">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    onClick={() => setStep(2)}
+                    icon={<ArrowLeft size={15} />}
+                  >
+                    Kembali ke Denah
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => setIsReportOpen(true)}
+                    icon={<Printer size={15} />}
+                  >
+                    Cetak Laporan
+                  </Button>
+                </div>
+              </>
             )}
           </div>
         )}

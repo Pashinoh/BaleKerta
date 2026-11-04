@@ -10,6 +10,7 @@ export interface SourceBannerProps {
   retryAfterS?: number;
   onRetry?: () => void;
   className?: string;
+  compact?: boolean;
 }
 
 export const SourceBanner: React.FC<SourceBannerProps> = ({
@@ -19,6 +20,7 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
   retryAfterS,
   onRetry,
   className = "",
+  compact = false,
 }) => {
   if (error) {
     return (
@@ -55,6 +57,39 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
 
   const isCache = source.startsWith("cache:");
   const isLiveAI = source.startsWith("ai:");
+
+  if (compact) {
+    return (
+      <div className={`flex items-center gap-2 text-[11px] text-bone-400 ${className}`}>
+        {isLiveAI ? (
+          <Sparkles size={12} className="text-bone-100 shrink-0" />
+        ) : isCache ? (
+          <Server size={12} className="text-bone-400 shrink-0" />
+        ) : (
+          <Database size={12} className="text-bone-400 shrink-0" />
+        )}
+        <span className="font-medium text-bone-100 truncate max-w-[200px]">
+          {isLiveAI
+            ? "Dianalisis AI Vision"
+            : isCache
+            ? "Dari Cache AI"
+            : "Denah Contoh"}
+        </span>
+        <span className="font-mono text-[10px] truncate max-w-[140px]">
+          {model
+            ? `(${model})`
+            : isLiveAI
+            ? `(${source.replace("ai:", "")})`
+            : isCache
+            ? `(${source.replace("cache:ai:", "")})`
+            : "(Preset Statis)"}
+        </span>
+        <span className="shrink-0 font-mono px-1.5 py-0.5 bg-ink-950 border border-ink-700 text-bone-400 rounded text-[10px]">
+          {isLiveAI ? "AI" : isCache ? "Cache" : "Preset"}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
