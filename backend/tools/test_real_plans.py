@@ -303,7 +303,7 @@ def run_stress_test():
             rm = r["rooms_count"]
             kdb_s = f"{r['kdb_percentage']:.1f}%"
             sc = r["compliance_score"]
-            st = "LAYAK PBG" if sc >= 70 else "MELANGGAR"
+            st = "LAYAK PBG" if sc >= 80 else ("PERLU PENYESUAIAN" if sc >= 50 else "MELANGGAR")
             print(f"{r['index']:<3} | {tc['title'][:38]:<38} | {http_code:<4} | {t_str:<6} | {rm:<5} | {kdb_s:<6} | {sc:<4} | {st}", flush=True)
         else:
             err_code = r.get("error", {}).get("error", "FAIL") if isinstance(r.get("error"), dict) else "EXC"

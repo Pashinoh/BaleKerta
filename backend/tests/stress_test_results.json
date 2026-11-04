@@ -14,18 +14,17 @@
     "elapsed_s": 0.07,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 12,
-    "kdb_percentage": 67.3,
-    "compliance_score": 70,
-    "status_label": "PERLU PENYESUAIAN TATA RUANG",
-    "violations_count": 3,
+    "kdb_percentage": 53.7,
+    "compliance_score": 85,
+    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
+    "violations_count": 2,
     "violation_rules": [
       "PEMERAJAN_OFF_CORNER",
-      "PEMERAJAN_OFF_CORNER",
-      "KDB_EXCEEDED"
+      "PEMERAJAN_OFF_CORNER"
     ],
     "rooms": [
       {
-        "name": "1",
+        "name": "Kode 1 (Natah (Halaman Tengah))",
         "type": "natah_open_space",
         "zone_id": "MADYANING_MADYA",
         "box": [
@@ -36,7 +35,7 @@
         ]
       },
       {
-        "name": "2",
+        "name": "Kode 2 (Pemerajan / Sanggah)",
         "type": "pemerajan_sanggah",
         "zone_id": "MADYANING_UTAMA",
         "box": [
@@ -47,7 +46,7 @@
         ]
       },
       {
-        "name": "3",
+        "name": "Kode 3 (Bale Daja (Meten))",
         "type": "bale_daja",
         "zone_id": "NISTANING_UTAMA",
         "box": [
@@ -58,7 +57,7 @@
         ]
       },
       {
-        "name": "4",
+        "name": "Kode 4 (Bale Dangin)",
         "type": "bale_dangin",
         "zone_id": "MADYANING_UTAMA",
         "box": [
@@ -69,7 +68,7 @@
         ]
       },
       {
-        "name": "5",
+        "name": "Kode 5 (Bale Dauh)",
         "type": "bale_dauh",
         "zone_id": "NISTANING_MADYA",
         "box": [
@@ -80,7 +79,7 @@
         ]
       },
       {
-        "name": "6",
+        "name": "Kode 6 (Bale / Ruang Keluarga)",
         "type": "ruang_tamu",
         "zone_id": "MADYANING_MADYA",
         "box": [
@@ -91,7 +90,7 @@
         ]
       },
       {
-        "name": "7",
+        "name": "Kode 7 (Paon (Dapur))",
         "type": "dapur_paon",
         "zone_id": "MADYANING_NISTA",
         "box": [
@@ -102,7 +101,7 @@
         ]
       },
       {
-        "name": "8",
+        "name": "Kode 8 (Bale / Ruang Keluarga)",
         "type": "ruang_tamu",
         "zone_id": "UTAMANING_MADYA",
         "box": [
@@ -113,7 +112,7 @@
         ]
       },
       {
-        "name": "9",
+        "name": "Kode 9 (Paon (Dapur))",
         "type": "dapur_paon",
         "zone_id": "UTAMANING_MADYA",
         "box": [
@@ -124,7 +123,7 @@
         ]
       },
       {
-        "name": "10",
+        "name": "Kode 10 (Angkul-Angkul (Gerbang))",
         "type": "angkul_angkul_pintu",
         "zone_id": "MADYANING_NISTA",
         "box": [
@@ -135,7 +134,7 @@
         ]
       },
       {
-        "name": "11",
+        "name": "Kode 11 (Kamar Mandi / Toilet)",
         "type": "toilet",
         "zone_id": "MADYANING_NISTA",
         "box": [
@@ -146,7 +145,7 @@
         ]
       },
       {
-        "name": "12",
+        "name": "Kode 12 (Pemerajan / Sanggah)",
         "type": "pemerajan_sanggah",
         "zone_id": "NISTANING_MADYA",
         "box": [
@@ -260,12 +259,42 @@
       "plan_north_deg": 0,
       "category": "Site Plan Kontur Lanskap"
     },
-    "http_status": 422,
-    "elapsed_s": 23.39,
-    "error": {
-      "error": "no_rooms_detected",
-      "message": "Model AI tidak mendeteksi teks batas ruangan pada denah yang diunggah. Pastikan gambar denah memiliki tulisan label ruangan yang jelas."
-    }
+    "http_status": 200,
+    "elapsed_s": 10.05,
+    "source": "ai:gemini-3.5-flash-lite",
+    "rooms_count": 2,
+    "kdb_percentage": 5.9,
+    "compliance_score": 65,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 2,
+    "violation_rules": [
+      "NO_PEMERAJAN",
+      "INSUFFICIENT_ROOM_LABELS"
+    ],
+    "rooms": [
+      {
+        "name": "配套",
+        "type": "ruang_tamu",
+        "zone_id": "NISTANING_MADYA",
+        "box": [
+          326,
+          203,
+          508,
+          335
+        ]
+      },
+      {
+        "name": "2号楼展厅",
+        "type": "bale_dangin",
+        "zone_id": "MADYANING_MADYA",
+        "box": [
+          516,
+          498,
+          706,
+          680
+        ]
+      }
+    ]
   },
   {
     "index": 4,
@@ -282,7 +311,7 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 6,
-    "kdb_percentage": 88.6,
+    "kdb_percentage": 69.2,
     "compliance_score": 65,
     "status_label": "PERLU PENYESUAIAN TATA RUANG",
     "violations_count": 2,
@@ -589,7 +618,7 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 21,
-    "kdb_percentage": 48.5,
+    "kdb_percentage": 41.9,
     "compliance_score": 10,
     "status_label": "MELANGGAR REGULASI ADAT & PERDA",
     "violations_count": 4,
@@ -1063,11 +1092,12 @@
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 1,
     "kdb_percentage": 0.0,
-    "compliance_score": 80,
-    "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
-    "violations_count": 1,
+    "compliance_score": 65,
+    "status_label": "PERLU PENYESUAIAN TATA RUANG",
+    "violations_count": 2,
     "violation_rules": [
-      "NO_PEMERAJAN"
+      "NO_PEMERAJAN",
+      "INSUFFICIENT_ROOM_LABELS"
     ],
     "rooms": [
       {
@@ -1095,7 +1125,7 @@
       "category": "Kompleks Villa Kembar"
     },
     "http_status": 200,
-    "elapsed_s": 0.0,
+    "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.1-flash-lite",
     "rooms_count": 9,
     "kdb_percentage": 16.2,
@@ -1223,7 +1253,7 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 14,
-    "kdb_percentage": 39.6,
+    "kdb_percentage": 37.7,
     "compliance_score": 100,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
     "violations_count": 0,
@@ -1511,10 +1541,10 @@
       "category": "Villa Lereng Sungai (Denah Vertikal Panjang)"
     },
     "http_status": 200,
-    "elapsed_s": 0.01,
+    "elapsed_s": 0.02,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 11,
-    "kdb_percentage": 12.6,
+    "kdb_percentage": 11.3,
     "compliance_score": 80,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
     "violations_count": 1,
@@ -1660,7 +1690,7 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 9,
-    "kdb_percentage": 14.1,
+    "kdb_percentage": 13.2,
     "compliance_score": 40,
     "status_label": "MELANGGAR REGULASI ADAT & PERDA",
     "violations_count": 3,
@@ -1783,7 +1813,7 @@
       "category": "Villa Geometri Non-Ortogonal (Miring)"
     },
     "http_status": 422,
-    "elapsed_s": 19.13,
+    "elapsed_s": 10.22,
     "error": {
       "error": "no_rooms_detected",
       "message": "Model AI tidak mendeteksi teks batas ruangan pada denah yang diunggah. Pastikan gambar denah memiliki tulisan label ruangan yang jelas."
@@ -1801,17 +1831,17 @@
       "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
     },
     "http_status": 200,
-    "elapsed_s": 0.0,
+    "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 8,
-    "kdb_percentage": 44.1,
+    "kdb_percentage": 42.3,
     "compliance_score": 100,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
     "violations_count": 0,
     "violation_rules": [],
     "rooms": [
       {
-        "name": "A",
+        "name": "Kode A (Pemerajan / Sanggah)",
         "type": "pemerajan_sanggah",
         "zone_id": "UTAMANING_UTAMA",
         "box": [
@@ -1822,7 +1852,7 @@
         ]
       },
       {
-        "name": "B",
+        "name": "Kode B (Bale Daja (Meten))",
         "type": "bale_daja",
         "zone_id": "MADYANING_UTAMA",
         "box": [
@@ -1833,7 +1863,7 @@
         ]
       },
       {
-        "name": "C",
+        "name": "Kode C (Bale Dangin)",
         "type": "bale_dangin",
         "zone_id": "MADYANING_MADYA",
         "box": [
@@ -1844,7 +1874,7 @@
         ]
       },
       {
-        "name": "D",
+        "name": "Kode D (Bale Dauh)",
         "type": "bale_dauh",
         "zone_id": "NISTANING_MADYA",
         "box": [
@@ -1855,7 +1885,7 @@
         ]
       },
       {
-        "name": "E",
+        "name": "Kode E (Paon (Dapur))",
         "type": "dapur_paon",
         "zone_id": "MADYANING_NISTA",
         "box": [
@@ -1866,7 +1896,7 @@
         ]
       },
       {
-        "name": "F",
+        "name": "Kode F (Bale / Ruang Keluarga)",
         "type": "ruang_tamu",
         "zone_id": "UTAMANING_NISTA",
         "box": [
@@ -1877,7 +1907,7 @@
         ]
       },
       {
-        "name": "G",
+        "name": "Kode G (Kamar Mandi / Toilet)",
         "type": "toilet",
         "zone_id": "NISTANING_NISTA",
         "box": [
@@ -1888,7 +1918,7 @@
         ]
       },
       {
-        "name": "H",
+        "name": "Kode H (Angkul-Angkul (Gerbang))",
         "type": "angkul_angkul_pintu",
         "zone_id": "NISTANING_MADYA",
         "box": [
@@ -1912,7 +1942,7 @@
       "category": "Denah Tunggal Bangunan Adat (Jurnal Akademik)"
     },
     "http_status": 200,
-    "elapsed_s": 0.0,
+    "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 6,
     "kdb_percentage": 22.1,
@@ -1922,7 +1952,7 @@
     "violation_rules": [],
     "rooms": [
       {
-        "name": "A",
+        "name": "Kode A (Pemerajan / Sanggah)",
         "type": "pemerajan_sanggah",
         "zone_id": "UTAMANING_UTAMA",
         "box": [
@@ -1933,7 +1963,7 @@
         ]
       },
       {
-        "name": "B",
+        "name": "Kode B (Bale Daja (Meten))",
         "type": "bale_daja",
         "zone_id": "MADYANING_UTAMA",
         "box": [
@@ -1944,7 +1974,7 @@
         ]
       },
       {
-        "name": "C",
+        "name": "Kode C (Bale Dangin)",
         "type": "bale_dangin",
         "zone_id": "MADYANING_MADYA",
         "box": [
@@ -1955,7 +1985,7 @@
         ]
       },
       {
-        "name": "D",
+        "name": "Kode D (Bale Dauh)",
         "type": "bale_dauh",
         "zone_id": "NISTANING_UTAMA",
         "box": [
@@ -1966,7 +1996,7 @@
         ]
       },
       {
-        "name": "E",
+        "name": "Kode E (Paon (Dapur))",
         "type": "dapur_paon",
         "zone_id": "NISTANING_NISTA",
         "box": [
@@ -1977,7 +2007,7 @@
         ]
       },
       {
-        "name": "F",
+        "name": "Kode F (Angkul-Angkul (Gerbang))",
         "type": "angkul_angkul_pintu",
         "zone_id": "MADYANING_NISTA",
         "box": [
@@ -2004,7 +2034,7 @@
     "elapsed_s": 0.01,
     "source": "cache:ai:gemini-3.5-flash-lite",
     "rooms_count": 7,
-    "kdb_percentage": 31.8,
+    "kdb_percentage": 31.5,
     "compliance_score": 85,
     "status_label": "MEMENUHI PERSYARATAN (LAYAK PBG)",
     "violations_count": 1,
@@ -2013,7 +2043,7 @@
     ],
     "rooms": [
       {
-        "name": "A",
+        "name": "Kode A (Pemerajan / Sanggah)",
         "type": "pemerajan_sanggah",
         "zone_id": "MADYANING_UTAMA",
         "box": [
@@ -2024,7 +2054,7 @@
         ]
       },
       {
-        "name": "B",
+        "name": "Kode B (Bale Daja (Meten))",
         "type": "bale_daja",
         "zone_id": "UTAMANING_MADYA",
         "box": [
@@ -2035,7 +2065,7 @@
         ]
       },
       {
-        "name": "C",
+        "name": "Kode C (Bale Dangin)",
         "type": "bale_dangin",
         "zone_id": "UTAMANING_MADYA",
         "box": [
@@ -2046,7 +2076,7 @@
         ]
       },
       {
-        "name": "D",
+        "name": "Kode D (Bale / Ruang Keluarga)",
         "type": "ruang_tamu",
         "zone_id": "UTAMANING_MADYA",
         "box": [
@@ -2057,7 +2087,7 @@
         ]
       },
       {
-        "name": "E",
+        "name": "Kode E (Paon (Dapur))",
         "type": "dapur_paon",
         "zone_id": "MADYANING_NISTA",
         "box": [
@@ -2068,7 +2098,7 @@
         ]
       },
       {
-        "name": "F",
+        "name": "Kode F (Bale Dauh)",
         "type": "bale_dauh",
         "zone_id": "UTAMANING_NISTA",
         "box": [
@@ -2079,7 +2109,7 @@
         ]
       },
       {
-        "name": "G",
+        "name": "Kode G (Garasi / Parkir)",
         "type": "garasi",
         "zone_id": "NISTANING_NISTA",
         "box": [

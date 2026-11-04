@@ -14,6 +14,47 @@ def load_perda_rules() -> Dict[str, Any]:
             _rules_cache = json.load(f)
     return _rules_cache
 
+def compute_boxes_union_area(boxes: List[List[int]], clip_bounds: Optional[List[int]] = None) -> int:
+    """
+    Menghitung luas gabungan (2D union area) dari daftar kotak [ymin, xmin, ymax, xmax]
+    tanpa menghitung ganda (double-counting) bagian kotak yang saling beririsan/tumpang-tindih.
+    """
+    clipped = []
+    cy0, cx0, cy1, cx1 = (
+        clip_bounds if (clip_bounds and len(clip_bounds) == 4) else (0, 0, 1000, 1000)
+    )
+    for b in boxes:
+        if not isinstance(b, (list, tuple)) or len(b) != 4:
+            continue
+        y0 = max(cy0, min(cy1, int(b[0])))
+        x0 = max(cx0, min(cx1, int(b[1])))
+        y1 = max(cy0, min(cy1, int(b[2])))
+        x1 = max(cx0, min(cx1, int(b[3])))
+        if y1 > y0 and x1 > x0:
+            clipped.append((y0, x0, y1, x1))
+
+    if not clipped:
+        return 0
+
+    ys = sorted({y for b in clipped for y in (b[0], b[2])})
+    xs = sorted({x for b in clipped for x in (b[1], b[3])})
+    total_area = 0
+    for i in range(len(ys) - 1):
+        y_low, y_high = ys[i], ys[i + 1]
+        dy = y_high - y_low
+        if dy <= 0:
+            continue
+        y_mid = (y_low + y_high) / 2.0
+        for j in range(len(xs) - 1):
+            x_low, x_high = xs[j], xs[j + 1]
+            dx = x_high - x_low
+            if dx <= 0:
+                continue
+            x_mid = (x_low + x_high) / 2.0
+            if any(b[0] <= y_mid <= b[2] and b[1] <= x_mid <= x_high and b[1] <= x_mid <= b[3] for b in clipped):
+                total_area += dy * dx
+    return total_area
+
 def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Melakukan verifikasi deterministik terhadap posisi ruangan
@@ -26,9 +67,9 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Optional[Dict[st
     compliances = []
     score = 100
     
-    # Hitung perkiraan kasar luas bangunan vs total tapak (KDB)
+    # Hitung perkiraan kasar luas bangunan vs total tapak (KDB) menggunakan 2D Union Area (anti double-counting)
     lot_bounds = (grid_config or {}).get("lot_bounds", [0, 0, 1000, 1000])
-    total_room_area = 0
+    closed_room_boxes: List[List[int]] = []
     total_canvas_area = max(1, (lot_bounds[2] - lot_bounds[0]) * (lot_bounds[3] - lot_bounds[1]))
     
     has_pemerajan = False
@@ -76,14 +117,12 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Optional[Dict[st
         zone_info = room.get("zone", {})
         zone_id = zone_info.get("zone_id", "UNKNOWN")
         
-        # Hitung area ruangan tertutup untuk KDB (kecualikan ruang terbuka hijau seperti Natah & Taman)
-        ymin, xmin, ymax, xmax = box
-        area = max(0, ymax - ymin) * max(0, xmax - xmin)
+        # Kumpulkan kotak ruangan tertutup untuk perhitungan KDB berbasis 2D union (kecualikan RTH seperti Natah & Taman)
         is_open_space = any(p in rtype or p in name.lower() for p in [
             "natah", "taman", "halaman", "open_space", "kebun", "plaza", "pekarangan", "sirkulasi"
         ])
-        if not is_open_space:
-            total_room_area += area
+        if not is_open_space and isinstance(box, (list, tuple)) and len(box) == 4:
+            closed_room_boxes.append(list(box))
         
         current_zone_rule = zone_rules.get(zone_id, {})
         zone_name = current_zone_rule.get("name", zone_id)
@@ -269,7 +308,8 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Optional[Dict[st
                     "detail": f"{name} ditempatkan pada zona yang sesuai ({zone_name}) mematuhi hierarki ruang istirahat keluarga."
                 })
 
-    # Evaluasi KDB (Koefisien Dasar Bangunan - Perkiraan Kasar)
+    # Evaluasi KDB (Koefisien Dasar Bangunan - 2D Union Area tanpa double-counting kotak beririsan)
+    total_room_area = compute_boxes_union_area(closed_room_boxes, lot_bounds)
     kdb_percentage = min(100.0, round((total_room_area / total_canvas_area) * 100, 1))
     kdb_status = "MEMENUHI"
     if kdb_percentage > 60:
@@ -314,6 +354,24 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Optional[Dict[st
             "issue": "Tidak terdeteksi area persembahyangan (Pemerajan/Sanggah) pada denah",
             "recommendation": "Sediakan area tempat suci keluarga pada sudut Utamaning Utama (Kaja-Kangin).",
             "legal_reference": "Pedoman Asta Bumi: Setiap pekarangan hunian dianjurkan menyediakan tempat pemujaan keluarga di sudut suci."
+        })
+
+    # Evaluasi Kelengkapan Label Denah (Jika denah utuh hanya mendeteksi < 3 ruangan)
+    if grid_config is not None and 0 < len(rooms) < 3:
+        score -= 15
+        violations.append({
+            "id": f"viol_{len(violations)+1}",
+            "rule_id": "INSUFFICIENT_ROOM_LABELS",
+            "verified": True,
+            "room_name": "Kelengkapan Label Denah",
+            "room_type": "metadata_warning",
+            "box": lot_bounds,
+            "zone_id": "GLOBAL",
+            "zone_name": "Seluruh Tapak",
+            "severity": "WARNING",
+            "issue": f"Hanya terdeteksi {len(rooms)} label ruangan pada gambar denah; verifikasi tata ruang belum menyeluruh",
+            "recommendation": "Pastikan gambar denah mencantumkan teks label fungsi setiap ruangan (Sanggah, Kamar Tidur, Dapur, Toilet, Natah) dengan jelas.",
+            "legal_reference": "Standar Dokumen Teknis PBG: Gambar denah wajib mencantumkan keterangan fungsi setiap ruang."
         })
 
     final_score = max(0, min(100, score))

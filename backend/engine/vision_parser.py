@@ -9,6 +9,32 @@ from typing import List, Dict, Any, Optional, Tuple
 from PIL import Image
 from core.config import settings
 
+ROOM_TYPE_LABELS = {
+    "pemerajan_sanggah": "Pemerajan / Sanggah",
+    "taman": "Taman / RTH",
+    "natah_open_space": "Natah (Halaman Tengah)",
+    "bale_daja": "Bale Daja (Meten)",
+    "bale_dangin": "Bale Dangin",
+    "bale_dauh": "Bale Dauh",
+    "kamar_tidur": "Kamar Tidur",
+    "dapur_paon": "Paon (Dapur)",
+    "toilet": "Kamar Mandi / Toilet",
+    "angkul_angkul_pintu": "Angkul-Angkul (Gerbang)",
+    "ruang_tamu": "Bale / Ruang Keluarga",
+    "garasi": "Garasi / Parkir",
+}
+
+def enrich_bare_room_name(name: str, rtype: str) -> str:
+    """
+    Jika label ruangan pada denah hanya berupa kode indeks pendek (misal 'A', 'B', '1', '12'),
+    tambahkan nama fungsi ruangannya agar mudah dibaca pada UI dan laporan PDF.
+    """
+    cleaned = name.strip()
+    if re.fullmatch(r"[A-Za-z]|\d{1,2}[A-Za-z]?", cleaned):
+        label = ROOM_TYPE_LABELS.get(rtype, "Ruangan")
+        return f"Kode {cleaned} ({label})"
+    return cleaned
+
 def get_image_hash(image_bytes: bytes) -> str:
     """Menghitung SHA256 hash dari data byte gambar untuk keperluan caching."""
     return hashlib.sha256(image_bytes).hexdigest()
@@ -26,10 +52,17 @@ def check_cache(image_hash: str) -> Optional[Dict[str, Any]]:
                 # Validasi bahwa cache ini adalah hasil AI asli
                 source = data.get("source", "")
                 if source.startswith("ai:") and data.get("rooms"):
+                    enriched_rooms = [
+                        {
+                            **r,
+                            "name": enrich_bare_room_name(str(r.get("name", "Ruangan")), str(r.get("type", "ruang_tamu")))
+                        }
+                        for r in data.get("rooms", [])
+                    ]
                     return {
                         "source": f"cache:{source}",
                         "model": data.get("model", "unknown"),
-                        "rooms": data.get("rooms", [])
+                        "rooms": enriched_rooms
                     }
         except Exception as e:
             print(f"[CACHE READ ERROR] {e}")
@@ -83,6 +116,7 @@ PANDUAN PEMETAAN TIPE RUANGAN (Mendukung sinonim bahasa Indonesia, Bali, dan Ing
 PENTING:
 - Koordinat box bernilai integer skala 0 sampai 1000 (0 = tepi atas/kiri, 1000 = tepi bawah/kanan gambar).
 - Format box harus flat list: [ymin, xmin, ymax, xmax] di mana ymin < ymax dan xmin < xmax.
+- Jika denah menggunakan kode huruf/angka (seperti A, B, C atau 1, 2, 3) yang merujuk pada daftar KETERANGAN/LEGEND di tepi gambar, gabungkan kode dan arti keterangannya pada field "name" (contoh: "A - Sanggah / Pemerajan"), dan JANGAN masukkan tabel daftar legenda di pinggir kertas sebagai kotak ruangan.
 """
 
 def classify_and_normalize_room(name: str, raw_type: str = "unknown") -> str:
@@ -249,9 +283,10 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
     
     valid_rooms = []
     for r in raw_rooms:
-        name = str(r.get("name", "Ruangan")).strip()
+        raw_name = str(r.get("name", "Ruangan")).strip()
         raw_rtype = str(r.get("type", "unknown")).strip()
-        rtype = classify_and_normalize_room(name, raw_rtype)
+        rtype = classify_and_normalize_room(raw_name, raw_rtype)
+        name = enrich_bare_room_name(raw_name, rtype)
         box = normalize_box(r.get("box"))
 
         if box:
