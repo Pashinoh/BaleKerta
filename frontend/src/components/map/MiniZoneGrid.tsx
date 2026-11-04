@@ -97,25 +97,25 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
               >
                 {isSacred ? (
                   <>
-                    <Sparkles size={13} className="text-bone-100 mb-0.5" />
-                    <span className="text-[11px] font-semibold text-bone-100 leading-tight">
+                    <Sparkles size={15} className="text-bone-100 mb-0.5" />
+                    <span className="text-[15px] font-semibold text-bone-100 leading-tight">
                       Utamaning Utama
                     </span>
-                    <span className="text-[9px] text-bone-100/90 font-mono">
+                    <span className="text-[13px] text-bone-100/90 font-mono">
                       (Paling Suci)
                     </span>
                   </>
                 ) : isCenter ? (
                   <>
-                    <span className="text-[11px] font-medium text-bone-100 leading-tight">
+                    <span className="text-[15px] font-medium text-bone-100 leading-tight">
                       Natah
                     </span>
-                    <span className="text-[9px] text-bone-400 font-mono">
+                    <span className="text-[13px] text-bone-400 font-mono">
                       (Halaman)
                     </span>
                   </>
                 ) : (
-                  <span className="text-[10px] text-bone-400/90 leading-tight">
+                  <span className="text-[15px] text-bone-400/90 leading-tight">
                     {r === 0 ? "Kaja" : r === 2 ? "Kelod" : ""}{" "}
                     {c === 0 ? "Kauh" : c === 2 ? "Kangin" : ""}
                   </span>

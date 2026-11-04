@@ -11,6 +11,7 @@ export interface StepperProps {
   currentStep: number;
   maxStepReached: number;
   onSelectStep: (step: number) => void;
+  variant?: "detailed" | "dots";
 }
 
 export const STEPS: StepItem[] = [
@@ -23,7 +24,77 @@ export const Stepper: React.FC<StepperProps> = ({
   currentStep,
   maxStepReached,
   onSelectStep,
+  variant = "detailed",
 }) => {
+  if (variant === "dots") {
+    return (
+      <nav aria-label="Alur pemeriksaan: Verifikasi kepatuhan orientasi Asta Kosala-Kosali dan Asta Bumi sebelum pengajuan PBG" className="w-full">
+        <ol className="flex items-center justify-between w-full">
+          {STEPS.map((s, idx) => {
+            const isActive = s.step === currentStep;
+            const isCompleted = s.step < currentStep;
+            const isReached = maxStepReached >= s.step || s.step < currentStep;
+            const isClickable = s.step <= Math.max(maxStepReached, currentStep);
+
+            return (
+              <React.Fragment key={s.step}>
+                {/* Connector line between steps */}
+                {idx > 0 && (
+                  <div
+                    className={`h-[1px] flex-1 mx-2 sm:mx-4 transition-colors duration-150 ${
+                      s.step <= currentStep ? "bg-bone-400/50" : "bg-ink-700"
+                    }`}
+                    aria-hidden="true"
+                  />
+                )}
+
+                {/* Step Item */}
+                <li className="flex flex-col items-center min-w-0 flex-none">
+                  <button
+                    type="button"
+                    disabled={!isClickable}
+                    onClick={() => isClickable && onSelectStep(s.step)}
+                    className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-mono text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-bone-100 ${
+                      isActive
+                        ? "bg-bone-100 text-ink-950"
+                        : isCompleted
+                        ? "border border-bone-400 text-bone-400"
+                        : isReached
+                        ? "border border-bone-400/70 text-bone-400"
+                        : "border border-ink-700 text-ink-600"
+                    } ${isClickable && !isActive ? "cursor-pointer" : !isClickable ? "cursor-not-allowed" : ""}`}
+                    aria-current={isActive ? "step" : undefined}
+                    aria-label={`Langkah ${s.step}: ${s.label}`}
+                  >
+                    {isCompleted ? (
+                      <Check size={14} strokeWidth={2.5} />
+                    ) : (
+                      s.step
+                    )}
+                  </button>
+                  <div className="mt-2 text-center">
+                    <p
+                      className={`text-[12px] sm:text-[13px] leading-tight font-medium ${
+                        isActive ? "text-bone-100" : "text-bone-400"
+                      }`}
+                    >
+                      {s.label}
+                    </p>
+                    {isActive && (
+                      <p className="text-[11px] text-bone-300 mt-0.5 hidden sm:block">
+                        {s.description}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              </React.Fragment>
+            );
+          })}
+        </ol>
+      </nav>
+    );
+  }
+
   return (
     <nav aria-label="Alur pemeriksaan" className="w-full">
       <ol className="flex items-center justify-between w-full border border-ink-700 bg-ink-900 rounded-lg p-2 sm:p-3">

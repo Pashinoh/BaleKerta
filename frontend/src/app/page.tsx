@@ -32,8 +32,8 @@ import {
   auditUploadedFloorPlan,
   ApiError,
 } from "@/lib/api";
-import { DEFAULT_LOCATION } from "@/lib/geo";
-import { ArrowRight, ArrowLeft, RefreshCw, CheckCircle2 } from "lucide-react";
+import { DEFAULT_LOCATION, BALI_QUICK_LOCATIONS, isInBali } from "@/lib/geo";
+import { ArrowRight, ArrowLeft, RefreshCw, CheckCircle2, Locate, AlertCircle, X } from "lucide-react";
 
 // Dynamic import for Leaflet map to disable SSR
 const KajaMap = dynamic(() => import("@/components/map/KajaMap"), {
@@ -138,6 +138,31 @@ export default function Home() {
     [inputTab, selectedPresetId, planNorthDeg, auditData]
   );
 
+  // 2b. GPS: validasi Bali + pesan error yang terlihat (bukan diam-diam)
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const handleUseMyLocation = useCallback(() => {
+    setGeoError(null);
+    if (!navigator.geolocation) {
+      setGeoError("Batas Wilayah Bali: Peramban Anda tidak mendukung penentuan lokasi otomatis.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const userLat = pos.coords.latitude;
+        const userLon = pos.coords.longitude;
+        if (isInBali(userLat, userLon)) {
+          handleLocationChange(userLat, userLon);
+        } else {
+          setGeoError(
+            `Batas Wilayah Bali: Lokasi GPS Anda (${userLat.toFixed(2)}, ${userLon.toFixed(2)}) berada di luar Pulau Bali. Silakan pilih titik di dalam Pulau Bali.`
+          );
+        }
+      },
+      () => setGeoError("Batas Wilayah Bali: Izin lokasi GPS ditolak atau tidak tersedia."),
+      { timeout: 8000 }
+    );
+  }, [handleLocationChange]);
+
   // 3. Handle File selection
   const handleFileChange = (file: File | null) => {
     setSelectedFile(file);
@@ -212,47 +237,74 @@ export default function Home() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Intro Tagline & Stepper */}
+        {/* Stepper */}
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h1 className="text-[20px] font-semibold text-bone-100 tracking-tight">
-                Pemeriksaan Tata Ruang Adat Bali
-              </h1>
-              <p className="text-[14px] text-bone-400">
-                Verifikasi kepatuhan orientasi Asta Kosala-Kosali dan Asta Bumi sebelum pengajuan PBG.
-              </p>
-            </div>
-          </div>
-
           {/* 3-Step Stepper */}
           <Stepper
             currentStep={step}
             maxStepReached={maxStepReached}
             onSelectStep={(targetStep) => setStep(targetStep)}
+            variant={step === 1 ? "dots" : "detailed"}
           />
         </div>
 
         {step === 1 ? (
           /* ========================================================== */
-          /* STEP 1: HERO MAP ON TOP, DASHBOARD & CONTROLS BELOW        */
+          /* STEP 1: RESTRUCTURED FOCUS LAYOUT                         */
           /* ========================================================== */
-          <div className="space-y-6">
-            {/* 1. TOP HERO: Full-Width Interactive Map */}
+          <div className="space-y-8">
+            {/* 1. TOP: Peta tanpa heading kartu */}
             <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4 overflow-hidden">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-ink-800">
-                <div>
-                  <h2 className="text-[17px] font-semibold text-bone-100 flex items-center gap-2">
-                    <span>1. Peta Interaktif Penentuan Titik Tapak & Arah Kaja</span>
-                    <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-ink-800 border border-ink-700 text-bone-300">
-                      Batas Wilayah Bali
-                    </span>
-                  </h2>
-                  <p className="text-[13px] text-bone-400 mt-0.5">
-                    Klik pada daratan Bali atau geser pin untuk menentukan koordinat tapak tanah Anda. Arah suci (<em>Kaja</em>) dihitung instan mengarah lurus ke puncak Gunung Agung.
-                  </p>
+              {/* Quick location controls */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <label htmlFor="quick-location-select" className="text-[13px] text-bone-300">
+                    Pilih cepat: Kabupaten
+                  </label>
+                  <select
+                    id="quick-location-select"
+                    className="bg-ink-800 border border-ink-600 text-bone-100 rounded-md px-2.5 py-1 text-[13px] focus-visible:outline-2 focus-visible:outline-bone-100"
+                    onChange={(e) => {
+                      const selected = BALI_QUICK_LOCATIONS.find((loc) => loc.id === e.target.value);
+                      if (selected) {
+                        handleLocationChange(selected.lat, selected.lon);
+                      }
+                    }}
+                  >
+                    <option value="">Pilih lokasi</option>
+                    {BALI_QUICK_LOCATIONS.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleUseMyLocation}
+                    icon={<Locate size={14} />}
+                  >
+                    Lokasi Saya
+                  </Button>
                 </div>
               </div>
+
+              {geoError && (
+                <div className="flex items-center justify-between p-3 bg-ink-900 border border-clay text-clay rounded-md text-[13px]">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={16} className="shrink-0" />
+                    <span>{geoError}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setGeoError(null)}
+                    aria-label="Tutup pesan"
+                    className="text-bone-300 hover:text-bone-100"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
 
               <KajaMap
                 lat={lat}
@@ -265,10 +317,10 @@ export default function Home() {
               />
             </div>
 
-            {/* 2. BOTTOM DASHBOARD: MiniZoneGrid on Left, Geodesic Details & Next Action on Right */}
+            {/* 2. BOTTOM DASHBOARD */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              {/* MiniZoneGrid Card (5 cols) */}
-              <div className="lg:col-span-5 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col justify-between space-y-4">
+              {/* MiniZoneGrid Card (lebih besar) */}
+              <div className="lg:col-span-6 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col justify-between space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b border-ink-800 pb-2">
                     <h3 className="text-[15px] font-semibold text-bone-100">
@@ -278,7 +330,7 @@ export default function Home() {
                       {kajaData.cardinal_direction}
                     </span>
                   </div>
-                  <p className="text-[12px] text-bone-400 leading-relaxed">
+                  <p className="text-[12px] text-bone-300 leading-relaxed">
                     Zona suci teratas (<em>Utamaning Utama</em>) berputar otomatis menyesuaikan sudut geodesik tanah Anda menuju Gunung Agung.
                   </p>
                   <MiniZoneGrid
@@ -290,78 +342,89 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Geodesic Parameters & Next Step Card (7 cols) */}
-              <div className="lg:col-span-7 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col justify-between space-y-5">
-                <div className="space-y-4">
+              {/* Ringkasan Parameter Spasial */}
+              <div className="lg:col-span-6 bg-ink-900 border border-ink-700 rounded-xl p-5 flex flex-col space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between border-b border-ink-800 pb-2">
                     <h3 className="text-[15px] font-semibold text-bone-100">
                       Parameter Spasial Adat Tapak
                     </h3>
-                    <span className="text-[11px] font-mono text-bone-400 bg-ink-950 px-2 py-0.5 rounded border border-ink-800">
-                      Asta Bumi Geodesic Engine
-                    </span>
                   </div>
 
-                  {/* 3 Metric Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                      <span className="text-[11px] text-bone-400 block mb-1">Koordinat Tanah</span>
-                      <span className="text-[13px] font-mono font-medium text-bone-100 block">
-                        {lat.toFixed(4)}°, {lon.toFixed(4)}°
-                      </span>
-                      <span className="text-[11px] text-bone-400 mt-1 block truncate">
-                        {kajaData.location_label || "Wilayah Bali"}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                      <span className="text-[11px] text-bone-400 block mb-1">Sudut Geodesik Kaja</span>
-                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
-                        {kajaData.bearing_degrees.toFixed(1)}°
-                      </span>
-                      <span className="text-[11px] text-clay font-medium mt-1 block">
-                        Arah {kajaData.cardinal_direction}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                      <span className="text-[11px] text-bone-400 block mb-1">Jarak ke Gn. Agung</span>
-                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
-                        {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
-                      </span>
-                      <span className="text-[11px] text-bone-400 mt-1 block">
-                        Puncak 3.142 mdpl
-                      </span>
-                    </div>
+                  <div className="text-[14px] text-bone-100">
+                    <span className="font-medium">Arah Kaja: {kajaData.bearing_degrees.toFixed(1)}° · {kajaData.cardinal_direction}</span>
+                    {kajaData.location_label && (
+                      <span className="block text-[13px] text-bone-300 mt-1">{kajaData.location_label}</span>
+                    )}
                   </div>
 
-                  {/* Cultural rule note */}
-                  <div className="p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
-                    <p className="leading-relaxed">
-                      <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja mengarah ke Timur Laut. Di Bali Utara (Buleleng), Kaja mengarah ke Selatan.
-                    </p>
-                    <p className="text-[12px] text-bone-400">
-                      Sistem kami mengunci orientasi ini agar denah bangunan yang diaudit pada Langkah 2 dievaluasi secara akurat.
-                    </p>
-                  </div>
-                </div>
+                  <Disclosure title="Detail Parameter Spasial" defaultOpen={false}>
+                    <div className="space-y-4">
+                      {/* 3 Metric Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                          <span className="text-[11px] text-bone-300 block mb-1">Koordinat Tanah</span>
+                          <span className="text-[13px] font-mono font-medium text-bone-100 block">
+                            {lat.toFixed(4)}°, {lon.toFixed(4)}°
+                          </span>
+                          <span className="text-[11px] text-bone-300 mt-1 block truncate">
+                            {kajaData.location_label || "Wilayah Bali"}
+                          </span>
+                        </div>
 
-                {/* Primary Action Button */}
-                <div className="pt-2">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full justify-between"
-                    onClick={() => {
-                      setMaxStepReached((prev) => Math.max(prev, 2));
-                      setStep(2);
-                    }}
-                    icon={<ArrowRight size={16} />}
-                  >
-                    <span>Lanjut ke Masukkan Denah (Langkah 2)</span>
-                  </Button>
+                        <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                          <span className="text-[11px] text-bone-300 block mb-1">Sudut Geodesik Kaja</span>
+                          <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                            {kajaData.bearing_degrees.toFixed(1)}°
+                          </span>
+                          <span className="text-[11px] text-clay font-medium mt-1 block">
+                            Arah {kajaData.cardinal_direction}
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-ink-950 border border-ink-800 rounded-lg">
+                          <span className="text-[11px] text-bone-300 block mb-1">Jarak ke Gn. Agung</span>
+                          <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                            {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
+                          </span>
+                          <span className="text-[11px] text-bone-300 mt-1 block">
+                            Puncak 3.142 mdpl
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Cultural rule note */}
+                      <div className="p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
+                        <p className="leading-relaxed">
+                          <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja mengarah ke Timur Laut. Di Bali Utara (Buleleng), Kaja mengarah ke Selatan.
+                        </p>
+                        <p className="text-[12px] text-bone-300">
+                          Sistem kami mengunci orientasi ini agar denah bangunan yang diaudit pada Langkah 2 dievaluasi secara akurat.
+                        </p>
+                      </div>
+                      <div className="text-[11px] font-mono text-bone-300">
+                        Asta Bumi Geodesic Engine
+                      </div>
+                    </div>
+                  </Disclosure>
                 </div>
               </div>
+            </div>
+
+            {/* CTA Button below both cards */}
+            <div className="w-full">
+              <Button
+                variant="primary"
+                size="lg"
+                className="w-full justify-between"
+                onClick={() => {
+                  setMaxStepReached((prev) => Math.max(prev, 2));
+                  setStep(2);
+                }}
+                icon={<ArrowRight size={16} />}
+              >
+                <span>Lanjut ke Denah Bangunan</span>
+              </Button>
             </div>
           </div>
         ) : step === 2 ? (

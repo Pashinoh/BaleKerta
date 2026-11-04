@@ -15,7 +15,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "BaleKerta — Pra-Pemeriksaan Arsitektur Adat Bali",
-  description: "Sistem analisis kepatuhan tata ruang arsitektur tradisional Bali (Asta Kosala-Kosali & Asta Bumi) berbasis kecerdasan spasial.",
+  description: "Verifikasi kepatuhan orientasi Asta Kosala-Kosali dan Asta Bumi sebelum pengajuan PBG. Sistem analisis kepatuhan tata ruang arsitektur tradisional Bali berbasis kecerdasan spasial.",
 };
 
 export default function RootLayout({
