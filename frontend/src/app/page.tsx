@@ -250,6 +250,32 @@ export default function Home() {
     setIsGlossaryOpen(true);
   };
 
+  // Reveal animations - IntersectionObserver for .reveal elements
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+        el.classList.add('in-view');
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-ink-950 text-bone-100 font-sans selection:bg-bone-100 selection:text-ink-950">
       {/* Header */}
@@ -262,9 +288,9 @@ export default function Home() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 space-y-5">
         {/* Stepper */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* 3-Step Stepper */}
           <Stepper
             currentStep={step}
@@ -278,7 +304,7 @@ export default function Home() {
           /* ========================================================== */
           /* STEP 1: RESTRUCTURED FOCUS LAYOUT                         */
           /* ========================================================== */
-          <div className="space-y-10">
+          <div className="space-y-7">
             {/* 1. TOP: Peta tanpa heading kartu */}
             <div className="reveal bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-sm space-y-4 overflow-hidden">
               {/* Quick location controls */}
@@ -344,101 +370,101 @@ export default function Home() {
             </div>
 
             {/* 2. BOTTOM DASHBOARD */}
-            <div className="reveal bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6">
+            <div className="reveal bg-ink-900 border border-ink-700 rounded-xl p-4 lg:p-5">
               <h3 className="text-[15px] font-semibold text-bone-100 mb-4 motif-compass">
                 Hasil Analisis Tapak
               </h3>
               
               {/* Summary Card - quick skimmable facts */}
-              <div className="reveal-left flex flex-col sm:flex-row gap-4 p-4 bg-ink-950/50 border border-ink-700 rounded-lg mb-6">
+              <div className="reveal-left flex flex-col sm:flex-row gap-3 p-3 bg-ink-950/50 border border-ink-700 rounded-lg mb-4">
                 <div className="flex items-center gap-2">
-                  <Compass size={16} className="shrink-0 text-bone-100" />
-                  <span className="text-[14px] font-medium text-bone-100">Arah Kaja:</span>
-                  <span className="text-[14px] text-bone-300">{cardinalSingular(kajaData.cardinal_direction)}</span>
+                  <Compass size={14} className="shrink-0 text-bone-100" />
+                  <span className="text-[13px] font-medium text-bone-100">Arah Kaja:</span>
+                  <span className="text-[13px] text-bone-300">{cardinalSingular(kajaData.cardinal_direction)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Landmark size={16} className="shrink-0 text-bone-100" />
-                  <span className="text-[14px] font-medium text-bone-100">Area Sanggah:</span>
-                  <span className="text-[14px] text-bone-300">{cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))}</span>
+                  <Landmark size={14} className="shrink-0 text-bone-100" />
+                  <span className="text-[13px] font-medium text-bone-100">Area Sanggah:</span>
+                  <span className="text-[13px] text-bone-300">{cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))}</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:items-center">
                 <div className="reveal-right">
                   <MiniZoneGrid kajaQuadrant={kajaData.kaja_quadrant} />
                 </div>
-                <div className="reveal-left space-y-4">
-                  <p className="text-[14px] text-bone-100 leading-relaxed">
-                    <Compass size={16} className="inline-block mr-1" />Arah Kaja lahan Anda menghadap ke {cardinalSingular(kajaData.cardinal_direction)}. Sesuai aturan Sanga Mandala, area paling suci (Utamaning Utama) berada di {cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))} denah Anda.
+                <div className="reveal-left space-y-3">
+                  <p className="text-[13px] text-bone-100 leading-relaxed">
+                    <Compass size={14} className="inline-block mr-1" />Arah Kaja lahan Anda menghadap ke {cardinalSingular(kajaData.cardinal_direction)}. Sesuai aturan Sanga Mandala, area paling suci (Utamaning Utama) berada di {cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))} denah Anda.
                   </p>
                 </div>
               </div>
 
               {/* Disclosure moved below grid, full-width */}
               <Disclosure title="Lihat Detail Teknis & Koordinat" defaultOpen={false} className="reveal">
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* 3 Metric Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="reveal delay-1 p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                      <span className="text-[11px] text-bone-300 block mb-1">Koordinat Tanah</span>
-                      <span className="text-[13px] font-mono font-medium text-bone-100 block">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="reveal delay-1 p-2 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[10px] text-bone-300 block mb-0.5">Koordinat Tanah</span>
+                      <span className="text-[12px] font-mono font-medium text-bone-100 block">
                         {lat.toFixed(4)}°, {lon.toFixed(4)}°
                       </span>
-                      <span className="text-[11px] text-bone-300 mt-1 block truncate">
+                      <span className="text-[10px] text-bone-300 mt-0.5 block truncate">
                         {kajaData.location_label || "Wilayah Bali"}
                       </span>
                     </div>
 
-                    <div className="reveal delay-2 p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                      <span className="text-[11px] text-bone-300 block mb-1">Sudut Geodesik Kaja</span>
-                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                    <div className="reveal delay-2 p-2 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[10px] text-bone-300 block mb-0.5">Sudut Geodesik Kaja</span>
+                      <span className="text-[14px] font-mono font-semibold text-bone-100 block">
                         {kajaData.bearing_degrees.toFixed(1)}°
                       </span>
-                      <span className="text-[11px] text-clay font-medium mt-1 block">
+                      <span className="text-[10px] text-clay font-medium mt-0.5 block">
                         Arah {kajaData.cardinal_direction}
                       </span>
                     </div>
 
-                    <div className="reveal delay-3 p-3 bg-ink-950 border border-ink-800 rounded-lg">
-                      <span className="text-[11px] text-bone-300 block mb-1">Jarak ke Gn. Agung</span>
-                      <span className="text-[15px] font-mono font-semibold text-bone-100 block">
+                    <div className="reveal delay-3 p-2 bg-ink-950 border border-ink-800 rounded-lg">
+                      <span className="text-[10px] text-bone-300 block mb-0.5">Jarak ke Gn. Agung</span>
+                      <span className="text-[14px] font-mono font-semibold text-bone-100 block">
                         {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
                       </span>
-                      <span className="text-[11px] text-bone-300 mt-1 block">
+                      <span className="text-[10px] text-bone-300 mt-0.5 block">
                         Puncak 3.142 mdpl
                       </span>
                     </div>
                   </div>
 
                   {/* Cultural rule note */}
-                  <div className="reveal delay-4 p-3.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[13px] text-bone-300 space-y-1">
+                  <div className="reveal delay-4 p-2.5 bg-ink-950/70 border border-ink-800 rounded-lg text-[12px] text-bone-300 space-y-0.5">
                     <p className="leading-relaxed">
-                      <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja mengarah ke Timur Laut. Di Bali Utara (Buleleng), Kaja mengarah ke Selatan.
+                      <strong>Ketentuan Tata Ruang Adat:</strong> Posisi suci Kaja bersifat relatif terhadap Gunung Agung. Di Bali Selatan (Denpasar, Badung, Gianyar), Kaja menghadap Timur Laut. Di Bali Utara (Buleleng), Kaja menghadap Selatan.
                     </p>
-                    <p className="text-[12px] text-bone-300">
+                    <p className="text-[11px] text-bone-300">
                       Sistem kami mengunci orientasi ini agar denah bangunan yang diaudit pada Langkah 2 dievaluasi secara akurat.
                     </p>
                   </div>
-                  <div className="text-[11px] font-mono text-bone-300">
+                  <div className="text-[10px] font-mono text-bone-300">
                     Asta Bumi Geodesic Engine
                   </div>
                 </div>
               </Disclosure>
             </div>
 
-            {/* CTA Button below both cards */}
-            <div className="reveal w-full">
+            {/* CTA Button - compact, sticky, no reveal delay */}
+            <div className="w-full pt-1">
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full justify-between"
+                className="w-full justify-center gap-2"
                 onClick={() => {
                   setMaxStepReached((prev) => Math.max(prev, 2));
                   setStep(2);
                 }}
                 icon={<ArrowRight size={16} />}
               >
-                <span>Lanjut ke Denah Bangunan</span>
+                Lanjut ke Denah Bangunan
               </Button>
             </div>
           </div>
