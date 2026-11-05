@@ -110,6 +110,31 @@ def get_regencies():
         }
     return results
 
+return results
+
+@app.get("/api/sanga-mandala-grid")
+def get_sanga_mandala_grid_endpoint(
+    kaja_quadrant: str = Query(..., description="Kuadran Kaja: TOP_RIGHT, BOTTOM_RIGHT, TOP_LEFT, BOTTOM_LEFT"),
+    plan_north_deg: int = Query(0, description="Orientasi utara denah (derajat)"),
+    bounds: Optional[str] = Query(None, description="Batas tapak: 'ymin,xmin,ymax,xmax'")
+):
+    """
+    Mengembalikan konfigurasi 9 grid Sanga Mandala (3x3) berdasarkan orientasi Kaja dan rotasi denah.
+    Digunakan frontend untuk render MiniZoneGrid tanpa duplikasi logika.
+    """
+    bounds_list = None
+    if bounds:
+        try:
+            bounds_list = [int(x.strip()) for x in bounds.split(",")]
+            if len(bounds_list) != 4:
+                raise ValueError("Bounds harus 4 angka: ymin,xmin,ymax,xmax")
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=f"Format bounds invalid: {e}")
+    
+    grid = build_sanga_mandala_grid(kaja_quadrant, plan_north_deg, bounds_list)
+    return grid
+
+
 @app.get("/api/rules")
 def get_rules():
     """Mengembalikan basis pengetahuan Perda No. 5/2005 dan Asta Kosala-Kosali."""

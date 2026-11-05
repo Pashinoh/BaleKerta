@@ -166,8 +166,9 @@ def test_natah_preserved_suppresses_bordering_room_false_positive():
 
 
 def test_bedroom_blocking_natah_central():
+    # Room large enough to exceed 5% threshold (50,000 px² on 1M px lot)
     report = run_spatial_audit(
-        [room("kamar_tidur", "MADYANING_MADYA", name="Kamar Tidur"), pemerajan()], None
+        [room("kamar_tidur", "MADYANING_MADYA", name="Kamar Tidur", box=[300, 300, 600, 600]), pemerajan()], None
     )
     assert any(v["rule_id"] == "NATAH_BLOCKED" for v in report["violations"])
 
@@ -176,8 +177,8 @@ def test_multiple_rooms_blocking_natah_deduplicates_score_penalty():
     """Beberapa sub-ruang di tengah tetap tercatat, tetapi penalti skor hanya -15 satu kali."""
     report = run_spatial_audit(
         [
-            room("kamar_tidur", "MADYANING_MADYA", name="Kamar 1"),
-            room("ruang_tamu", "MADYANING_MADYA", name="Ruang Keluarga"),
+            room("kamar_tidur", "MADYANING_MADYA", name="Kamar 1", box=[300, 300, 600, 600]),
+            room("ruang_tamu", "MADYANING_MADYA", name="Ruang Keluarga", box=[100, 100, 400, 400]),
             pemerajan(),
         ],
         None,

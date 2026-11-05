@@ -261,25 +261,30 @@ def run_spatial_audit(rooms: List[Dict[str, Any]], grid_config: Optional[Dict[st
                 })
                 
         # Jika bangunan masif menutupi zona tengah (dan tidak ada Natah terbuka eksplisit di Madyaning Madya)
+        # Hanya penalize jika ruangan cukup besar (>5% luas pekarangan)
+        MIN_NATAH_BLOCK_AREA_RATIO = 0.05
         if zone_id == "MADYANING_MADYA" and not has_central_natah and any(p in rtype for p in ["kamar", "ruang_tamu", "dapur", "toilet"]):
-            natah_preserved = False
-            if not natah_penalty_applied:
-                score -= 15
-                natah_penalty_applied = True
-            violations.append({
-                "id": f"viol_{len(violations)+1}",
-                "rule_id": "NATAH_BLOCKED",
-                "verified": True,
-                "room_name": name,
-                "room_type": rtype,
-                "box": box,
-                "zone_id": zone_id,
-                "zone_name": zone_name,
-                "severity": "WARNING",
-                "issue": f"{name} menutupi zona pusat Natah (Madyaning Madya)",
-                "recommendation": "Biarkan zona tengah pekarangan terbuka tanpa atap masif sebagai sirkulasi udara dan ruang sakral Natah.",
-                "legal_reference": "Pedoman Asta Bumi: Natah wajib dibiarkan terbuka sebagai ruang hijau dan sirkulasi alami."
-            })
+            room_area = (box[2] - box[0]) * (box[3] - box[1])
+            lot_area = (lot_bounds[2] - lot_bounds[0]) * (lot_bounds[3] - lot_bounds[1])
+            if room_area / lot_area > MIN_NATAH_BLOCK_AREA_RATIO:
+                natah_preserved = False
+                if not natah_penalty_applied:
+                    score -= 15
+                    natah_penalty_applied = True
+                violations.append({
+                    "id": f"viol_{len(violations)+1}",
+                    "rule_id": "NATAH_BLOCKED",
+                    "verified": True,
+                    "room_name": name,
+                    "room_type": rtype,
+                    "box": box,
+                    "zone_id": zone_id,
+                    "zone_name": zone_name,
+                    "severity": "WARNING",
+                    "issue": f"{name} menutupi zona pusat Natah (Madyaning Madya)",
+                    "recommendation": "Biarkan zona tengah pekarangan terbuka tanpa atap masif sebagai sirkulasi udara dan ruang sakral Natah.",
+                    "legal_reference": "Pedoman Asta Bumi: Natah wajib dibiarkan terbuka sebagai ruang hijau dan sirkulasi alami."
+                })
 
         # 5. Cek Kamar Tidur Utama / Ruang Tidur (Tidak boleh di Nistaning Nista / Teba)
         if any(p in rtype for p in ["kamar_tidur", "kamar_utama", "master_bedroom", "bale_daja", "gedong"]):
