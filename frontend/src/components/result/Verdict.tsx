@@ -21,7 +21,7 @@ export const Verdict: React.FC<VerdictProps> = ({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-lg border bg-ink-900 ${
+      className={`p-4 sm:p-5 rounded-lg border bg-ink-900 shadow-sm ${
         isPass ? "border-ink-700" : "border-clay/60"
       } ${className}`}
     >
@@ -35,9 +35,9 @@ export const Verdict: React.FC<VerdictProps> = ({
               <AlertCircle size={18} className="text-clay shrink-0" />
             )}
             <span
-              className={`text-[12px] font-mono px-2 py-0.5 rounded border uppercase tracking-wider font-semibold ${
+              className={`text-[12px] font-mono px-2.5 py-0.5 rounded border uppercase tracking-wider font-semibold ${
                 isPass
-                  ? "border-bone-100/40 text-bone-100 bg-bone-100/5"
+                  ? "border-bone-400/40 text-bone-100 bg-ink-850"
                   : "border-clay text-clay bg-clay/10"
               }`}
             >
@@ -45,9 +45,9 @@ export const Verdict: React.FC<VerdictProps> = ({
             </span>
           </div>
 
-          <h3 className="text-[17px] font-semibold text-bone-100 leading-snug">
+          <h3 className="text-[17px] sm:text-[18px] font-semibold text-bone-100 leading-snug">
             {isPass
-              ? "Denah ini mematuhi kaidah tata ruang adat Bali."
+              ? "Denah ini mematuhi kaidah tata ruang adat Bali (Asta Bumi)."
               : `Denah ini belum sesuai: terdapat ${violationsCount} hal yang perlu disesuaikan.`}
           </h3>
 
@@ -77,9 +77,9 @@ export const Verdict: React.FC<VerdictProps> = ({
               variant="secondary"
               size="sm"
               onClick={onPrintReport}
-              icon={<Printer size={15} className="text-bone-400" />}
+              icon={<Printer size={14} className="text-bone-400" />}
             >
-              Cetak Laporan
+              Cetak Dokumen Resmi
             </Button>
           </div>
         )}

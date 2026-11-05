@@ -111,50 +111,51 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
   const cornerCap = cornerCapitalized(cornerLabel);
 
   return (
-    <div>
+    <div className="space-y-2.5">
       {/* 3x3 Mini Grid */}
-      <div className="grid grid-cols-3 gap-1.5 p-1 bg-ink-950 border border-ink-700 rounded-md aspect-square max-w-[280px] mx-auto">
+      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-ink-950 border border-ink-700 rounded-md aspect-square max-w-[270px] mx-auto">
         {[0, 1, 2].map((r) =>
           [0, 1, 2].map((c) => {
             const isSacred = r === sacredPos.row && c === sacredPos.col;
             const isCenter = r === 1 && c === 1;
-            const isMadya = isCenter || (r === 1 && c !== 1) || (c === 1 && r !== 1); // center + 4 cardinal sides
+            const isMadya = isCenter || (r === 1 && c !== 1) || (c === 1 && r !== 1);
 
-            let cellClass = "flex flex-col items-center justify-center p-1 rounded text-center transition-all border border-ink-700 ";
+            let cellClass =
+              "flex flex-col items-center justify-center p-1 rounded text-center transition-colors border ";
             if (isSacred) {
-              cellClass += "bg-bone-100 text-ink-950 border-bone-100";
+              cellClass +=
+                "bg-bone-100 text-ink-950 border-bone-100 font-semibold shadow-sm";
             } else if (isMadya) {
-              cellClass += "bg-bone-100/15 text-bone-100";
+              cellClass +=
+                "bg-ink-900 border-ink-700 text-bone-100";
             } else {
-              cellClass += "bg-ink-950/50 text-bone-400";
+              cellClass +=
+                "bg-ink-950/60 border-ink-700/60 text-bone-400";
             }
 
             return (
-              <div
-                key={`${r}-${c}`}
-                className={cellClass}
-              >
+              <div key={`${r}-${c}`} className={cellClass}>
                 {isSacred ? (
                   <>
-                    <Sparkles size={15} className="text-ink-950 mb-0.5" />
-                    <span className="text-[15px] font-semibold text-ink-950 leading-tight">
+                    <Sparkles size={14} className="text-ink-950 mb-0.5" />
+                    <span className="text-[12px] font-bold text-ink-950 leading-tight">
                       Utamaning Utama
                     </span>
-                    <span className="text-[13px] text-ink-950 font-mono">
+                    <span className="text-[10px] text-ink-900/80 font-mono">
                       (Paling Suci)
                     </span>
                   </>
                 ) : isCenter ? (
                   <>
-                    <span className="text-[15px] font-medium text-bone-100 leading-tight">
+                    <span className="text-[12px] font-semibold text-bone-100 leading-tight">
                       Natah
                     </span>
-                    <span className="text-[13px] text-bone-100 font-mono">
+                    <span className="text-[10px] text-bone-400 font-mono">
                       (Halaman)
                     </span>
                   </>
                 ) : (
-                  <span className="text-[15px] leading-tight">
+                  <span className="text-[11px] font-medium leading-tight">
                     {r === 0 ? "Kaja" : r === 2 ? "Kelod" : ""}{" "}
                     {c === 0 ? "Kauh" : c === 2 ? "Kangin" : ""}
                   </span>
@@ -165,12 +166,20 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
         )}
       </div>
 
-      {/* Cultural Meaning Explanation - simplified human-friendly */}
-      <div className="mt-3 text-[13px] text-bone-300 bg-ink-950 p-3 rounded border border-ink-700/60 leading-relaxed">
-        <Compass size={14} className="inline-block mr-1 text-bone-100" />
-        Kaja = arah ke Gunung Agung ({cardSingular}).{" "}
-        <Landmark size={14} className="inline-block mr-1 text-bone-100" />
-        Area suci (Utamaning Utama, tempat Sanggah/Pemerajan) = {cornerCap} denah Anda.
+      {/* Cultural Meaning Explanation */}
+      <div className="text-[12px] text-bone-300 bg-ink-950 p-3 rounded border border-ink-700/60 leading-relaxed">
+        <div className="flex items-start gap-1.5 mb-1">
+          <Compass size={14} className="text-bone-100 shrink-0 mt-0.5" />
+          <span>
+            <strong className="text-bone-100">Arah Kaja</strong> = menghadap ke Gunung Agung ({cardSingular}).
+          </span>
+        </div>
+        <div className="flex items-start gap-1.5">
+          <Landmark size={14} className="text-bone-100 shrink-0 mt-0.5" />
+          <span>
+            <strong className="text-bone-100">Area Suci (Sanggah/Merajan)</strong> = terletak di <span className="text-bone-100 font-semibold">{cornerCap}</span> denah Anda.
+          </span>
+        </div>
       </div>
     </div>
   );

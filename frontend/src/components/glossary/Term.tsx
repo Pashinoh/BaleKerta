@@ -6,22 +6,35 @@ import { ExternalLink, Info } from "lucide-react";
 
 export interface TermProps {
   id: string;
+  label?: string;
   children?: React.ReactNode;
   onOpenDrawer?: (termId: string) => void;
+  onOpenGlossary?: () => void;
   className?: string;
 }
 
 export const Term: React.FC<TermProps> = ({
   id,
+  label,
   children,
   onOpenDrawer,
+  onOpenGlossary,
   className = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
   const termData = getGlossaryTerm(id);
 
-  const displayText = children || (termData ? termData.term : id);
+  const displayText = children || label || (termData ? termData.term : id);
+
+  const handleOpenDetailed = () => {
+    setIsOpen(false);
+    if (onOpenDrawer) {
+      onOpenDrawer(termData ? termData.id : id);
+    } else if (onOpenGlossary) {
+      onOpenGlossary();
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -46,7 +59,7 @@ export const Term: React.FC<TermProps> = ({
   }, [isOpen]);
 
   if (!termData) {
-    return <span className={className}>{displayText}</span>;
+    return <span className={`text-bone-100 ${className}`}>{displayText}</span>;
   }
 
   return (
@@ -99,13 +112,10 @@ export const Term: React.FC<TermProps> = ({
           </div>
 
           {/* Action */}
-          {onOpenDrawer && (
+          {(onOpenDrawer || onOpenGlossary) && (
             <button
               type="button"
-              onClick={() => {
-                setIsOpen(false);
-                onOpenDrawer(termData.id);
-              }}
+              onClick={handleOpenDetailed}
               className="w-full flex items-center justify-between text-[12px] text-bone-400 hover:text-bone-100 hover:underline pt-1 transition-colors"
             >
               <span>Buka panduan lengkap</span>

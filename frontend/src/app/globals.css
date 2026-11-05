@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base resets adhering to Design System */
+/* Base resets adhering to Ink / Bone / Clay design spec */
 html {
   color-scheme: dark;
 }
@@ -13,7 +13,7 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* Custom scrollbars for dashboard widgets */
+/* Custom scrollbars with Ink tones */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -29,16 +29,17 @@ body {
   background: #3A352F;
 }
 
-/* Focus styles adhering to design spec */
+/* Precision focus outline */
 :focus-visible {
   outline: 2px solid #EDE7DA;
   outline-offset: 2px;
 }
 
-/* Dark Mode Filter for OpenStreetMap Tiles & Deep Ink Canvas Background */
+/* Deep Ink Canvas for OpenStreetMap */
 .leaflet-container {
   background-color: #0E0D0C !important;
   outline: none;
+  font-family: inherit;
 }
 .dark-map-tiles .leaflet-tile-pane {
   filter: brightness(0.6) invert(100%) contrast(1.6) hue-rotate(205deg) saturate(0.2) brightness(0.7);
@@ -49,7 +50,35 @@ body {
   background-color: #0E0D0C !important;
 }
 
-/* Transitions adhering to design spec (120-160ms) */
+/* Leaflet stacking context containment to prevent bleeding through header/dock */
+.leaflet-pane {
+  z-index: 10 !important;
+}
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 15 !important;
+}
+
+/* Subtle, professional architectural scanning line */
+@keyframes subtleScan {
+  0% {
+    top: 0%;
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 99%;
+    opacity: 0.4;
+  }
+}
+
+.animate-subtle-scan {
+  animation: subtleScan 2.4s ease-in-out infinite alternate;
+}
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -66,7 +95,6 @@ body {
     margin: 0;
   }
 
-  /* 1. Reset all containers to pure white */
   html,
   html.dark,
   body {
@@ -83,12 +111,10 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* Netralisir background gelap dari seluruh container di luar modal */
   div, main, section {
     background-color: transparent !important;
   }
 
-  /* 2. Sembunyikan seluruh UI web background agar tidak terulang/tercetak */
   header,
   nav,
   main,
@@ -99,7 +125,6 @@ body {
     visibility: hidden !important;
   }
 
-  /* 3. Tampilkan hanya wrapper dokumen cetak resmi mandiri */
   #printable-report-wrapper {
     position: absolute !important;
     top: 0 !important;
@@ -145,7 +170,6 @@ body {
     overflow: visible !important;
   }
 
-  /* 4. Hindari pemotongan aneh antar halaman */
   .print-avoid-break {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
@@ -186,16 +210,16 @@ body {
   }
 }
 
-/* Wizard UI Tokens — reusable patterns for Step 1/2/3 */
+/* Clean Editorial & Architectural Layout Elements */
 @layer components {
   .step-card {
-    @apply bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6 space-y-6;
+    @apply bg-ink-900 border border-ink-700 rounded-lg p-5 lg:p-6 space-y-6 shadow-card;
   }
   .step-header {
-    @apply flex items-center justify-between border-b border-ink-700 pb-4 mb-4;
+    @apply flex items-center justify-between border-b border-ink-700 pb-3 mb-4;
   }
   .step-title {
-    @apply text-[17px] font-semibold text-bone-100;
+    @apply text-[16px] font-semibold text-bone-100 tracking-tight;
   }
   .step-subtitle {
     @apply text-[12px] font-mono text-bone-400;
@@ -207,15 +231,12 @@ body {
     @apply text-[15px] font-semibold text-bone-100;
   }
   .metric-label {
-    @apply text-[11px] text-bone-300 block mb-1;
+    @apply text-[11px] font-mono text-bone-400 block mb-1;
   }
   .metric-value {
-    @apply text-[15px] font-mono font-semibold text-bone-100 block;
+    @apply text-[14px] font-mono font-semibold text-bone-100 block;
   }
   .action-row {
     @apply flex items-center gap-3 pt-4 border-t border-ink-700;
-  }
-  .inline-icon {
-    @apply inline-block mr-1 text-bone-100;
   }
 }

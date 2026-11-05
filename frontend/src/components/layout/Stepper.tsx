@@ -14,7 +14,7 @@ export interface StepperProps {
 }
 
 export const STEPS: StepItem[] = [
-  { step: 1, label: "Lokasi Tanah", description: "Tentukan arah Kaja (Gunung Agung)" },
+  { step: 1, label: "Lokasi Tanah", description: "Arah Kaja ke Gunung Agung" },
   { step: 2, label: "Denah Bangunan", description: "Pilih contoh atau unggah denah" },
   { step: 3, label: "Hasil Pemeriksaan", description: "Verifikasi kepatuhan ruang adat" },
 ];
@@ -25,7 +25,10 @@ export const Stepper: React.FC<StepperProps> = ({
   onSelectStep,
 }) => {
   return (
-    <nav aria-label="Alur pemeriksaan: Verifikasi kepatuhan orientasi Asta Kosala-Kosali dan Asta Bumi sebelum pengajuan PBG" className="w-full">
+    <nav
+      aria-label="Alur pemeriksaan tata ruang adat Bali"
+      className="w-full bg-ink-900 border border-ink-700 rounded-lg p-3 sm:p-4 shadow-sm"
+    >
       <ol className="flex items-center justify-between w-full">
         {STEPS.map((s, idx) => {
           const isActive = s.step === currentStep;
@@ -38,50 +41,50 @@ export const Stepper: React.FC<StepperProps> = ({
               {/* Connector line between steps */}
               {idx > 0 && (
                 <div
-                  className={`h-[1px] flex-1 mx-2 sm:mx-3 transition-colors duration-150 ${
-                    s.step <= currentStep ? "bg-bone-400/50" : "bg-ink-700"
+                  className={`h-[1px] flex-1 mx-2 sm:mx-4 transition-colors duration-150 ${
+                    s.step <= currentStep
+                      ? "bg-bone-400/60"
+                      : "bg-ink-700"
                   }`}
                   aria-hidden="true"
                 />
               )}
 
               {/* Step Item */}
-              <li className="flex flex-col items-center min-w-0 flex-none">
+              <li className="flex flex-col sm:flex-row items-center gap-2 min-w-0 flex-none">
                 <button
                   type="button"
                   disabled={!isClickable}
                   onClick={() => isClickable && onSelectStep(s.step)}
                   className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-mono text-[12px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-bone-100 ${
                     isActive
-                      ? "bg-bone-100 text-ink-950"
+                      ? "bg-bone-100 text-ink-950 shadow-sm"
                       : isCompleted
-                      ? "border border-bone-400 text-bone-400"
+                      ? "border border-bone-400 text-bone-400 bg-ink-850"
                       : isReached
-                      ? "border border-bone-400/70 text-bone-400"
-                      : "border border-ink-700 text-ink-600"
-                  } ${isClickable && !isActive ? "cursor-pointer" : !isClickable ? "cursor-not-allowed" : ""}`}
+                      ? "border border-ink-600 text-bone-400 hover:border-bone-400"
+                      : "border border-ink-700 text-ink-600 cursor-not-allowed"
+                  } ${isClickable && !isActive ? "cursor-pointer" : ""}`}
                   aria-current={isActive ? "step" : undefined}
                   aria-label={`Langkah ${s.step}: ${s.label}`}
                 >
                   {isCompleted ? (
-                    <Check size={12} strokeWidth={2.5} />
+                    <Check size={13} strokeWidth={2.5} className="text-bone-400" />
                   ) : (
                     s.step
                   )}
                 </button>
-                <div className="mt-1.5 text-center">
+                <div className="text-center sm:text-left">
                   <p
-                    className={`text-[11px] sm:text-[12px] leading-tight font-medium ${
-                      isActive ? "text-bone-100" : "text-bone-400"
+                    className={`text-[12px] leading-tight font-medium ${
+                      isActive ? "text-bone-100 font-semibold" : "text-bone-400"
                     }`}
                   >
                     {s.label}
                   </p>
-                  {isActive && (
-                    <p className="text-[10px] text-bone-300 mt-0.5 hidden sm:block">
-                      {s.description}
-                    </p>
-                  )}
+                  <p className="text-[11px] text-bone-400/80 mt-0.5 hidden md:block">
+                    {s.description}
+                  </p>
                 </div>
               </li>
             </React.Fragment>

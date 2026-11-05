@@ -29,7 +29,6 @@ export const RoomList: React.FC<RoomListProps> = ({
   // Check if a room has violations
   const getRoomViolation = (room: Room): Violation | undefined => {
     return violations.find((v) => {
-      // Check box match or name match
       if (v.box && room.box) {
         const [vy1, vx1, vy2, vx2] = v.box;
         const [ry1, rx1, ry2, rx2] = room.box;
@@ -49,19 +48,18 @@ export const RoomList: React.FC<RoomListProps> = ({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <div className="flex items-center justify-between text-[13px] text-bone-400 pb-1 border-b border-ink-700">
-        <span>Daftar Ruangan Terdeteksi ({rooms.length})</span>
-        <span className="text-[11px] font-mono">Klik untuk menyorot</span>
+      <div className="flex items-center justify-between text-[13px] text-bone-400 pb-1.5 border-b border-ink-700">
+        <span className="font-medium text-bone-100">Ruangan Terdeteksi ({rooms.length})</span>
+        <span className="text-[11px] font-mono text-bone-400">Klik untuk menyorot</span>
       </div>
 
-      <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
+      <div className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1">
         {rooms.map((room, idx) => {
           const violation = getRoomViolation(room);
           const isViolating = !!violation;
           const isHovered = hoveredIndex === idx;
           const isSelected = selectedIndex === idx;
 
-          // Determine zone term id for tooltip
           const zoneIdRaw = room.zone?.zone_id || "";
           const termId = zoneIdRaw.toLowerCase().replace(/_/g, "-");
 
@@ -80,46 +78,50 @@ export const RoomList: React.FC<RoomListProps> = ({
                   onSelectRoom(isSelected ? null : idx);
                 }
               }}
-              className={`p-2.5 rounded-md border text-left transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-bone-100 ${
+              className={`p-2.5 rounded-md border text-left transition-colors duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-bone-100 ${
                 isViolating
                   ? isSelected || isHovered
-                    ? "bg-clay/10 border-clay shadow-sm"
+                    ? "bg-clay/15 border-clay shadow-sm"
                     : "bg-ink-900 border-clay/60 hover:border-clay"
                   : isSelected || isHovered
                   ? "bg-ink-800 border-bone-100 shadow-sm"
-                  : "bg-ink-900 border-ink-700 hover:border-ink-600"
+                  : "bg-ink-900 border-ink-700 hover:border-ink-600 hover:bg-ink-850"
               }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                {/* Room Name */}
+              <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p
-                    className={`text-[14px] font-medium truncate ${
-                      isViolating ? "text-clay" : "text-bone-100"
-                    }`}
-                  >
-                    {room.name}
-                  </p>
-                  <div className="text-[12px] text-bone-400 mt-0.5 flex items-center gap-1">
-                    <span>Zona:</span>
-                    <Term id={termId} onOpenDrawer={onOpenGlossaryDrawer}>
-                      {room.zone?.zone_id || "Belum terpetakan"}
-                    </Term>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[13px] font-medium text-bone-100 truncate">
+                      {room.name}
+                    </span>
+                    {isViolating ? (
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 bg-clay text-ink-950 font-bold rounded">
+                        PELANGGARAN
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 bg-ink-950 text-bone-400 rounded border border-ink-700">
+                        SESUAI
+                      </span>
+                    )}
                   </div>
+
+                  {room.zone && (
+                    <div className="text-[11px] text-bone-400 mt-0.5 flex items-center gap-1">
+                      <span>Zona:</span>
+                      <Term
+                        id={termId}
+                        label={room.zone.zone_name}
+                        onOpenGlossary={() => onOpenGlossaryDrawer?.(termId)}
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {/* Status Indicator */}
-                <div className="shrink-0 flex items-center gap-1 text-[12px] font-medium">
+                <div className="shrink-0 mt-0.5">
                   {isViolating ? (
-                    <span className="flex items-center gap-1 text-clay font-mono">
-                      <AlertCircle size={14} />
-                      <span className="hidden sm:inline">Perlu Perbaikan</span>
-                    </span>
+                    <AlertCircle size={15} className="text-clay" />
                   ) : (
-                    <span className="flex items-center gap-1 text-bone-400 font-mono">
-                      <CheckCircle2 size={14} className="text-bone-100" />
-                      <span className="hidden sm:inline">Sesuai</span>
-                    </span>
+                    <CheckCircle2 size={15} className="text-bone-400" />
                   )}
                 </div>
               </div>

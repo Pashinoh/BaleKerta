@@ -29,7 +29,7 @@ export interface KajaMapProps {
   className?: string;
 }
 
-// Custom SVG DivIcon for Draggable Plot Pin
+// Custom SVG DivIcon for Draggable Plot Pin (Architectural Bone & Ink)
 const createPlotIcon = () =>
   L.divIcon({
     className: "custom-plot-pin",
@@ -41,8 +41,8 @@ const createPlotIcon = () =>
         transform: translate(-50%, -100%);
       ">
         <div style="
-          width: 40px;
-          height: 40px;
+          width: 36px;
+          height: 36px;
           background-color: #EDE7DA;
           border: 2px solid #0E0D0C;
           border-radius: 50% 50% 50% 0;
@@ -50,13 +50,11 @@ const createPlotIcon = () =>
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-          ring: 4px;
-          box-shadow: 0 0 0 4px rgba(237, 231, 218, 0.4), 0 4px 12px rgba(0,0,0,0.6);
+          box-shadow: 0 4px 14px rgba(0,0,0,0.7);
         ">
           <div style="
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background-color: #0E0D0C;
             border-radius: 50%;
             transform: rotate(45deg);
@@ -64,18 +62,18 @@ const createPlotIcon = () =>
         </div>
         <div style="
           width: 12px;
-          height: 5px;
-          background-color: rgba(0,0,0,0.5);
+          height: 4px;
+          background-color: rgba(0,0,0,0.6);
           border-radius: 50%;
           margin-top: 2px;
         "></div>
       </div>
     `,
-    iconSize: [40, 48],
-    iconAnchor: [20, 48],
+    iconSize: [36, 44],
+    iconAnchor: [18, 44],
   });
 
-// Custom SVG DivIcon for Mount Agung Summit
+// Custom SVG DivIcon for Mount Agung Summit (Architectural Landmark)
 const createAgungIcon = () =>
   L.divIcon({
     className: "custom-agung-pin",
@@ -87,24 +85,24 @@ const createAgungIcon = () =>
         transform: translate(-50%, -50%);
       ">
         <div style="
-          width: 32px;
-          height: 32px;
-          background-color: #151311;
-          border: 2px solid #EDE7DA;
-          border-radius: 6px;
+          width: 30px;
+          height: 30px;
+          background-color: #1D1A17;
+          border: 1.5px solid #EDE7DA;
+          border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+          box-shadow: 0 3px 10px rgba(0,0,0,0.8);
         ">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EDE7DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EDE7DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m8 3 4 8 5-5 5 15H2L8 3z"/>
           </svg>
         </div>
       </div>
     `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
   });
 
 // Map Controller to handle clicks & pan
@@ -141,7 +139,7 @@ function MapPanController({
 }) {
   const map = useMap();
   useEffect(() => {
-    map.panTo([lat, lon], { animate: true, duration: 0.5 });
+    map.panTo([lat, lon], { animate: true, duration: 0.4 });
   }, [lat, lon, map]);
   return null;
 }
@@ -169,7 +167,6 @@ export default function KajaMap({
       if (marker != null) {
         const newPos = marker.getLatLng();
         if (!isInBali(newPos.lat, newPos.lng)) {
-          // Snap back to previous valid position
           marker.setLatLng([lat, lon]);
           setGeoError(
             "Batas Wilayah Bali: Pin tidak dapat ditempatkan di luar wilayah Pulau Bali. Posisi pin dikembalikan ke titik sebelumnya."
@@ -184,10 +181,10 @@ export default function KajaMap({
   );
 
   return (
-    <div className={`flex flex-col space-y-3 ${className}`}>
+    <div className={`flex flex-col space-y-2.5 ${className}`}>
       {/* Out of Bali warning alert */}
       {geoError && (
-        <div className="flex items-center justify-between p-3 bg-ink-900 border border-clay text-clay rounded-md text-[13px] animate-fadeIn">
+        <div className="flex items-center justify-between p-3 bg-ink-900 border border-clay text-clay rounded-md text-[13px]">
           <div className="flex items-center gap-2">
             <AlertCircle size={16} className="shrink-0 text-clay" />
             <span>{geoError}</span>
@@ -202,9 +199,13 @@ export default function KajaMap({
         </div>
       )}
 
-      {/* Interactive Leaflet Map Canvas */}
+      {/* 
+        Interactive Leaflet Map Canvas
+        Isolate stacking context to NEVER bleed through sticky Header (z-[100]) or dock 
+      */}
       <div
-        className="relative w-full h-[420px] sm:h-[480px] lg:h-[520px] rounded-lg overflow-hidden border border-ink-700 bg-ink-950"
+        className="relative w-full h-[400px] sm:h-[460px] lg:h-[490px] rounded-lg overflow-hidden border border-ink-700 bg-ink-950 isolate z-0 shadow-sm"
+        style={{ isolation: "isolate" }}
         onClick={() => setScrollActive(true)}
       >
         <MapContainer
@@ -241,7 +242,7 @@ export default function KajaMap({
           >
             <Tooltip
               direction="top"
-              offset={[0, -18]}
+              offset={[0, -16]}
               opacity={1}
               permanent
               className="bg-ink-950 text-bone-100 border border-ink-700 rounded text-[11px] font-sans font-medium px-2 py-0.5"
@@ -260,7 +261,7 @@ export default function KajaMap({
           >
             <Tooltip
               direction="bottom"
-              offset={[0, 10]}
+              offset={[0, 8]}
               opacity={1}
               permanent
               className="bg-ink-950 text-bone-100 border border-ink-700 rounded text-[11px] font-sans font-medium px-2 py-0.5"
@@ -278,15 +279,15 @@ export default function KajaMap({
             pathOptions={{
               color: "#EDE7DA",
               weight: 2,
-              dashArray: "6, 8",
-              opacity: 0.85,
+              dashArray: "5, 6",
+              opacity: 0.9,
             }}
           >
             <Tooltip
               position={midpoint}
               direction="center"
               permanent
-              className="bg-ink-950/95 text-bone-100 border border-ink-700 rounded px-2.5 py-1 text-[12px] font-mono shadow-lg"
+              className="bg-ink-950/95 text-bone-100 border border-ink-700 rounded px-2.5 py-0.5 text-[12px] font-mono shadow-md"
             >
               Kaja: {cardinalDirection}
             </Tooltip>
@@ -294,9 +295,9 @@ export default function KajaMap({
         </MapContainer>
 
         {/* Floating Instruction overlay */}
-        <div className="absolute bottom-3 left-3 z-[1000] pointer-events-none">
-          <div className="bg-ink-950/90 border border-ink-700 rounded px-3 py-1.5 text-[12px] text-bone-400">
-            Klik peta atau seret pin untuk menentukan lokasi tanah
+        <div className="absolute bottom-3 left-3 z-[10] pointer-events-none">
+          <div className="bg-ink-950/90 border border-ink-700 rounded px-3 py-1 text-[11px] font-mono text-bone-400">
+            Klik peta atau geser pin untuk menetapkan titik koordinat
           </div>
         </div>
       </div>
