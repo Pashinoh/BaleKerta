@@ -29,48 +29,27 @@ export interface KajaMapProps {
   className?: string;
 }
 
-// Custom SVG DivIcon for Draggable Plot Pin (Architectural Bone & Ink)
+// Custom SVG DivIcon for Draggable Plot Pin (Architectural Bone & Ink) — straight-down teardrop
 const createPlotIcon = () =>
   L.divIcon({
     className: "custom-plot-pin",
     html: `
       <div role="button" aria-label="Tanah Anda (Geser pin)" style="
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transform: translate(-50%, -100%);
+        display: flex; flex-direction: column; align-items: center;
       ">
-        <div style="
-          width: 36px;
-          height: 36px;
-          background-color: #EDE7DA;
-          border: 2px solid #0E0D0C;
-          border-radius: 50% 50% 50% 0;
-          transform: rotate(-45deg);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.7);
-        ">
-          <div style="
-            width: 10px;
-            height: 10px;
-            background-color: #0E0D0C;
-            border-radius: 50%;
-            transform: rotate(45deg);
-          "></div>
-        </div>
-        <div style="
-          width: 12px;
-          height: 4px;
-          background-color: rgba(0,0,0,0.6);
-          border-radius: 50%;
-          margin-top: 2px;
-        "></div>
+        <svg width="36" height="44" viewBox="0 0 36 44" style="filter: drop-shadow(0 4px 14px rgba(0,0,0,0.7));">
+          <!-- Teardrop body: Bone fill, Ink stroke -->
+          <path d="M18 0 C8 0 0 18 0 18 C0 36 18 44 18 44 S36 36 36 18 C36 0 28 0 18 0 Z"
+                fill="#EDE7DA" stroke="#0E0D0C" stroke-width="2"/>
+          <!-- Center dot: Ink -->
+          <circle cx="18" cy="18" r="6" fill="#0E0D0C"/>
+        </svg>
+        <!-- Shadow ellipse -->
+        <div style="width:12px;height:4px;background:rgba(0,0,0,0.6);border-radius:50%;margin-top:2px;"></div>
       </div>
     `,
     iconSize: [36, 44],
-    iconAnchor: [18, 44],
+    iconAnchor: [18, 44],  // tip = coordinate
   });
 
 // Custom SVG DivIcon for Mount Agung Summit (Architectural Landmark)

@@ -1,4 +1,5 @@
 from typing import List, Dict, Any, Tuple, Optional
+import math
 
 # Standar 9 Zona Sanga Mandala
 ZONE_KEYS = [
@@ -95,10 +96,12 @@ def build_sanga_mandala_grid(
         by0, bx0, by3, bx3 = bounds
         dy = (by3 - by0) / 3.0
         dx = (bx3 - bx0) / 3.0
-        y1 = int(round(by0 + dy))
-        y2 = int(round(by0 + 2 * dy))
-        x1 = int(round(bx0 + dx))
-        x2 = int(round(bx0 + 2 * dx))
+        y1 = by0 + math.floor(dy)
+        y2 = by0 + math.floor(2 * dy)
+        # y3 = by3 (exact)
+        x1 = bx0 + math.floor(dx)
+        x2 = bx0 + math.floor(2 * dx)
+        # x3 = bx3 (exact)
         row_bounds = [(by0, y1), (y1 + 1, y2), (y2 + 1, by3)]
         col_bounds = [(bx0, x1), (x1 + 1, x2), (x2 + 1, bx3)]
         lot_bounds = [by0, bx0, by3, bx3]
