@@ -1,142 +1,22 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useState } from "react";
 import { GridLayout, Room, Violation } from "@/types/audit";
-import {
-  Grid3X3,
-  Layers,
-  Maximize2,
-  Minimize2,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  Compass,
-  AlertCircle,
-  CheckCircle2,
-  Info,
-  Sun,
-  Moon,
-  Eye,
-  EyeOff,
-  Box,
-} from "lucide-react";
-import { useTheme } from "../layout/ThemeProvider";
+import { Compass, Eye, EyeOff, Grid } from "lucide-react";
+import { useTheme } from "@/components/layout/ThemeProvider";
 
 export interface PlanCanvasProps {
   imageSrc?: string | null;
   gridLayout?: GridLayout | null;
   rooms: Room[];
   violations: Violation[];
-  hoveredIndex?: number | null;
-  selectedIndex?: number | null;
-  selectedRoom?: Room | null;
-  onSelectRoom?: (room: Room | null) => void;
-  onHoverIndex?: (index: number | null) => void;
-  onSelectIndex?: (index: number | null) => void;
+  hoveredIndex: number | null;
+  selectedIndex: number | null;
+  onHoverIndex: (index: number | null) => void;
+  onSelectIndex: (index: number | null) => void;
   kajaBearing?: number;
   kajaDirection?: string;
-  regencyName?: string;
   className?: string;
-}
-
-const ZONE_INFO: Record<
-  string,
-  { label: string; sub: string; isSacred?: boolean; isCenter?: boolean }
-> = {
-  UTAMANING_UTAMA: {
-    label: "Utamaning Utama",
-    sub: "Kaja-Kangin · Suci",
-    isSacred: true,
-  },
-  MADYANING_UTAMA: {
-    label: "Madyaning Utama",
-    sub: "Kaja",
-  },
-  NISTANING_UTAMA: {
-    label: "Nistaning Utama",
-    sub: "Kaja-Kauh",
-  },
-  UTAMANING_MADYA: {
-    label: "Utamaning Madya",
-    sub: "Kangin",
-  },
-  MADYANING_MADYA: {
-    label: "Madyaning Madya",
-    sub: "Pusat · Natah",
-    isCenter: true,
-  },
-  NISTANING_MADYA: {
-    label: "Nistaning Madya",
-    sub: "Kauh",
-  },
-  UTAMANING_NISTA: {
-    label: "Utamaning Nista",
-    sub: "Kelod-Kangin",
-  },
-  MADYANING_NISTA: {
-    label: "Madyaning Nista",
-    sub: "Kelod",
-  },
-  NISTANING_NISTA: {
-    label: "Nistaning Nista",
-    sub: "Kelod-Kauh · Teba",
-  },
-};
-
-function parseRoomName(fullName: string): { primary: string; secondary: string } {
-  if (!fullName) return { primary: "", secondary: "" };
-
-  const parenMatch = fullName.match(/^([^(]+)\s*\(([^)]+)\)/);
-  if (parenMatch) {
-    return {
-      primary: parenMatch[1].trim(),
-      secondary: parenMatch[2].trim(),
-    };
-  }
-
-  const slashMatch = fullName.match(/^([^/]+)\s*\/\s*(.+)/);
-  if (slashMatch) {
-    return {
-      primary: slashMatch[1].trim(),
-      secondary: slashMatch[2].trim(),
-    };
-  }
-
-  const ampMatch = fullName.match(/^([^&]+)\s*&\s*(.+)/);
-  if (ampMatch) {
-    return {
-      primary: ampMatch[1].trim(),
-      secondary: ampMatch[2].trim(),
-    };
-  }
-
-  const words = fullName.trim().split(/\s+/);
-  if (words.length >= 3) {
-    return {
-      primary: words.slice(0, 2).join(" "),
-      secondary: words.slice(2).join(" "),
-    };
-  }
-
-  return {
-    primary: fullName.trim(),
-    secondary: "",
-  };
-}
-
-function fitTextWithEllipsis(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number
-): string {
-  if (maxWidth <= 8) return "";
-  if (ctx.measureText(text).width <= maxWidth) return text;
-
-  let str = text;
-  while (str.length > 1 && ctx.measureText(str + "…").width > maxWidth) {
-    str = str.slice(0, -1);
-  }
-  return str.length > 0 ? str + "…" : "";
 }
 
 export const PlanCanvas: React.FC<PlanCanvasProps> = ({
@@ -144,884 +24,356 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
   gridLayout,
   rooms,
   violations,
-  hoveredIndex = null,
-  selectedIndex = null,
-  selectedRoom = null,
-  onSelectRoom,
+  hoveredIndex,
+  selectedIndex,
   onHoverIndex,
   onSelectIndex,
   kajaBearing = 41.7,
   kajaDirection = "Timur Laut (NE)",
   className = "",
 }) => {
-  const { theme: globalTheme } = useTheme();
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const renderAreaRef = useRef({ x: 0, y: 0, w: 0, h: 0 });
-  const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null);
+  const { theme } = useTheme();
+  const [showGrid, setShowGrid] = useState(true);
+  const [showLabels, setShowLabels] = useState(true);
 
-  // Sync canvas theme with global theme ("dark" <-> "paper" soft warm lontar)
-  const [theme, setTheme] = useState<"dark" | "paper">(
-    globalTheme === "light" ? "paper" : "dark"
-  );
+  const isPaper = theme === "light";
 
-  useEffect(() => {
-    setTheme(globalTheme === "light" ? "paper" : "dark");
-  }, [globalTheme]);
-
-  // View state: Overlay Mode (Wireframe / Blueprint X-Ray vs Shaded)
-  const [overlayMode, setOverlayMode] = useState<"wireframe" | "shaded">(
-    imageSrc ? "wireframe" : "shaded"
-  );
-
-  // Layer toggles
-  const [showImage, setShowImage] = useState<boolean>(true);
-  const [showGrid, setShowGrid] = useState<boolean>(true);
-  const [showRooms, setShowRooms] = useState<boolean>(true);
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-
-  // Interactive Pan & Zoom
-  const [zoom, setZoom] = useState<number>(1.0);
-  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const dragDistanceRef = useRef<number>(0);
-
-  // Load image object
-  useEffect(() => {
-    if (!imageSrc) {
-      setImageObj(null);
-      setOverlayMode("shaded");
-      return;
-    }
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      setImageObj(img);
-      setOverlayMode("wireframe");
-    };
-    img.src = imageSrc;
-  }, [imageSrc]);
-
-  // Main canvas render loop
-  const renderCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-
-    if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-    }
-
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, width, height);
-
-    const centerX = width / 2;
-    const centerY = height / 2;
-    ctx.translate(centerX + pan.x, centerY + pan.y);
-    ctx.scale(zoom, zoom);
-    ctx.translate(-centerX, -centerY);
-
-    const isPaper = theme === "paper";
-
-    // 1. Calculate aspect-fit geometry for floor plan area
-    let renderArea = { x: 0, y: 0, w: width, h: height };
-    if (imageObj && showImage) {
-      const hRatio = width / imageObj.width;
-      const vRatio = height / imageObj.height;
-      const ratio = Math.min(hRatio, vRatio) * 0.94;
-      const renderW = imageObj.width * ratio;
-      const renderH = imageObj.height * ratio;
-      const centerShiftX = (width - renderW) / 2;
-      const centerShiftY = (height - renderH) / 2;
-      renderArea = { x: centerShiftX, y: centerShiftY, w: renderW, h: renderH };
-
-      ctx.fillStyle = isPaper ? "#F2ECE1" : "#0E0D0C";
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.save();
-      ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
-      ctx.shadowBlur = 16;
-      ctx.shadowOffsetY = 4;
-      ctx.fillStyle = "#FAF6EE";
-      ctx.fillRect(centerShiftX, centerShiftY, renderW, renderH);
-      ctx.restore();
-
-      ctx.drawImage(
-        imageObj,
-        0,
-        0,
-        imageObj.width,
-        imageObj.height,
-        centerShiftX,
-        centerShiftY,
-        renderW,
-        renderH
-      );
-
-      ctx.strokeStyle = isPaper ? "rgba(160, 150, 135, 0.6)" : "rgba(80, 75, 70, 0.6)";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(centerShiftX, centerShiftY, renderW, renderH);
-    } else {
-      ctx.fillStyle = isPaper ? "#F2ECE1" : "#0E0D0C";
-      ctx.fillRect(0, 0, width, height);
-
-      // Subtle drafting reference lines
-      ctx.strokeStyle = isPaper ? "#E5DEC9" : "#181614";
-      ctx.lineWidth = 1;
-      const step = 38;
-      for (let x = 0; x < width; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
+  const isRoomViolating = (room: Room): boolean => {
+    return violations.some((v) => {
+      if (v.box && room.box) {
+        const [vy1, vx1, vy2, vx2] = v.box;
+        const [ry1, rx1, ry2, rx2] = room.box;
+        if (vy1 === ry1 && vx1 === rx1 && vy2 === ry2 && vx2 === rx2) {
+          return true;
+        }
       }
-      for (let y = 0; y < height; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      renderArea = {
-        x: Math.max(24, width * 0.05),
-        y: Math.max(24, height * 0.05),
-        w: width - Math.max(48, width * 0.1),
-        h: height - Math.max(48, height * 0.1),
-      };
-
-      ctx.strokeStyle = isPaper ? "#C8C0AF" : "#2E2A25";
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(renderArea.x, renderArea.y, renderArea.w, renderArea.h);
-    }
-
-    renderAreaRef.current = renderArea;
-
-    const toPxX = (normX: number) => renderArea.x + (normX / 1000) * renderArea.w;
-    const toPxY = (normY: number) => renderArea.y + (normY / 1000) * renderArea.h;
-
-    // 2. Draw 9 Sanga Mandala Grid
-    if (showGrid && gridLayout && gridLayout.cells) {
-      gridLayout.cells.forEach((cell) => {
-        const [ymin, xmin, ymax, xmax] = cell.box;
-        const cx = toPxX(xmin);
-        const cy = toPxY(ymin);
-        const cw = toPxX(xmax) - cx;
-        const ch = toPxY(ymax) - cy;
-
-        const info = ZONE_INFO[cell.zone_id] || {
-          label: cell.zone_id.replace(/_/g, " "),
-          sub: "",
-        };
-
-        if (info.isSacred) {
-          ctx.fillStyle = isPaper ? "rgba(202, 165, 78, 0.10)" : "rgba(240, 234, 225, 0.04)";
-          ctx.fillRect(cx, cy, cw, ch);
-
-          ctx.strokeStyle = isPaper ? "rgba(140, 105, 25, 0.85)" : "rgba(240, 234, 225, 0.8)";
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([5, 5]);
-          ctx.strokeRect(cx, cy, cw, ch);
-          ctx.setLineDash([]);
-
-          const chipW = Math.min(cw - 12, 145);
-          const chipH = 18;
-          ctx.fillStyle = isPaper ? "rgba(202, 165, 78, 0.24)" : "rgba(240, 234, 225, 0.14)";
-          ctx.fillRect(cx + 6, cy + 6, chipW, chipH);
-          ctx.strokeStyle = isPaper ? "rgba(140, 105, 25, 0.65)" : "rgba(240, 234, 225, 0.4)";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(cx + 6, cy + 6, chipW, chipH);
-
-          ctx.font = "bold 9px sans-serif";
-          ctx.fillStyle = isPaper ? "#5C430E" : "#F0EAE1";
-          ctx.textAlign = "left";
-          ctx.fillText(
-            fitTextWithEllipsis(ctx, "UTAMANING UTAMA (SUCI)", chipW - 10),
-            cx + 10,
-            cy + 18
-          );
-        } else {
-          ctx.strokeStyle = isPaper ? "rgba(168, 160, 144, 0.7)" : "rgba(58, 53, 47, 0.6)";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(cx, cy, cw, ch);
-
-          ctx.font = "8.5px sans-serif";
-          ctx.fillStyle = isPaper ? "rgba(90, 82, 70, 0.75)" : "rgba(168, 159, 141, 0.55)";
-          ctx.textAlign = "left";
-          const labelText = info.sub ? `${info.label} (${info.sub})` : info.label;
-          const fittedLabel = fitTextWithEllipsis(ctx, labelText, cw - 16);
-          ctx.fillText(fittedLabel, cx + 8, cy + 16);
-        }
-
-        if (info.isCenter) {
-          const midX = cx + cw / 2;
-          const midY = cy + ch / 2;
-          ctx.strokeStyle = isPaper ? "rgba(140, 130, 115, 0.45)" : "rgba(168, 159, 141, 0.25)";
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(midX - 7, midY);
-          ctx.lineTo(midX + 7, midY);
-          ctx.moveTo(midX, midY - 7);
-          ctx.lineTo(midX, midY + 7);
-          ctx.stroke();
-        }
-      });
-    }
-
-    // 3. Draw Room Bounding Boxes
-    if (showRooms && rooms) {
-      rooms.forEach((room, idx) => {
-        const [ymin, xmin, ymax, xmax] = room.box;
-        const rx = toPxX(xmin);
-        const ry = toPxY(ymin);
-        const rw = toPxX(xmax) - rx;
-        const rh = toPxY(ymax) - ry;
-
-        const violation = violations.find(
-          (v) =>
-            v.room_name.toLowerCase() === room.name.toLowerCase() ||
-            (v.box &&
-              v.box[0] === room.box[0] &&
-              v.box[1] === room.box[1] &&
-              v.box[2] === room.box[2] &&
-              v.box[3] === room.box[3])
-        );
-
-        const isViolated = !!violation;
-        const isHovered = hoveredIndex === idx;
-        const isSelected =
-          selectedIndex === idx || (selectedRoom != null && selectedRoom.name === room.name);
-        const isHighlighted = isHovered || isSelected;
-        const isNatah =
-          room.type === "natah_open_space" || room.name.toLowerCase().includes("natah");
-        const isWireframe = overlayMode === "wireframe";
-
-        if (isViolated) {
-          if (isWireframe) {
-            ctx.fillStyle = isHighlighted
-              ? isPaper
-                ? "rgba(184, 67, 34, 0.16)"
-                : "rgba(224, 109, 75, 0.22)"
-              : "rgba(0, 0, 0, 0)";
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted
-                ? "rgba(252, 235, 230, 0.96)"
-                : "rgba(252, 235, 230, 0.90)"
-              : isHighlighted
-              ? "rgba(75, 26, 19, 0.94)"
-              : "rgba(52, 20, 15, 0.86)";
-          }
-          ctx.strokeStyle = isPaper ? "#B84322" : "#E06D4B";
-          ctx.lineWidth = isHighlighted ? 2.5 : 1.8;
-        } else if (isNatah) {
-          if (isWireframe) {
-            ctx.fillStyle = isHighlighted
-              ? isPaper
-                ? "rgba(200, 190, 175, 0.2)"
-                : "rgba(240, 234, 225, 0.15)"
-              : "rgba(0, 0, 0, 0)";
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted
-                ? "rgba(234, 226, 211, 0.45)"
-                : "rgba(234, 226, 211, 0.20)"
-              : isHighlighted
-              ? "rgba(240, 234, 225, 0.12)"
-              : "rgba(240, 234, 225, 0.04)";
-          }
-          ctx.strokeStyle = isPaper
-            ? isHighlighted
-              ? "#1C1916"
-              : "rgba(110, 100, 89, 0.75)"
-            : isHighlighted
-            ? "#F0EAE1"
-            : "rgba(240, 234, 225, 0.55)";
-          ctx.lineWidth = isHighlighted ? 2 : 1.5;
-        } else {
-          if (isWireframe) {
-            ctx.fillStyle = isHighlighted
-              ? isPaper
-                ? "rgba(200, 190, 175, 0.22)"
-                : "rgba(240, 234, 225, 0.18)"
-              : "rgba(0, 0, 0, 0)";
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted
-                ? "rgba(250, 246, 238, 0.98)"
-                : "rgba(250, 246, 238, 0.92)"
-              : isHighlighted
-              ? "rgba(38, 34, 30, 0.96)"
-              : "rgba(24, 22, 20, 0.88)";
-          }
-          ctx.strokeStyle = isPaper
-            ? isHighlighted
-              ? "#1C1916"
-              : "#423B34"
-            : isHighlighted
-            ? "#F0EAE1"
-            : "rgba(240, 234, 225, 0.65)";
-          ctx.lineWidth = isHighlighted ? 2.5 : 1.5;
-        }
-
-        ctx.fillRect(rx, ry, rw, rh);
-
-        if (isNatah && !isHighlighted) {
-          ctx.setLineDash([4, 4]);
-          ctx.strokeRect(rx, ry, rw, rh);
-          ctx.setLineDash([]);
-        } else {
-          ctx.strokeRect(rx, ry, rw, rh);
-        }
-
-        if (isHighlighted) {
-          ctx.save();
-          ctx.strokeStyle = isViolated
-            ? isPaper
-              ? "#B84322"
-              : "#E06D4B"
-            : isPaper
-            ? "#1C1916"
-            : "#F0EAE1";
-          ctx.lineWidth = 1;
-          ctx.setLineDash([3, 3]);
-          ctx.strokeRect(rx - 3, ry - 3, rw + 6, rh + 6);
-          ctx.restore();
-        }
-
-        // 4. Render Room Typography with strict clipping
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(rx, ry, rw, rh);
-        ctx.clip();
-
-        const { primary, secondary } = parseRoomName(room.name);
-        const headerH = Math.min(22, Math.max(16, rh * 0.32));
-
-        if (isViolated) {
-          ctx.fillStyle = isPaper ? "#B84322" : "#C45335";
-          ctx.fillRect(rx, ry, rw, headerH);
-        } else {
-          if (isWireframe) {
-            ctx.fillStyle = isPaper
-              ? isHighlighted
-                ? "rgba(28, 25, 22, 0.88)"
-                : "rgba(28, 25, 22, 0.76)"
-              : isHighlighted
-              ? "rgba(22, 20, 18, 0.90)"
-              : "rgba(22, 20, 18, 0.78)";
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted
-                ? "rgba(223, 213, 195, 0.98)"
-                : "rgba(234, 226, 211, 0.95)"
-              : isHighlighted
-              ? "rgba(240, 234, 225, 0.22)"
-              : "rgba(240, 234, 225, 0.12)";
-          }
-          ctx.fillRect(rx, ry, rw, headerH);
-        }
-
-        const titleFontSize = Math.min(11, Math.max(8.5, Math.floor(rw / 9.5)));
-        ctx.font = `bold ${titleFontSize}px sans-serif`;
-        ctx.fillStyle = isViolated
-          ? "#FAF6EE"
-          : isWireframe
-          ? "#FAF6EE"
-          : isPaper
-          ? "#1C1916"
-          : isHighlighted
-          ? "#FAF6EE"
-          : "#F0EAE1";
-        ctx.textAlign = "left";
-
-        const maxTitleW = rw - (isViolated ? 22 : 12);
-        const fittedTitle = fitTextWithEllipsis(ctx, primary, maxTitleW);
-        ctx.fillText(fittedTitle, rx + 6, ry + headerH - 5);
-
-        if (isViolated) {
-          ctx.font = "bold 9px sans-serif";
-          ctx.fillStyle = "#FAF6EE";
-          ctx.textAlign = "right";
-          ctx.fillText("!", rx + rw - 5, ry + headerH - 5);
-        }
-
-        if (rh >= 46 && rw >= 55) {
-          const subFontSize = Math.min(9, Math.max(7.5, titleFontSize - 1.5));
-          ctx.font = `${subFontSize}px sans-serif`;
-
-          if (isViolated) {
-            ctx.fillStyle = isPaper ? "#8A2B10" : "#F5B895";
-          } else if (isWireframe) {
-            ctx.fillStyle = isPaper ? "#1C1916" : "#F0EAE1";
-          } else {
-            ctx.fillStyle = isPaper ? "#423B34" : "#A89F8D";
-          }
-          ctx.textAlign = "left";
-
-          const subText = secondary || (room.zone ? room.zone.zone_name : "");
-          if (subText) {
-            const fittedSub = fitTextWithEllipsis(ctx, subText, rw - 12);
-            ctx.fillText(fittedSub, rx + 6, ry + headerH + 13);
-          }
-
-          if (rh >= 72 && room.zone) {
-            ctx.font = "7.5px font-mono";
-            ctx.fillStyle = isPaper ? "rgba(92, 83, 73, 0.8)" : "rgba(168, 159, 141, 0.7)";
-            const zoneBadge = room.zone.zone_id ? room.zone.zone_id.replace(/_/g, " ") : "";
-            const fittedZone = fitTextWithEllipsis(ctx, zoneBadge, rw - 12);
-            ctx.fillText(fittedZone, rx + 6, ry + headerH + 26);
-          }
-        }
-
-        ctx.restore();
-      });
-    }
-
-    ctx.restore();
-  }, [
-    imageObj,
-    gridLayout,
-    rooms,
-    violations,
-    hoveredIndex,
-    selectedIndex,
-    selectedRoom,
-    showImage,
-    showGrid,
-    showRooms,
-    theme,
-    overlayMode,
-    zoom,
-    pan,
-  ]);
-
-  useEffect(() => {
-    renderCanvas();
-    const handleResize = () => renderCanvas();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [renderCanvas]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
-      setZoom((prevZoom) => {
-        const nextZoom = Math.min(3.5, Math.max(0.8, +(prevZoom * zoomFactor).toFixed(2)));
-        if (nextZoom === 1.0) setPan({ x: 0, y: 0 });
-        return nextZoom;
-      });
-    };
-
-    canvas.addEventListener("wheel", handleWheel, { passive: false });
-    return () => {
-      canvas.removeEventListener("wheel", handleWheel);
-    };
-  }, []);
-
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    if (isDragging) {
-      const dx = e.clientX - dragStart.x;
-      const dy = e.clientY - dragStart.y;
-      dragDistanceRef.current += Math.abs(dx) + Math.abs(dy);
-      setPan({ x: dx, y: dy });
-      return;
-    }
-
-    if (!onHoverIndex) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const rawMouseX = e.clientX - rect.left;
-    const rawMouseY = e.clientY - rect.top;
-
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    const mouseX = (rawMouseX - centerX - pan.x) / zoom + centerX;
-    const mouseY = (rawMouseY - centerY - pan.y) / zoom + centerY;
-
-    const renderArea = renderAreaRef.current;
-    if (renderArea.w <= 0 || renderArea.h <= 0) return;
-
-    const normX = ((mouseX - renderArea.x) / renderArea.w) * 1000;
-    const normY = ((mouseY - renderArea.y) / renderArea.h) * 1000;
-
-    const hitIdx = rooms.findIndex((r) => {
-      const [ymin, xmin, ymax, xmax] = r.box;
-      return normY >= ymin && normY <= ymax && normX >= xmin && normX <= xmax;
-    });
-
-    onHoverIndex(hitIdx >= 0 ? hitIdx : null);
-    canvas.style.cursor = isDragging ? "grabbing" : hitIdx >= 0 ? "pointer" : "grab";
-  };
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    setIsDragging(true);
-    dragDistanceRef.current = 0;
-    setDragStart({
-      x: e.clientX - pan.x,
-      y: e.clientY - pan.y,
+      return v.room_name.toLowerCase() === room.name.toLowerCase();
     });
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleCanvasClick = () => {
-    if (dragDistanceRef.current > 8) return;
-
-    if (typeof hoveredIndex === "number" && hoveredIndex >= 0) {
-      if (onSelectIndex) {
-        onSelectIndex(hoveredIndex === selectedIndex ? null : hoveredIndex);
+  const getWallFillColor = (
+    room: Room,
+    isViolating: boolean,
+    isActive: boolean
+  ): string => {
+    if (isViolating) {
+      if (isPaper) {
+        return isActive ? "rgba(184, 67, 34, 0.25)" : "rgba(184, 67, 34, 0.14)";
       }
-      if (onSelectRoom) {
-        onSelectRoom(rooms[hoveredIndex] || null);
-      }
+      return isActive ? "rgba(224, 109, 75, 0.35)" : "rgba(224, 109, 75, 0.20)";
     }
+    const val = (room.zone?.zone_id || "").toLowerCase();
+    if (isPaper) {
+      if (val.includes("utama")) {
+        return isActive ? "rgba(28, 25, 22, 0.18)" : "rgba(28, 25, 22, 0.08)";
+      }
+      if (val.includes("madya")) {
+        return isActive ? "rgba(87, 80, 71, 0.16)" : "rgba(87, 80, 71, 0.06)";
+      }
+      return isActive ? "rgba(122, 114, 103, 0.18)" : "rgba(122, 114, 103, 0.08)";
+    }
+    if (val.includes("utama")) {
+      return isActive ? "rgba(240, 234, 225, 0.24)" : "rgba(240, 234, 225, 0.12)";
+    }
+    if (val.includes("madya")) {
+      return isActive ? "rgba(216, 208, 197, 0.20)" : "rgba(216, 208, 197, 0.09)";
+    }
+    return isActive ? "rgba(166, 157, 144, 0.20)" : "rgba(166, 157, 144, 0.09)";
   };
-
-  const handleZoomIn = () => {
-    setZoom((prev) => Math.min(3.5, +(prev + 0.25).toFixed(2)));
-  };
-
-  const handleZoomOut = () => {
-    setZoom((prev) => {
-      const next = Math.max(0.8, +(prev - 0.25).toFixed(2));
-      if (next === 1.0) setPan({ x: 0, y: 0 });
-      return next;
-    });
-  };
-
-  const handleResetView = () => {
-    setZoom(1.0);
-    setPan({ x: 0, y: 0 });
-  };
-
-  const activeRoomIndex =
-    typeof hoveredIndex === "number" && hoveredIndex >= 0
-      ? hoveredIndex
-      : typeof selectedIndex === "number" && selectedIndex >= 0
-      ? selectedIndex
-      : null;
-
-  const activeRoom = activeRoomIndex !== null ? rooms[activeRoomIndex] : null;
-  const activeViolation = activeRoom
-    ? violations.find(
-        (v) =>
-          v.room_name.toLowerCase() === activeRoom.name.toLowerCase() ||
-          (v.box &&
-            v.box[0] === activeRoom.box[0] &&
-            v.box[1] === activeRoom.box[1] &&
-            v.box[2] === activeRoom.box[2] &&
-            v.box[3] === activeRoom.box[3])
-      )
-    : null;
-
-  const isPaper = theme === "paper";
 
   return (
     <div
-      ref={containerRef}
-      className={`border rounded-xl overflow-hidden flex flex-col transition-colors shadow-card bg-ink-900 border-ink-700 ${
-        isFullscreen ? "fixed inset-3 sm:inset-6 z-50 shadow-2xl" : ""
-      } ${className}`}
+      className={`rounded-xl border border-ink-800 bg-ink-900 overflow-hidden flex flex-col ${className}`}
     >
-      {/* Top Architectural Toolbar */}
-      <div className="flex flex-wrap items-center justify-between px-3.5 sm:px-4 py-2.5 border-b border-ink-700 bg-ink-950 text-bone-100 text-[13px] gap-2">
-        {/* Left: Title, Stats & Kaja Bearing */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold flex items-center gap-1.5 text-bone-100">
-            <Compass size={16} className="text-bone-400" aria-hidden="true" />
-            <span>Kanvas Tata Ruang</span>
-          </span>
-          <span className="text-[11.5px] font-mono px-2 py-0.5 rounded bg-ink-900 border border-ink-700 text-bone-300">
-            {rooms.length} Ruangan
-          </span>
-          <span className="hidden sm:inline-block text-[11.5px] font-mono pl-2 border-l border-ink-700 text-bone-400">
-            Kaja: {kajaDirection} ({kajaBearing.toFixed(1)}&deg;)
-          </span>
+      {/* Minimalist Canvas Header */}
+      <div className="px-4 py-2.5 border-b border-ink-800 flex items-center justify-between gap-2 bg-ink-900">
+        <div className="flex items-center gap-2 text-[12px] font-mono text-bone-300">
+          <Compass size={14} className="text-bone-400" />
+          <span>Kaja: {kajaBearing.toFixed(1)}° ({kajaDirection})</span>
         </div>
 
-        {/* Right: Controls & Toggles */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {/* Canvas Surface Theme Toggle */}
-          <div
-            role="group"
-            aria-label="Tema latar kanvas"
-            className="flex items-center p-0.5 rounded-lg bg-ink-900 border border-ink-700"
-          >
-            <button
-              type="button"
-              aria-pressed={theme === "dark"}
-              onClick={() => setTheme("dark")}
-              className={`min-h-[30px] px-2 py-1 text-[11.5px] font-mono rounded-md flex items-center gap-1 transition-all ${
-                theme === "dark"
-                  ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
-                  : "text-bone-400 hover:text-bone-100"
-              }`}
-              title="Latar Kanvas Gelap"
-            >
-              <Moon size={12} aria-hidden="true" />
-              <span className="hidden md:inline">Gelap</span>
-            </button>
-            <button
-              type="button"
-              aria-pressed={theme === "paper"}
-              onClick={() => setTheme("paper")}
-              className={`min-h-[30px] px-2 py-1 text-[11.5px] font-mono rounded-md flex items-center gap-1 transition-all ${
-                theme === "paper"
-                  ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
-                  : "text-bone-400 hover:text-bone-100"
-              }`}
-              title="Latar Kertas Lontar (Tidak Silau)"
-            >
-              <Sun size={12} aria-hidden="true" />
-              <span className="hidden md:inline">Kertas</span>
-            </button>
-          </div>
-
-          {/* Overlay Mode Toggle: Wireframe vs Shaded */}
-          {imageSrc && (
-            <button
-              type="button"
-              aria-pressed={overlayMode === "wireframe"}
-              onClick={() => setOverlayMode(overlayMode === "wireframe" ? "shaded" : "wireframe")}
-              className={`min-h-[32px] px-2.5 py-1 text-[12px] font-medium rounded-lg border transition-colors flex items-center gap-1.5 ${
-                overlayMode === "wireframe"
-                  ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
-                  : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100"
-              }`}
-              title="Ganti mode kotak ruangan tembus pandang atau blok warna"
-            >
-              <Box size={13} aria-hidden="true" />
-              <span>{overlayMode === "wireframe" ? "Tembus Pandang" : "Blok Warna"}</span>
-            </button>
-          )}
-
-          {/* Toggle Image Visibility */}
-          {imageSrc && (
-            <button
-              type="button"
-              aria-pressed={showImage}
-              onClick={() => setShowImage(!showImage)}
-              className={`min-h-[32px] px-2.5 py-1 text-[12px] font-medium rounded-lg border transition-colors flex items-center gap-1 ${
-                showImage
-                  ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
-                  : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100"
-              }`}
-              title={showImage ? "Sembunyikan gambar denah asli" : "Tampilkan gambar denah asli"}
-            >
-              {showImage ? <Eye size={13} aria-hidden="true" /> : <EyeOff size={13} aria-hidden="true" />}
-              <span className="hidden lg:inline">{showImage ? "Gambar Asli" : "Sembunyi"}</span>
-            </button>
-          )}
-
-          {/* Grid Toggle */}
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
-            aria-pressed={showGrid}
             onClick={() => setShowGrid(!showGrid)}
-            className={`min-h-[32px] px-2.5 py-1 text-[12px] font-medium rounded-lg border transition-colors flex items-center gap-1 ${
+            aria-pressed={showGrid}
+            className={`min-h-[30px] px-2.5 py-1 rounded-md text-[11.5px] font-mono flex items-center gap-1.5 border transition-colors ${
               showGrid
                 ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
-                : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100"
+                : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
             }`}
           >
-            <Grid3X3 size={13} aria-hidden="true" />
-            <span className="hidden sm:inline">Kisi 9 Zona</span>
+            <Grid size={12} />
+            <span>Kisi 9 Zona</span>
           </button>
 
-          {/* Rooms Toggle */}
           <button
             type="button"
-            aria-pressed={showRooms}
-            onClick={() => setShowRooms(!showRooms)}
-            className={`min-h-[32px] px-2.5 py-1 text-[12px] font-medium rounded-lg border transition-colors flex items-center gap-1 ${
-              showRooms
+            onClick={() => setShowLabels(!showLabels)}
+            aria-pressed={showLabels}
+            className={`min-h-[30px] px-2.5 py-1 rounded-md text-[11.5px] font-mono flex items-center gap-1.5 border transition-colors ${
+              showLabels
                 ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
-                : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100"
+                : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
             }`}
           >
-            <Layers size={13} aria-hidden="true" />
-            <span className="hidden sm:inline">Kotak Ruang</span>
-          </button>
-
-          {/* Zoom Controls */}
-          <div className="flex items-center rounded-lg border border-ink-700 bg-ink-900 p-0.5">
-            <button
-              type="button"
-              onClick={handleZoomIn}
-              disabled={zoom >= 3.5}
-              className="p-1.5 rounded text-bone-400 hover:text-bone-100 hover:bg-ink-800 disabled:opacity-40 transition-colors"
-              title="Perbesar kanvas"
-              aria-label="Perbesar kanvas"
-            >
-              <ZoomIn size={14} aria-hidden="true" />
-            </button>
-            <span className="text-[11px] font-mono px-1.5 select-none font-semibold text-bone-200">
-              {Math.round(zoom * 100)}%
-            </span>
-            <button
-              type="button"
-              onClick={handleZoomOut}
-              disabled={zoom <= 0.8}
-              className="p-1.5 rounded text-bone-400 hover:text-bone-100 hover:bg-ink-800 disabled:opacity-40 transition-colors"
-              title="Perkecil kanvas"
-              aria-label="Perkecil kanvas"
-            >
-              <ZoomOut size={14} aria-hidden="true" />
-            </button>
-            {(zoom !== 1.0 || pan.x !== 0 || pan.y !== 0) && (
-              <button
-                type="button"
-                onClick={handleResetView}
-                className="p-1.5 rounded text-bone-400 hover:text-bone-100 hover:bg-ink-800 transition-colors"
-                title="Kembalikan posisi kanvas ke 100%"
-                aria-label="Reset posisi kanvas"
-              >
-                <RotateCcw size={13} aria-hidden="true" />
-              </button>
-            )}
-          </div>
-
-          {/* Fullscreen Button */}
-          <button
-            type="button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="min-h-[32px] min-w-[32px] flex items-center justify-center rounded-lg border border-ink-700 bg-ink-900 text-bone-400 hover:text-bone-100 hover:bg-ink-800 transition-colors"
-            title={isFullscreen ? "Keluar layar penuh" : "Perbesar kanvas layar penuh"}
-            aria-label={isFullscreen ? "Keluar layar penuh" : "Perbesar kanvas layar penuh"}
-          >
-            {isFullscreen ? <Minimize2 size={15} aria-hidden="true" /> : <Maximize2 size={15} aria-hidden="true" />}
+            {showLabels ? <Eye size={12} /> : <EyeOff size={12} />}
+            <span>Label</span>
           </button>
         </div>
       </div>
 
-      {/* Main Canvas Viewport */}
+      {/* Main Viewport */}
       <div
-        className={`relative w-full flex items-center justify-center overflow-hidden select-none ${
-          isFullscreen
-            ? "flex-1 min-h-[500px]"
-            : "h-[420px] sm:h-[500px] lg:h-[540px]"
-        } ${isPaper ? "bg-[#F2ECE1]" : "bg-[#0E0D0C]"}`}
+        className={`relative w-full h-[420px] sm:h-[460px] flex items-center justify-center p-4 sm:p-6 select-none overflow-hidden transition-colors duration-200 ${
+          isPaper ? "bg-[#E6DEC8]" : "bg-[#0E0D0C]"
+        }`}
       >
-        <canvas
-          ref={canvasRef}
-          onMouseMove={handleCanvasMouseMove}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={() => {
-            setIsDragging(false);
-            onHoverIndex?.(null);
-          }}
-          onClick={handleCanvasClick}
-          className="w-full h-full block cursor-grab active:cursor-grabbing"
-        />
+        <div
+          className={`relative w-full h-full max-w-[680px] max-h-[440px] rounded-lg overflow-hidden transition-colors duration-200 ${
+            isPaper
+              ? "bg-[#FAF6EE] border border-[#C4B9A5] shadow-sm"
+              : "bg-[#161412] border border-[#2C2825]"
+          }`}
+        >
+          {/* Optional Uploaded Image */}
+          {imageSrc ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={imageSrc}
+              alt="Denah bangunan"
+              className={`absolute inset-0 w-full h-full object-fill pointer-events-none ${
+                isPaper ? "opacity-55" : "opacity-35"
+              }`}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: isPaper
+                  ? "radial-gradient(circle, rgba(28, 25, 22, 0.10) 1px, transparent 1px)"
+                  : "radial-gradient(circle, rgba(240, 234, 225, 0.08) 1px, transparent 1px)",
+                backgroundSize: "20px 20px",
+              }}
+            />
+          )}
 
-        {/* Dynamic Interactive Inspector HUD Bar on Hover / Select */}
-        {activeRoom ? (
-          <div className="absolute top-3 left-3 right-3 p-3 bg-ink-900/95 border border-ink-700 rounded-lg shadow-card text-[12px] flex items-center justify-between gap-3 pointer-events-none">
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className={`p-2 rounded-md shrink-0 border ${
-                  activeViolation
-                    ? "bg-clay/15 text-clay border-clay"
-                    : "bg-ink-850 text-bone-100 border-ink-600"
-                }`}
+          {/* SVG Architectural Layer */}
+          <svg
+            viewBox="0 0 1000 1000"
+            preserveAspectRatio="none"
+            className="absolute inset-0 w-full h-full"
+          >
+            <defs>
+              <pattern
+                id="hatch-violation"
+                width="16"
+                height="16"
+                patternTransform="rotate(45 0 0)"
+                patternUnits="userSpaceOnUse"
               >
-                {activeViolation ? (
-                  <AlertCircle size={17} aria-hidden="true" />
-                ) : (
-                  <CheckCircle2 size={17} aria-hidden="true" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-[13.5px] text-bone-100 truncate">
-                    {activeRoom.name}
-                  </span>
-                  <span className="font-mono text-[10.5px] px-2 py-0.5 rounded border bg-ink-950 border-ink-700 text-bone-300 uppercase">
-                    {activeRoom.type.replace(/_/g, " ")}
-                  </span>
-                  <span
-                    className={`text-[10.5px] font-mono px-2 py-0.5 rounded font-bold uppercase border ${
-                      activeViolation
-                        ? "bg-clay/15 text-clay border-clay"
-                        : "bg-ink-850 text-bone-100 border-ink-600"
-                    }`}
-                  >
-                    {activeViolation ? "Perlu Penyesuaian Ruang" : "Sesuai Adat Bali"}
-                  </span>
-                </div>
-                <p className="text-[12px] text-bone-300 truncate mt-0.5">
-                  Zona:{" "}
-                  <strong className="text-bone-100">
-                    {activeRoom.zone?.zone_name ||
-                      activeRoom.zone?.zone_id?.replace(/_/g, " ") ||
-                      "Terpetakan"}
-                  </strong>
-                  {activeViolation
-                    ? ` · ${activeViolation.issue}`
-                    : " · Posisi memenuhi hierarki kesucian Sanga Mandala"}
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="absolute top-3 left-3 right-3 px-3 py-1.5 bg-ink-900/90 border border-ink-700 rounded-md text-[11.5px] text-bone-300 flex items-center justify-between pointer-events-none">
-            <span className="flex items-center gap-1.5">
-              <Info size={13} className="text-bone-400 shrink-0" aria-hidden="true" />
-              <span>
-                Arahkan kursor atau klik kotak ruangan untuk melihat status zona Sanga Mandala
-              </span>
-            </span>
-            <span className="font-mono text-[10.5px] text-bone-400 hidden sm:inline">
-              Scroll: Zoom &middot; Geser: Pan
-            </span>
-          </div>
-        )}
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="16"
+                  stroke={isPaper ? "#B84322" : "#E06D4B"}
+                  strokeWidth="3"
+                  strokeOpacity="0.22"
+                />
+              </pattern>
+            </defs>
 
-        {/* Bottom Legend Bar */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 px-3.5 py-2 rounded-lg text-[11.5px] pointer-events-none bg-ink-900/95 border border-ink-700 text-bone-200 shadow-card">
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded-sm border border-bone-100 bg-bone-100/15 inline-block" />
-              <span className="font-medium text-bone-100">Sesuai Adat</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded-sm border-2 border-clay bg-clay/20 inline-block" />
-              <span className="text-clay font-semibold">Perlu Perbaikan</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded-sm border border-dashed border-bone-200 bg-bone-100/10 inline-block" />
-              <span className="text-bone-300">Utamaning Utama (Kaja-Kangin)</span>
-            </div>
-          </div>
+            {/* 1. Sanga Mandala 3x3 Grid */}
+            {showGrid && (
+              <g className="sanga-mandala-grid">
+                <line
+                  x1="333.3"
+                  y1="0"
+                  x2="333.3"
+                  y2="1000"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+                <line
+                  x1="666.6"
+                  y1="0"
+                  x2="666.6"
+                  y2="1000"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+                <line
+                  x1="0"
+                  y1="333.3"
+                  x2="1000"
+                  y2="333.3"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+                <line
+                  x1="0"
+                  y1="666.6"
+                  x2="1000"
+                  y2="666.6"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+              </g>
+            )}
 
-          <span className="hidden md:inline font-mono text-[11px] text-bone-400">
-            {activeRoom ? `Sorotan: ${activeRoom.name}` : "Matriks Spasial Sanga Mandala"}
+            {/* 2. Architectural Room Boxes */}
+            {rooms.map((room, idx) => {
+              if (!room.box || room.box.length !== 4) return null;
+              const [ymin, xmin, ymax, xmax] = room.box;
+              const w = Math.max(20, xmax - xmin);
+              const h = Math.max(20, ymax - ymin);
+
+              const violating = isRoomViolating(room);
+              const isHovered = hoveredIndex === idx;
+              const isSelected = selectedIndex === idx;
+              const isActive = isHovered || isSelected;
+
+              const fill = getWallFillColor(room, violating, isActive);
+              const outerStroke = violating
+                ? isPaper
+                  ? "#B84322"
+                  : "#E06D4B"
+                : isActive
+                ? isPaper
+                  ? "#1C1916"
+                  : "#F0EAE1"
+                : isPaper
+                ? "#4A433B"
+                : "rgba(240, 234, 225, 0.55)";
+
+              const outerStrokeWidth = isActive ? 5 : violating ? 4 : 3;
+
+              return (
+                <g
+                  key={`room-${idx}`}
+                  onClick={() => onSelectIndex(isSelected ? null : idx)}
+                  onMouseEnter={() => onHoverIndex(idx)}
+                  onMouseLeave={() => onHoverIndex(null)}
+                  className="cursor-pointer transition-opacity"
+                >
+                  {violating && (
+                    <rect
+                      x={xmin}
+                      y={ymin}
+                      width={w}
+                      height={h}
+                      fill="url(#hatch-violation)"
+                      rx={6}
+                    />
+                  )}
+
+                  <rect
+                    x={xmin}
+                    y={ymin}
+                    width={w}
+                    height={h}
+                    fill={fill}
+                    stroke={outerStroke}
+                    strokeWidth={outerStrokeWidth}
+                    rx={6}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* 3. Zone Background Labels */}
+          {showGrid && gridLayout?.grid_matrix && gridLayout.grid_matrix.length === 3 && (
+            <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
+              {gridLayout.grid_matrix.map((row, rIdx) =>
+                row.map((zoneId, cIdx) => {
+                  const shortZone = zoneId.replace(/_/g, " ");
+                  return (
+                    <div
+                      key={`zone-lbl-${rIdx}-${cIdx}`}
+                      className="p-2 flex flex-col justify-between"
+                    >
+                      <span
+                        className={`text-[9.5px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded self-start ${
+                          isPaper
+                            ? "text-[#575047] bg-[#EAE2D3]/85"
+                            : "text-[#A69D90] bg-[#0E0D0C]/80"
+                        }`}
+                      >
+                        {shortZone}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+
+          {/* 4. Interactive HTML Room Name Badges */}
+          {showLabels &&
+            rooms.map((room, idx) => {
+              if (!room.box || room.box.length !== 4) return null;
+              const [ymin, xmin, ymax, xmax] = room.box;
+              const cx = ((xmin + xmax) / 2 / 1000) * 100;
+              const cy = ((ymin + ymax) / 2 / 1000) * 100;
+
+              const violating = isRoomViolating(room);
+              const isHovered = hoveredIndex === idx;
+              const isSelected = selectedIndex === idx;
+              const isActive = isHovered || isSelected;
+
+              return (
+                <button
+                  key={`lbl-${idx}`}
+                  type="button"
+                  onClick={() => onSelectIndex(isSelected ? null : idx)}
+                  onMouseEnter={() => onHoverIndex(idx)}
+                  onMouseLeave={() => onHoverIndex(null)}
+                  style={{
+                    left: `${cx}%`,
+                    top: `${cy}%`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                  className={`absolute z-10 px-2 py-0.5 rounded text-[11px] font-medium transition-all shadow-sm max-w-[140px] truncate border ${
+                    violating
+                      ? isPaper
+                        ? "bg-[#B84322] text-[#FAF6EE] border-[#8F3014] font-semibold"
+                        : "bg-[#E06D4B] text-[#0E0D0C] border-[#F0EAE1] font-semibold"
+                      : isActive
+                      ? isPaper
+                        ? "bg-[#1C1916] text-[#FAF6EE] border-[#1C1916] font-semibold"
+                        : "bg-[#F0EAE1] text-[#0E0D0C] border-[#F0EAE1] font-semibold"
+                      : isPaper
+                      ? "bg-[#FAF6EE]/95 text-[#1C1916] border-[#B5AA99] hover:border-[#1C1916]"
+                      : "bg-[#161412]/95 text-[#F0EAE1] border-[#38332E] hover:border-[#A69D90]"
+                  }`}
+                >
+                  {room.name}
+                </button>
+              );
+            })}
+        </div>
+      </div>
+
+      {/* Minimalist Legend Footer */}
+      <div className="px-4 py-2 border-t border-ink-800 bg-ink-900 flex items-center justify-between text-[11px] font-mono text-bone-400">
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-bone-100/30 border border-bone-100 inline-block" />
+            <span>Sesuai Pakem</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-clay/40 border border-clay inline-block" />
+            <span className="text-clay font-semibold">Perlu Penyesuaian</span>
           </span>
         </div>
+        <span>{rooms.length} Ruangan</span>
       </div>
     </div>
   );
 };
-
-export default PlanCanvas;

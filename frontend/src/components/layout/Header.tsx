@@ -2,8 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { BookOpen, Compass, Moon, Sun } from "lucide-react";
-import { Button } from "../ui/Button";
+import { BookOpen, Calculator, Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
 export interface HeaderProps {
@@ -18,94 +17,96 @@ export const Header: React.FC<HeaderProps> = ({
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="w-full border-b border-ink-700 bg-ink-900/95 backdrop-blur-sm sticky top-0 z-[100]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-[60px] py-2 flex items-center justify-between gap-3">
-        {/* Brand Identity */}
+    <header className="sticky top-0 z-30 border-b border-ink-800 bg-ink-950/90 backdrop-blur-md print:hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        {/* Left: Brand Identity */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-ink-950 border border-ink-600 flex items-center justify-center text-bone-100 shrink-0">
-            <Compass size={18} aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-[17px] sm:text-[18px] font-bold tracking-tight text-bone-100">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group focus-visible:outline-2 focus-visible:outline-bone-100 rounded-md"
+          >
+            <div className="w-8 h-8 rounded-lg bg-bone-100 text-ink-950 flex items-center justify-center font-display font-bold text-[14px] tracking-tight shrink-0">
+              BK
+            </div>
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-[17px] font-bold tracking-tight text-bone-100 font-display">
                 BaleKerta
               </span>
-              <span
-                className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-mono text-bone-400 bg-ink-950 border border-ink-700 rounded"
-                title={apiOnline ? "Server analisis Sanga Mandala aktif" : "Server analisis tidak terhubung"}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    apiOnline ? "bg-bone-100" : "bg-clay"
-                  }`}
-                />
-                <span>{apiOnline ? "Aktif" : "Offline"}</span>
+              <span className="hidden md:inline-block text-[12px] text-bone-400">
+                Pra-Pemeriksaan Tata Ruang Adat Bali
               </span>
             </div>
-            <p className="hidden md:block text-[11.5px] font-mono text-bone-400 truncate">
-              Pra-Pemeriksaan Tata Ruang Adat Bali &middot; Asta Kosala-Kosali &amp; PBG
-            </p>
-          </div>
+          </Link>
+
+          <span
+            className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono text-bone-400 bg-ink-900 border border-ink-800"
+            title={apiOnline ? "Mesin Geodesik & AI Siap" : "Mode Pratinjau Lokal"}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                apiOnline ? "bg-emerald-500" : "bg-clay"
+              }`}
+            />
+            <span>{apiOnline ? "Online" : "Lokal"}</span>
+          </span>
         </div>
 
-        {/* Right Actions: Theme Switcher & Cultural Guide */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Dual Theme Switcher (Dark Ink vs Soft Warm Lontar) */}
+        {/* Right: Actions & Theme Switcher */}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/panduan"
+            className="hidden sm:inline-flex min-h-[38px] items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-bone-300 hover:text-bone-100 hover:bg-ink-900 transition-colors"
+          >
+            <Calculator size={14} className="text-bone-400" />
+            <span>Kalkulator Hasta</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={onOpenGlossary}
+            className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-bone-300 hover:text-bone-100 hover:bg-ink-900 transition-colors"
+          >
+            <BookOpen size={14} className="text-bone-400" />
+            <span>Kamus Adat</span>
+          </button>
+
+          <div className="h-4 w-px bg-ink-800 mx-0.5 hidden sm:block" />
+
+          {/* Theme Switcher */}
           <div
+            className="flex items-center p-0.5 rounded-lg border border-ink-800 bg-ink-900"
             role="group"
-            aria-label="Pilih tema tampilan aplikasi"
-            className="flex items-center p-0.5 bg-ink-950 border border-ink-700 rounded-lg"
+            aria-label="Pilih mode tampilan warna"
           >
             <button
               type="button"
               onClick={() => setTheme("dark")}
               aria-pressed={theme === "dark"}
-              className={`min-h-[34px] px-2.5 py-1 rounded-md text-[12px] font-mono flex items-center gap-1.5 transition-colors ${
+              className={`min-h-[32px] px-2.5 py-1 rounded-md text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
                 theme === "dark"
                   ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
                   : "text-bone-400 hover:text-bone-100"
               }`}
-              title="Mode Gelap (Obsidian Ink)"
+              title="Mode Gelap (Obsidian)"
             >
-              <Moon size={13} aria-hidden="true" />
-              <span className="hidden sm:inline">Gelap</span>
+              <Moon size={13} />
+              <span className="hidden xs:inline">Gelap</span>
             </button>
             <button
               type="button"
               onClick={() => setTheme("light")}
               aria-pressed={theme === "light"}
-              className={`min-h-[34px] px-2.5 py-1 rounded-md text-[12px] font-mono flex items-center gap-1.5 transition-colors ${
+              className={`min-h-[32px] px-2.5 py-1 rounded-md text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
                 theme === "light"
                   ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
                   : "text-bone-400 hover:text-bone-100"
               }`}
-              title="Mode Terang Lembut (Kertas Lontar - Tidak Silau)"
+              title="Mode Terang Hangat (Lontar Anti-Silau)"
             >
-              <Sun size={13} aria-hidden="true" />
-              <span className="hidden sm:inline">Terang</span>
+              <Sun size={13} />
+              <span className="hidden xs:inline">Terang</span>
             </button>
           </div>
-
-          {/* Quick Glossary Drawer Button */}
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onOpenGlossary}
-            icon={<BookOpen size={14} />}
-            aria-label="Buka kamus cepat istilah arsitektur Bali"
-          >
-            <span className="hidden sm:inline">Kamus Istilah</span>
-            <span className="sm:hidden">Kamus</span>
-          </Button>
-
-          {/* Direct Link to Full Guide & Calculator */}
-          <Link
-            href="/panduan"
-            className="hidden lg:inline-flex items-center justify-center min-h-[36px] px-3 py-1.5 text-[13px] font-medium rounded-lg bg-ink-950 text-bone-300 border border-ink-700 hover:text-bone-100 hover:border-ink-600 transition-colors"
-          >
-            Kalkulator Hasta
-          </Link>
         </div>
       </div>
     </header>

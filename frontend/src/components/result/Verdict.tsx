@@ -1,19 +1,21 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, AlertCircle, Printer } from "lucide-react";
+import { CheckCircle2, AlertCircle, Printer, ArrowLeft } from "lucide-react";
 import { AuditReport } from "@/types/audit";
 import { Button } from "../ui/Button";
 
 export interface VerdictProps {
   report: AuditReport;
   onPrintReport?: () => void;
+  onEditPlan?: () => void;
   className?: string;
 }
 
 export const Verdict: React.FC<VerdictProps> = ({
   report,
   onPrintReport,
+  onEditPlan,
   className = "",
 }) => {
   const isPass = report.compliance_score >= 80;
@@ -21,68 +23,84 @@ export const Verdict: React.FC<VerdictProps> = ({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-lg border bg-ink-900 shadow-sm ${
-        isPass ? "border-ink-700" : "border-clay/60"
+      className={`p-5 sm:p-6 rounded-xl border bg-ink-900 ${
+        isPass ? "border-ink-800" : "border-clay/50"
       } ${className}`}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Left: Conclusion Sentence & Status */}
-        <div className="space-y-1.5 min-w-0">
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        {/* Left: Status & Conclusion */}
+        <div className="space-y-2 max-w-xl">
+          <div className="inline-flex items-center gap-2">
             {isPass ? (
-              <CheckCircle2 size={18} className="text-bone-100 shrink-0" />
+              <CheckCircle2 size={17} className="text-emerald-500 shrink-0" />
             ) : (
-              <AlertCircle size={18} className="text-clay shrink-0" />
+              <AlertCircle size={17} className="text-clay shrink-0" />
             )}
             <span
-              className={`text-[12px] font-mono px-2.5 py-0.5 rounded border uppercase tracking-wider font-semibold ${
-                isPass
-                  ? "border-bone-400/40 text-bone-100 bg-ink-850"
-                  : "border-clay text-clay bg-clay/10"
+              className={`text-[11.5px] font-mono uppercase tracking-wider font-semibold ${
+                isPass ? "text-bone-200" : "text-clay"
               }`}
             >
-              {isPass ? "Memenuhi Kepatuhan Adat" : "Perlu Penyesuaian Ruang"}
+              {isPass ? "Memenuhi Kepatuhan Adat" : `${violationsCount} Temuan Perlu Penyesuaian`}
             </span>
           </div>
 
-          <h3 className="text-[17px] sm:text-[18px] font-semibold text-bone-100 leading-snug">
+          <h2 className="text-[19px] sm:text-[21px] font-bold text-bone-100 leading-snug tracking-tight">
             {isPass
-              ? "Denah ini mematuhi kaidah tata ruang adat Bali (Asta Bumi)."
-              : `Denah ini belum sesuai: terdapat ${violationsCount} hal yang perlu disesuaikan.`}
-          </h3>
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-bone-400 font-mono">
-            <span>
-              Skor: <strong className="text-bone-100 font-semibold">{report.compliance_score}</strong> / 100
-            </span>
-            <span>·</span>
-            <span>
-              Perkiraan kasar terbangun:{" "}
-              <strong className="text-bone-100 font-semibold">{report.kdb_percentage}%</strong> (maks 60%)
-            </span>
-            <span>·</span>
-            <a
-              href="#transparansi-sistem"
-              className="text-bone-300 hover:text-bone-100 underline underline-offset-2 transition-colors cursor-pointer"
-            >
-              Lihat Formula & Dasar Hukum ↓
-            </a>
-          </div>
+              ? "Denah mematuhi pakem tata ruang Sanga Mandala & layak diajukan PBG."
+              : "Terdapat penempatan ruang yang belum selaras dengan hierarki Sanga Mandala."}
+          </h2>
         </div>
 
-        {/* Right: Print Button */}
-        {onPrintReport && (
-          <div className="shrink-0">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onPrintReport}
-              icon={<Printer size={14} className="text-bone-400" />}
-            >
-              Cetak Dokumen Resmi
-            </Button>
+        {/* Right: Metrics & Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5 lg:gap-6 shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-ink-800">
+          <div className="flex items-center gap-6">
+            <div>
+              <span className="text-[11px] font-mono text-bone-400 block">
+                Skor Kepatuhan
+              </span>
+              <span className="text-[22px] font-bold font-mono text-bone-100 tabular-nums">
+                {report.compliance_score}
+                <span className="text-[13px] text-bone-400 font-normal">/100</span>
+              </span>
+            </div>
+
+            <div className="h-8 w-px bg-ink-800" />
+
+            <div>
+              <span className="text-[11px] font-mono text-bone-400 block">
+                Estimasi KDB
+              </span>
+              <span className="text-[22px] font-bold font-mono text-bone-100 tabular-nums">
+                {report.kdb_percentage}%
+                <span className="text-[12px] text-bone-400 font-normal ml-1">(≤60%)</span>
+              </span>
+            </div>
           </div>
-        )}
+
+          <div className="flex items-center gap-2.5">
+            {onEditPlan && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={onEditPlan}
+                icon={<ArrowLeft size={14} />}
+              >
+                Ubah Denah
+              </Button>
+            )}
+            {onPrintReport && (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={onPrintReport}
+                icon={<Printer size={15} />}
+              >
+                Laporan PDF
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,8 +4,7 @@ import React from "react";
 import { Violation } from "@/types/audit";
 import { getRuleCopy } from "@/data/rules-copy";
 import { Term } from "../glossary/Term";
-import { Disclosure } from "../ui/Disclosure";
-import { Eye, ShieldCheck, Wrench } from "lucide-react";
+import { Eye, Wrench } from "lucide-react";
 
 export interface IssueCardProps {
   violation: Violation;
@@ -31,38 +30,27 @@ export const IssueCard: React.FC<IssueCardProps> = ({
   const displayFix = ruleCopy?.fix || violation.recommendation;
   const termId = ruleCopy?.termId || violation.zone_id.toLowerCase().replace(/_/g, "-");
 
-  const legalBasis =
-    violation.verified && violation.legal_reference
-      ? violation.legal_reference
-      : ruleCopy?.legalBasisVerified
-      ? ruleCopy.legalBasisText
-      : null;
-
   return (
     <div
-      className={`p-4 rounded-lg border bg-ink-900 space-y-3.5 transition-colors duration-150 ${
-        isSelected
-          ? "border-clay ring-1 ring-clay/40"
-          : "border-clay/70 hover:border-clay"
+      className={`p-4 rounded-xl border bg-ink-950/60 space-y-3 transition-colors ${
+        isSelected ? "border-clay" : "border-ink-800 hover:border-clay/60"
       } ${className}`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2.5 min-w-0">
-          <div className="w-6 h-6 rounded-full bg-clay/10 border border-clay text-clay font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+          <span className="w-5 h-5 rounded-full bg-clay/15 text-clay font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
             {index + 1}
-          </div>
+          </span>
           <div>
-            <h4 className="text-[15px] font-semibold text-clay leading-snug">
+            <h4 className="text-[14px] font-semibold text-bone-100 leading-snug">
               {displayTitle}
             </h4>
             <div className="text-[12px] text-bone-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
-              <span>
-                Ruangan: <strong className="text-bone-100">{violation.room_name}</strong>
-              </span>
+              <strong className="text-clay font-medium">{violation.room_name}</strong>
               <span>·</span>
               <span>
-                Zona:{" "}
+                Zona{" "}
                 <Term id={termId} onOpenDrawer={onOpenGlossaryDrawer}>
                   {violation.zone_name}
                 </Term>
@@ -71,47 +59,31 @@ export const IssueCard: React.FC<IssueCardProps> = ({
           </div>
         </div>
 
-        {/* View on Canvas Button */}
         {onFocusRoom && (
           <button
             type="button"
             onClick={() => onFocusRoom(violation.box)}
-            className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-[12px] border border-ink-700 bg-ink-950 hover:bg-ink-800 text-bone-400 hover:text-bone-100 rounded transition-colors"
+            className="shrink-0 min-h-[30px] inline-flex items-center gap-1 px-2.5 py-1 text-[11.5px] border border-ink-800 bg-ink-900 hover:bg-ink-800 text-bone-300 hover:text-bone-100 rounded-md transition-colors"
           >
-            <Eye size={13} />
-            <span className="hidden sm:inline">Lihat di denah</span>
+            <Eye size={12} />
+            <span>Sorot</span>
           </button>
         )}
       </div>
 
-      {/* 1. Apa Artinya */}
-      <div className="space-y-1 text-[13px] leading-relaxed">
-        <span className="font-semibold text-bone-100 block">Apa artinya:</span>
-        <p className="text-bone-400">{displayMeaning}</p>
-      </div>
+      {/* Meaning */}
+      <p className="text-[12.5px] text-bone-300 leading-relaxed">
+        {displayMeaning}
+      </p>
 
-      {/* 2. Cara Memperbaiki */}
-      <div className="space-y-1 text-[13px] leading-relaxed bg-ink-950 p-3 rounded border border-ink-700/60">
-        <div className="flex items-center gap-1.5 text-bone-100 font-semibold mb-0.5">
-          <Wrench size={13} className="text-bone-400" />
-          <span>Cara memperbaiki:</span>
-        </div>
-        <p className="text-bone-400">{displayFix}</p>
+      {/* Actionable Fix */}
+      <div className="pt-2.5 border-t border-ink-800/80 flex items-start gap-2 text-[12.5px] text-bone-200 leading-relaxed">
+        <Wrench size={13} className="text-bone-400 shrink-0 mt-1" />
+        <p>
+          <strong className="text-bone-100 font-medium">Saran perbaikan: </strong>
+          {displayFix}
+        </p>
       </div>
-
-      {/* 3. Dasar Hukum */}
-      {legalBasis && (
-        <Disclosure
-          title="Dasar Hukum & Regulasi"
-          subtitle="Perda Prov. Bali No. 5/2005"
-          className="text-[12px] border-ink-700/60 bg-ink-950/60"
-        >
-          <div className="flex items-start gap-2 pt-1 text-bone-400">
-            <ShieldCheck size={15} className="text-bone-300 shrink-0 mt-0.5" />
-            <p className="leading-relaxed">{legalBasis}</p>
-          </div>
-        </Disclosure>
-      )}
     </div>
   );
 };
