@@ -35,19 +35,68 @@ body {
   outline-offset: 2px;
 }
 
-/* Deep Ink Canvas for OpenStreetMap */
+/* Clean Canvas & Container for Leaflet */
 .leaflet-container {
   background-color: #0E0D0C !important;
   outline: none;
   font-family: inherit;
 }
-.dark-map-tiles .leaflet-tile-pane {
-  filter: brightness(0.6) invert(100%) contrast(1.6) hue-rotate(205deg) saturate(0.2) brightness(0.7);
+
+/* Remove default Leaflet divIcon square and border artifact (Penyebab Pin Kotak Aneh) */
+.leaflet-div-icon,
+.custom-plot-pin,
+.custom-agung-pin {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Mode Gelap (Dark Ink Slate - Diterapkan TEPAT 1x pada tile-pane) */
+.dark-map-theme .leaflet-tile-pane {
+  filter: brightness(0.6) invert(100%) contrast(1.6) hue-rotate(205deg) saturate(0.2) brightness(0.7) !important;
   background-color: #0E0D0C !important;
 }
+.dark-map-theme .leaflet-layer,
+.dark-map-theme .leaflet-tile {
+  filter: none !important;
+}
+
+/* Mode Terang Lembut (Clean Light Architectural - Alami & Bebas Silau, Diterapkan TEPAT 1x) */
+.light-map-theme .leaflet-tile-pane {
+  filter: brightness(0.97) contrast(0.95) saturate(0.85) !important;
+  background-color: #FFFFFF !important;
+}
+.light-map-theme .leaflet-layer,
+.light-map-theme .leaflet-tile {
+  filter: none !important;
+}
+
 .leaflet-tile,
 .leaflet-tile-container {
+  background-color: transparent !important;
+}
+
+/* Tooltip Styling: Clean Dark Architectural Badges with Matched Pointers */
+.leaflet-tooltip {
   background-color: #0E0D0C !important;
+  color: #EDE7DA !important;
+  border: 1px solid #2A2622 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65) !important;
+  font-family: inherit !important;
+  padding: 4px 8px !important;
+}
+.leaflet-tooltip-top:before {
+  border-top-color: #0E0D0C !important;
+}
+.leaflet-tooltip-bottom:before {
+  border-bottom-color: #0E0D0C !important;
+}
+.leaflet-tooltip-left:before {
+  border-left-color: #0E0D0C !important;
+}
+.leaflet-tooltip-right:before {
+  border-right-color: #0E0D0C !important;
 }
 
 /* Leaflet stacking context containment to prevent bleeding through header/dock */

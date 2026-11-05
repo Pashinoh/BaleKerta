@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Sparkles, Compass, Landmark } from "lucide-react";
 
 // Types matching backend API response
@@ -23,8 +23,6 @@ export interface SangaMandalaGrid {
 
 export interface MiniZoneGridProps {
   gridConfig?: SangaMandalaGrid | null;
-  // Legacy props for backward compatibility (deprecated)
-  bearing?: number;
   cardinalDirection?: string;
   kajaQuadrant?: string;
   planNorthDeg?: number;
@@ -59,7 +57,7 @@ function cornerCapitalized(corner: string): string {
 }
 
 export function sacredCornerLabel(
-  kajaQuadrant: string,
+  kajaQuadrant: string = "TOP_RIGHT",
   planNorthDeg: number = 0
 ): "kanan-atas" | "kanan-bawah" | "kiri-bawah" | "kiri-atas" {
   let baseRow = 0;
@@ -95,13 +93,10 @@ export function sacredCornerLabel(
 export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
   gridConfig,
   cardinalDirection,
+  kajaQuadrant = "TOP_RIGHT",
+  planNorthDeg = 0,
 }) => {
-  // If gridConfig is provided (new API), use it; otherwise fall back to legacy computation
-  const sacredPos = gridConfig?.sacred_row_col 
-    ? { row: gridConfig.sacred_row_col[0], col: gridConfig.sacred_row_col[1] }
-    : { row: 0, col: 2 };
-
-  const cells = gridConfig?.cells || [];
+  // If gridConfig is provided (from backend API), use it; otherwise compute deterministically
   const cornerLabel = gridConfig?.sacred_row_col 
     ? (() => {
         const [r, c] = gridConfig.sacred_row_col;
@@ -110,8 +105,20 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
         if (r === 2 && c === 0) return "kiri-bawah";
         return "kiri-atas";
       })()
-    : "kanan-atas";
+    : sacredCornerLabel(kajaQuadrant, planNorthDeg);
 
+  const sacredPos = useMemo(() => {
+    if (gridConfig?.sacred_row_col) {
+      return { row: gridConfig.sacred_row_col[0], col: gridConfig.sacred_row_col[1] };
+    }
+    const c = sacredCornerLabel(kajaQuadrant, planNorthDeg);
+    if (c === "kanan-atas") return { row: 0, col: 2 };
+    if (c === "kanan-bawah") return { row: 2, col: 2 };
+    if (c === "kiri-bawah") return { row: 2, col: 0 };
+    return { row: 0, col: 0 };
+  }, [gridConfig?.sacred_row_col, kajaQuadrant, planNorthDeg]);
+
+  const cells = gridConfig?.cells || [];
   const cornerCap = cornerCapitalized(cornerLabel);
   const cardSingular = cardinalSingular(cardinalDirection);
 

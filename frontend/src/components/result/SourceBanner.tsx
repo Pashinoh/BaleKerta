@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Database, Sparkles, Server, AlertCircle, RefreshCw } from "lucide-react";
+import { Database, Sparkles, Server, AlertCircle, RefreshCw, FileText } from "lucide-react";
 import { Button } from "../ui/Button";
 
 export interface SourceBannerProps {
@@ -10,6 +10,7 @@ export interface SourceBannerProps {
   error?: string | null;
   retryAfterS?: number;
   onRetry?: () => void;
+  onSwitchToPreset?: () => void;
   className?: string;
   compact?: boolean;
 }
@@ -20,17 +21,18 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
   error,
   retryAfterS,
   onRetry,
+  onSwitchToPreset,
   className = "",
   compact = false,
 }) => {
   if (error) {
     return (
       <div
-        className={`p-3.5 bg-ink-900 border border-clay rounded-lg flex items-start justify-between gap-3 ${className}`}
+        className={`p-4 bg-ink-900 border border-clay rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${className}`}
       >
-        <div className="flex items-start gap-2.5">
-          <AlertCircle size={18} className="text-clay shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
+        <div className="flex items-start gap-3">
+          <AlertCircle size={20} className="text-clay shrink-0 mt-0.5" />
+          <div className="space-y-1">
             <h4 className="text-[14px] font-semibold text-clay">
               Pemeriksaan AI Belum Berhasil
             </h4>
@@ -41,16 +43,28 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
           </div>
         </div>
 
-        {onRetry && (
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={onRetry}
-            icon={<RefreshCw size={14} />}
-          >
-            Coba Lagi
-          </Button>
-        )}
+        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+          {onSwitchToPreset && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onSwitchToPreset}
+              icon={<FileText size={14} />}
+            >
+              Uji Pakai Denah Contoh (Bebas Kuota)
+            </Button>
+          )}
+          {onRetry && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={onRetry}
+              icon={<RefreshCw size={14} />}
+            >
+              Coba Lagi
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -89,3 +103,5 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
     </div>
   );
 };
+
+export default SourceBanner;

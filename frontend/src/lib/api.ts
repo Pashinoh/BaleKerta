@@ -3,6 +3,7 @@ import {
   PresetSummary,
   KajaGeoResponse,
 } from "@/types/audit";
+import { SangaMandalaGrid } from "@/components/map/MiniZoneGrid";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -34,6 +35,22 @@ export async function getKaja(lat: number, lon: number): Promise<KajaGeoResponse
   const res = await fetch(url);
   if (!res.ok) {
     throw new ApiError("Gagal menghitung arah Kaja", res.status);
+  }
+  return await res.json();
+}
+
+export async function getSangaMandalaGrid(
+  kajaQuadrant: string,
+  planNorthDeg: number = 0,
+  bounds?: string
+): Promise<SangaMandalaGrid> {
+  let url = `${BACKEND_URL}/api/sanga-mandala-grid?kaja_quadrant=${kajaQuadrant}&plan_north_deg=${planNorthDeg}`;
+  if (bounds) {
+    url += `&bounds=${bounds}`;
+  }
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new ApiError("Gagal mengambil grid Sanga Mandala", res.status);
   }
   return await res.json();
 }
