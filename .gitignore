@@ -9,6 +9,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # Python & Backend
+.pytest_cache/
+backend/.pytest_cache/
 __pycache__/
 *.py[cod]
 *$py.class
@@ -44,3 +46,6 @@ openspec/
 .codegraph/
 .DS_Store
 Thumbs.db
+*.tsbuildinfo
+scratch/
+.turbo/

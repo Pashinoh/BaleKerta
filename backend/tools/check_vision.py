@@ -19,7 +19,9 @@ if not api_key:
 import google.generativeai as genai
 genai.configure(api_key=api_key)
 
-test_image_path = ROOT_DIR / "test_denah_bali.png"
+test_image_path = Path(__file__).resolve().parent.parent / "tests" / "samples" / "test_denah_bali.png
+if not test_image_path.exists():
+    test_image_path = ROOT_DIR / "backend" / "tests" / "samples" / "test_denah_bali.png"
 if not test_image_path.exists():
     print(f"[ERROR] Gambar uji tidak ditemukan di {test_image_path}")
     sys.exit(1)

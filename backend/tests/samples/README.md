@@ -37,3 +37,4 @@ Hasil lengkap pengujian akan dicetak ke terminal dan disimpan secara otomatis ke
 | 16 | `denah_14_undagi_meten_kasus1.jpg` | Rumah Tradisional Bali — Kasus 1 (Kaja-Utara, Desa Adat) | Tradisional Pakem (Jurnal) | Denpasar | Jurnal Arsitektur *Undagi* Univ. Warmadewa |
 | 17 | `denah_15_undagi_meten_kasus2.jpg` | Rumah Tradisional Bali — Kasus 2 (Kaja-Selatan / Buleleng) | Tradisional Pakem (Jurnal) | Buleleng | Jurnal Arsitektur *Undagi* Univ. Warmadewa |
 | 18 | `denah_16_undagi_meten_kasus3.jpg` | Rumah Tradisional Bali — Kasus 3 (Transformasi Ruang) | Tradisional Pakem (Jurnal) | Gianyar | Jurnal Arsitektur *Undagi* Univ. Warmadewa |
+| 19 | `test_denah_bali.png` | Denah Kalibrasi Unit Test Fase 0 (Sanggah, Meten, Paon, Natah, Toilet) | Kalibrasi Vision AI | Gianyar | Dataset Internal |
