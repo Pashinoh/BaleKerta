@@ -110,8 +110,6 @@ def get_regencies():
         }
     return results
 
-return results
-
 @app.get("/api/sanga-mandala-grid")
 def get_sanga_mandala_grid_endpoint(
     kaja_quadrant: str = Query(..., description="Kuadran Kaja: TOP_RIGHT, BOTTOM_RIGHT, TOP_LEFT, BOTTOM_LEFT"),
