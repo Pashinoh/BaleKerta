@@ -1,141 +1,36 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { GridLayout, Room, Violation } from "@/types/audit";
-import {
-  Grid3X3,
-  Layers,
-  Maximize2,
-  Minimize2,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  Compass,
-  AlertCircle,
-  CheckCircle2,
-  Info,
-  Sun,
-  Moon,
-  Eye,
-  EyeOff,
-  Box,
-} from "lucide-react";
+import { Compass, Eye, EyeOff, Grid, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { useTheme } from "@/components/layout/ThemeProvider";
 
 export interface PlanCanvasProps {
   imageSrc?: string | null;
   gridLayout?: GridLayout | null;
   rooms: Room[];
   violations: Violation[];
-  hoveredIndex?: number | null;
-  selectedIndex?: number | null;
-  selectedRoom?: Room | null;
-  onSelectRoom?: (room: Room | null) => void;
-  onHoverIndex?: (index: number | null) => void;
-  onSelectIndex?: (index: number | null) => void;
+  hoveredIndex: number | null;
+  selectedIndex: number | null;
+  onHoverIndex: (index: number | null) => void;
+  onSelectIndex: (index: number | null) => void;
   kajaBearing?: number;
   kajaDirection?: string;
-  regencyName?: string;
   className?: string;
 }
 
-const ZONE_INFO: Record<
-  string,
-  { label: string; sub: string; isSacred?: boolean; isCenter?: boolean }
-> = {
-  UTAMANING_UTAMA: {
-    label: "Utamaning Utama",
-    sub: "Kaja-Kangin · Suci",
-    isSacred: true,
-  },
-  MADYANING_UTAMA: {
-    label: "Madyaning Utama",
-    sub: "Kaja",
-  },
-  NISTANING_UTAMA: {
-    label: "Nistaning Utama",
-    sub: "Kaja-Kauh",
-  },
-  UTAMANING_MADYA: {
-    label: "Utamaning Madya",
-    sub: "Kangin",
-  },
-  MADYANING_MADYA: {
-    label: "Madyaning Madya",
-    sub: "Pusat · Natah",
-    isCenter: true,
-  },
-  NISTANING_MADYA: {
-    label: "Nistaning Madya",
-    sub: "Kauh",
-  },
-  UTAMANING_NISTA: {
-    label: "Utamaning Nista",
-    sub: "Kelod-Kangin",
-  },
-  MADYANING_NISTA: {
-    label: "Madyaning Nista",
-    sub: "Kelod",
-  },
-  NISTANING_NISTA: {
-    label: "Nistaning Nista",
-    sub: "Kelod-Kauh · Teba",
-  },
-};
+const MIN_ZOOM = 0.75;
+const MAX_ZOOM = 3.0;
+const ZOOM_STEP = 0.25;
 
-function parseRoomName(fullName: string): { primary: string; secondary: string } {
-  if (!fullName) return { primary: "", secondary: "" };
-
-  const parenMatch = fullName.match(/^([^(]+)\s*\(([^)]+)\)/);
-  if (parenMatch) {
-    return {
-      primary: parenMatch[1].trim(),
-      secondary: parenMatch[2].trim(),
-    };
-  }
-
-  const slashMatch = fullName.match(/^([^/]+)\s*\/\s*(.+)/);
-  if (slashMatch) {
-    return {
-      primary: slashMatch[1].trim(),
-      secondary: slashMatch[2].trim(),
-    };
-  }
-
-  const ampMatch = fullName.match(/^([^&]+)\s*&\s*(.+)/);
-  if (ampMatch) {
-    return {
-      primary: ampMatch[1].trim(),
-      secondary: ampMatch[2].trim(),
-    };
-  }
-
-  const words = fullName.trim().split(/\s+/);
-  if (words.length >= 3) {
-    return {
-      primary: words.slice(0, 2).join(" "),
-      secondary: words.slice(2).join(" "),
-    };
-  }
-
-  return {
-    primary: fullName.trim(),
-    secondary: "",
-  };
-}
-
-function fitTextWithEllipsis(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number
-): string {
-  if (maxWidth <= 8) return "";
-  if (ctx.measureText(text).width <= maxWidth) return text;
-
-  let str = text;
-  while (str.length > 1 && ctx.measureText(str + "…").width > maxWidth) {
-    str = str.slice(0, -1);
-  }
-  return str.length > 0 ? str + "…" : "";
+function getShortRoomName(name: string): string {
+  const clean = name.replace(/\s*\([^)]*\)/g, "").trim();
+  if (clean === "Sanggah Pemerajan Keluarga" || clean === "Pemerajan Keluarga") return "Pemerajan / Sanggah";
+  if (clean === "Natah Pekarangan Suci Terbuka") return "Natah Terbuka";
+  if (clean === "Kamar Mandi / Toilet Teba") return "Toilet / Teba";
+  if (clean === "Paon Tradisional") return "Paon (Dapur)";
+  if (clean === "Angkul-angkul Pintu Gerbang Masuk") return "Angkul-angkul";
+  return clean || name;
 }
 
 export const PlanCanvas: React.FC<PlanCanvasProps> = ({
@@ -143,983 +38,484 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
   gridLayout,
   rooms,
   violations,
-  hoveredIndex = null,
-  selectedIndex = null,
-  selectedRoom = null,
-  onSelectRoom,
+  hoveredIndex,
+  selectedIndex,
   onHoverIndex,
   onSelectIndex,
   kajaBearing = 41.7,
   kajaDirection = "Timur Laut (NE)",
   className = "",
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const renderAreaRef = useRef({ x: 0, y: 0, w: 0, h: 0 });
-  const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null);
+  const { theme } = useTheme();
+  const [showGrid, setShowGrid] = useState(true);
+  const [showLabels, setShowLabels] = useState(true);
 
-  // View state: Theme (Dark vs Soft Architectural Paper)
-  const [theme, setTheme] = useState<"dark" | "paper">("dark");
-
-  // View state: Overlay Mode (Wireframe / Blueprint X-Ray vs Shaded)
-  // When an image is loaded, default to wireframe so the drawing underneath is 100% visible
-  const [overlayMode, setOverlayMode] = useState<"wireframe" | "shaded">(
-    imageSrc ? "wireframe" : "shaded"
-  );
-
-  // Layer toggles
-  const [showImage, setShowImage] = useState<boolean>(true);
-  const [showGrid, setShowGrid] = useState<boolean>(true);
-  const [showRooms, setShowRooms] = useState<boolean>(true);
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-
-  // Interactive Pan & Zoom
-  const [zoom, setZoom] = useState<number>(1.0);
+  // Zoom & Pan state
+  const [zoom, setZoom] = useState<number>(1);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const dragDistanceRef = useRef<number>(0);
+  const dragStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
-  // Load image object
-  useEffect(() => {
-    if (!imageSrc) {
-      setImageObj(null);
-      setOverlayMode("shaded");
-      return;
-    }
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      setImageObj(img);
-      // Auto-set to wireframe so users can see the blueprint details immediately
-      setOverlayMode("wireframe");
-    };
-    img.src = imageSrc;
-  }, [imageSrc]);
-
-  // Main canvas render loop
-  const renderCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-
-    if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-    }
-
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, width, height);
-
-    // Apply zoom and pan relative to canvas center
-    const centerX = width / 2;
-    const centerY = height / 2;
-    ctx.translate(centerX + pan.x, centerY + pan.y);
-    ctx.scale(zoom, zoom);
-    ctx.translate(-centerX, -centerY);
-
-    const isPaper = theme === "paper";
-
-    // 1. Calculate aspect-fit geometry for floor plan area
-    let renderArea = { x: 0, y: 0, w: width, h: height };
-    if (imageObj && showImage) {
-      const hRatio = width / imageObj.width;
-      const vRatio = height / imageObj.height;
-      const ratio = Math.min(hRatio, vRatio) * 0.94; // slight padding
-      const renderW = imageObj.width * ratio;
-      const renderH = imageObj.height * ratio;
-      const centerShiftX = (width - renderW) / 2;
-      const centerShiftY = (height - renderH) / 2;
-      renderArea = { x: centerShiftX, y: centerShiftY, w: renderW, h: renderH };
-
-      // Background fill behind drawing
-      ctx.fillStyle = isPaper ? "#F4F0E6" : "#0E0D0C";
-      ctx.fillRect(0, 0, width, height);
-
-      // Subtle drop shadow behind drawing
-      ctx.save();
-      ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
-      ctx.shadowBlur = 18;
-      ctx.shadowOffsetY = 4;
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(centerShiftX, centerShiftY, renderW, renderH);
-      ctx.restore();
-
-      ctx.drawImage(
-        imageObj,
-        0, 0, imageObj.width, imageObj.height,
-        centerShiftX, centerShiftY, renderW, renderH
-      );
-
-      // Frame around drawing
-      ctx.strokeStyle = isPaper ? "rgba(160, 150, 135, 0.6)" : "rgba(80, 75, 70, 0.6)";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(centerShiftX, centerShiftY, renderW, renderH);
-    } else {
-      // Schematic canvas when no image is loaded
-      ctx.fillStyle = isPaper ? "#F4F0E6" : "#0E0D0C";
-      ctx.fillRect(0, 0, width, height);
-
-      // Subtle architectural grid background
-      ctx.strokeStyle = isPaper ? "#E6E1D2" : "#1A1715";
-      ctx.lineWidth = 1;
-      const step = 38;
-      for (let x = 0; x < width; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      // Border of the land plot
-      renderArea = {
-        x: Math.max(24, width * 0.05),
-        y: Math.max(24, height * 0.05),
-        w: width - Math.max(48, width * 0.1),
-        h: height - Math.max(48, height * 0.1),
-      };
-
-      ctx.strokeStyle = isPaper ? "#C8C0AF" : "#2E2A25";
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(renderArea.x, renderArea.y, renderArea.w, renderArea.h);
-    }
-
-    renderAreaRef.current = renderArea;
-
-    // Coordinate conversion functions tied strictly to image/lot render rectangle
-    const toPxX = (normX: number) => renderArea.x + (normX / 1000) * renderArea.w;
-    const toPxY = (normY: number) => renderArea.y + (normY / 1000) * renderArea.h;
-
-    // 2. Draw 9 Sanga Mandala Grid (Zero collision with rooms)
-    if (showGrid && gridLayout && gridLayout.cells) {
-      gridLayout.cells.forEach((cell) => {
-        const [ymin, xmin, ymax, xmax] = cell.box;
-        const cx = toPxX(xmin);
-        const cy = toPxY(ymin);
-        const cw = toPxX(xmax) - cx;
-        const ch = toPxY(ymax) - cy;
-
-        const info = ZONE_INFO[cell.zone_id] || {
-          label: cell.zone_id.replace(/_/g, " "),
-          sub: "",
-        };
-
-        if (info.isSacred) {
-          // Sacred Zone: Utamaning Utama (Kaja-Kangin)
-          ctx.fillStyle = isPaper ? "rgba(202, 165, 78, 0.08)" : "rgba(237, 231, 218, 0.04)";
-          ctx.fillRect(cx, cy, cw, ch);
-
-          ctx.strokeStyle = isPaper ? "rgba(160, 125, 38, 0.85)" : "rgba(237, 231, 218, 0.8)";
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([5, 5]);
-          ctx.strokeRect(cx, cy, cw, ch);
-          ctx.setLineDash([]);
-
-          // Compact architectural chip in top-left corner
-          const chipW = Math.min(cw - 12, 145);
-          const chipH = 18;
-          ctx.fillStyle = isPaper ? "rgba(202, 165, 78, 0.22)" : "rgba(237, 231, 218, 0.14)";
-          ctx.fillRect(cx + 6, cy + 6, chipW, chipH);
-          ctx.strokeStyle = isPaper ? "rgba(160, 125, 38, 0.6)" : "rgba(237, 231, 218, 0.4)";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(cx + 6, cy + 6, chipW, chipH);
-
-          ctx.font = "bold 9px sans-serif";
-          ctx.fillStyle = isPaper ? "#6B5012" : "#EDE7DA";
-          ctx.textAlign = "left";
-          ctx.fillText("✦ " + fitTextWithEllipsis(ctx, "UTAMANING UTAMA (SUCI)", chipW - 10), cx + 11, cy + 18);
-        } else {
-          // Standard Zone: Crisp architectural boundary
-          ctx.strokeStyle = isPaper ? "rgba(168, 160, 144, 0.65)" : "rgba(58, 53, 47, 0.55)";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(cx, cy, cw, ch);
-
-          // Subtle corner label
-          ctx.font = "8.5px sans-serif";
-          ctx.fillStyle = isPaper ? "rgba(90, 82, 70, 0.65)" : "rgba(163, 155, 139, 0.5)";
-          ctx.textAlign = "left";
-          const labelText = info.sub ? `${info.label} (${info.sub})` : info.label;
-          const fittedLabel = fitTextWithEllipsis(ctx, labelText, cw - 16);
-          ctx.fillText(fittedLabel, cx + 8, cy + 16);
-        }
-
-        // Center marker for Natah
-        if (info.isCenter) {
-          const midX = cx + cw / 2;
-          const midY = cy + ch / 2;
-          ctx.strokeStyle = isPaper ? "rgba(140, 130, 115, 0.4)" : "rgba(163, 155, 139, 0.25)";
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(midX - 7, midY);
-          ctx.lineTo(midX + 7, midY);
-          ctx.moveTo(midX, midY - 7);
-          ctx.lineTo(midX, midY + 7);
-          ctx.stroke();
-        }
-      });
-    }
-
-    // 3. Draw Room Bounding Boxes (Zero Cross-Room Overlap!)
-    if (showRooms && rooms) {
-      rooms.forEach((room, idx) => {
-        const [ymin, xmin, ymax, xmax] = room.box;
-        const rx = toPxX(xmin);
-        const ry = toPxY(ymin);
-        const rw = toPxX(xmax) - rx;
-        const rh = toPxY(ymax) - ry;
-
-        // Check violation status
-        const violation = violations.find(
-          (v) =>
-            v.room_name.toLowerCase() === room.name.toLowerCase() ||
-            (v.box &&
-              v.box[0] === room.box[0] &&
-              v.box[1] === room.box[1] &&
-              v.box[2] === room.box[2] &&
-              v.box[3] === room.box[3])
-        );
-
-        const isViolated = !!violation;
-        const isHovered = hoveredIndex === idx;
-        const isSelected = selectedIndex === idx || (selectedRoom != null && selectedRoom.name === room.name);
-        const isHighlighted = isHovered || isSelected;
-        const isNatah = room.type === "natah_open_space" || room.name.toLowerCase().includes("natah");
-
-        // Background Fill & Border (Controlled by Wireframe vs Shaded mode)
-        const isWireframe = overlayMode === "wireframe";
-
-        if (isViolated) {
-          // Violation Room: Terracotta / Clay
-          if (isWireframe) {
-            ctx.fillStyle = isHighlighted
-              ? isPaper ? "rgba(210, 96, 63, 0.16)" : "rgba(210, 96, 63, 0.22)"
-              : "rgba(0, 0, 0, 0)"; // 100% transparent in wireframe
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted ? "rgba(253, 239, 235, 0.94)" : "rgba(253, 239, 235, 0.88)"
-              : isHighlighted ? "rgba(75, 26, 19, 0.94)" : "rgba(52, 20, 15, 0.86)";
-          }
-          ctx.strokeStyle = isPaper ? "#C04523" : "#D2603F";
-          ctx.lineWidth = isHighlighted ? 2.5 : 1.8;
-        } else if (isNatah) {
-          // Open Natah: Gentle transparent tone
-          if (isWireframe) {
-            ctx.fillStyle = isHighlighted
-              ? isPaper ? "rgba(200, 190, 175, 0.18)" : "rgba(237, 231, 218, 0.15)"
-              : "rgba(0, 0, 0, 0)";
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted ? "rgba(235, 230, 218, 0.35)" : "rgba(235, 230, 218, 0.15)"
-              : isHighlighted ? "rgba(237, 231, 218, 0.12)" : "rgba(237, 231, 218, 0.04)";
-          }
-          ctx.strokeStyle = isPaper
-            ? isHighlighted ? "#2E2A24" : "rgba(120, 110, 95, 0.7)"
-            : isHighlighted ? "#EDE7DA" : "rgba(237, 231, 218, 0.55)";
-          ctx.lineWidth = isHighlighted ? 2 : 1.5;
-        } else {
-          // Compliant Room
-          if (isWireframe) {
-            ctx.fillStyle = isHighlighted
-              ? isPaper ? "rgba(200, 190, 175, 0.2)" : "rgba(237, 231, 218, 0.18)"
-              : "rgba(0, 0, 0, 0)"; // Transparent to see user blueprint underneath!
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted ? "rgba(255, 255, 255, 0.96)" : "rgba(255, 255, 255, 0.9)"
-              : isHighlighted ? "rgba(36, 33, 29, 0.96)" : "rgba(24, 22, 20, 0.88)";
-          }
-          ctx.strokeStyle = isPaper
-            ? isHighlighted ? "#0E0D0C" : "#2E2A24"
-            : isHighlighted ? "#EDE7DA" : "rgba(237, 231, 218, 0.65)";
-          ctx.lineWidth = isHighlighted ? 2.5 : 1.5;
-        }
-
-        ctx.fillRect(rx, ry, rw, rh);
-
-        if (isNatah && !isHighlighted) {
-          ctx.setLineDash([4, 4]);
-          ctx.strokeRect(rx, ry, rw, rh);
-          ctx.setLineDash([]);
-        } else {
-          ctx.strokeRect(rx, ry, rw, rh);
-        }
-
-        // Highlight extra indicator border
-        if (isHighlighted) {
-          ctx.save();
-          ctx.strokeStyle = isViolated
-            ? isPaper ? "#C04523" : "#D2603F"
-            : isPaper ? "#0E0D0C" : "#EDE7DA";
-          ctx.lineWidth = 1;
-          ctx.setLineDash([3, 3]);
-          ctx.strokeRect(rx - 3, ry - 3, rw + 6, rh + 6);
-          ctx.restore();
-        }
-
-        // 4. Render Room Typography WITH STRICT CLIPPING (Never spills out!)
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(rx, ry, rw, rh);
-        ctx.clip();
-
-        const { primary, secondary } = parseRoomName(room.name);
-        const headerH = Math.min(22, Math.max(16, rh * 0.32));
-
-        // Integrated Header Strip
-        if (isViolated) {
-          ctx.fillStyle = isPaper
-            ? isHighlighted ? "#D2603F" : "#C04523"
-            : isHighlighted ? "#D2603F" : "#B84E30";
-          ctx.fillRect(rx, ry, rw, headerH);
-        } else {
-          if (isWireframe) {
-            ctx.fillStyle = isPaper
-              ? isHighlighted ? "rgba(46, 42, 36, 0.85)" : "rgba(46, 42, 36, 0.72)"
-              : isHighlighted ? "rgba(24, 22, 20, 0.88)" : "rgba(24, 22, 20, 0.75)";
-          } else {
-            ctx.fillStyle = isPaper
-              ? isHighlighted ? "rgba(224, 216, 202, 0.98)" : "rgba(235, 230, 220, 0.95)"
-              : isHighlighted ? "rgba(237, 231, 218, 0.22)" : "rgba(237, 231, 218, 0.12)";
-          }
-          ctx.fillRect(rx, ry, rw, headerH);
-        }
-
-        // Primary Room Title
-        const titleFontSize = Math.min(11, Math.max(8.5, Math.floor(rw / 9.5)));
-        ctx.font = `bold ${titleFontSize}px sans-serif`;
-        ctx.fillStyle = isViolated
-          ? "#FFFFFF"
-          : isWireframe
-          ? "#FFFFFF"
-          : isPaper
-          ? "#1C1917"
-          : isHighlighted
-          ? "#FFFFFF"
-          : "#EDE7DA";
-        ctx.textAlign = "left";
-
-        const maxTitleW = rw - (isViolated ? 22 : 12);
-        const fittedTitle = fitTextWithEllipsis(ctx, primary, maxTitleW);
-        ctx.fillText(fittedTitle, rx + 6, ry + headerH - 5);
-
-        // Warning indicator mark for violated room
-        if (isViolated) {
-          ctx.font = "bold 9px sans-serif";
-          ctx.fillStyle = "#FFFFFF";
-          ctx.textAlign = "right";
-          ctx.fillText("!", rx + rw - 5, ry + headerH - 5);
-        }
-
-        // Subtitle / Zone Label if room box has adequate height
-        if (rh >= 46 && rw >= 55) {
-          const subFontSize = Math.min(9, Math.max(7.5, titleFontSize - 1.5));
-          ctx.font = `${subFontSize}px sans-serif`;
-
-          if (isViolated) {
-            ctx.fillStyle = isPaper ? "#8A2B10" : "#F5B895";
-          } else if (isWireframe) {
-            ctx.fillStyle = isPaper ? "#2E2A24" : "#EDE7DA";
-          } else {
-            ctx.fillStyle = isPaper ? "#575249" : "#A39B8B";
-          }
-          ctx.textAlign = "left";
-
-          const subText = secondary || (room.zone ? room.zone.zone_name : "");
-          if (subText) {
-            const fittedSub = fitTextWithEllipsis(ctx, subText, rw - 12);
-            ctx.fillText(fittedSub, rx + 6, ry + headerH + 13);
-          }
-
-          // Full Zone Classification tag if room is tall enough
-          if (rh >= 72 && room.zone) {
-            ctx.font = "7.5px font-mono";
-            ctx.fillStyle = isPaper ? "rgba(90, 82, 70, 0.7)" : "rgba(163, 155, 139, 0.65)";
-            const zoneBadge = room.zone.zone_id ? room.zone.zone_id.replace(/_/g, " ") : "";
-            const fittedZone = fitTextWithEllipsis(ctx, zoneBadge, rw - 12);
-            ctx.fillText(fittedZone, rx + 6, ry + headerH + 26);
-          }
-        }
-
-        ctx.restore();
-      });
-    }
-
-    ctx.restore();
-  }, [
-    imageObj,
-    gridLayout,
-    rooms,
-    violations,
-    hoveredIndex,
-    selectedIndex,
-    selectedRoom,
-    showImage,
-    showGrid,
-    showRooms,
-    theme,
-    overlayMode,
-    zoom,
-    pan,
-  ]);
-
-  // Redraw on updates or window resize
-  useEffect(() => {
-    renderCanvas();
-    const handleResize = () => renderCanvas();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [renderCanvas]);
-
-  // Non-passive wheel listener for smooth wheel zooming without scrolling the whole page
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
-      setZoom((prevZoom) => {
-        const nextZoom = Math.min(3.5, Math.max(0.8, +(prevZoom * zoomFactor).toFixed(2)));
-        if (nextZoom === 1.0) setPan({ x: 0, y: 0 });
-        return nextZoom;
-      });
-    };
-
-    canvas.addEventListener("wheel", handleWheel, { passive: false });
-    return () => {
-      canvas.removeEventListener("wheel", handleWheel);
-    };
-  }, []);
-
-  // Mouse hover detection (accounting for zoom and pan)
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    if (isDragging) {
-      const dx = e.clientX - dragStart.x;
-      const dy = e.clientY - dragStart.y;
-      dragDistanceRef.current += Math.abs(dx) + Math.abs(dy);
-      setPan({ x: dx, y: dy });
-      return;
-    }
-
-    if (!onHoverIndex) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const rawMouseX = e.clientX - rect.left;
-    const rawMouseY = e.clientY - rect.top;
-
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    const mouseX = (rawMouseX - centerX - pan.x) / zoom + centerX;
-    const mouseY = (rawMouseY - centerY - pan.y) / zoom + centerY;
-
-    const renderArea = renderAreaRef.current;
-    if (renderArea.w <= 0 || renderArea.h <= 0) return;
-
-    const normX = ((mouseX - renderArea.x) / renderArea.w) * 1000;
-    const normY = ((mouseY - renderArea.y) / renderArea.h) * 1000;
-
-    const hitIdx = rooms.findIndex((r) => {
-      const [ymin, xmin, ymax, xmax] = r.box;
-      return normY >= ymin && normY <= ymax && normX >= xmin && normX <= xmax;
-    });
-
-    onHoverIndex(hitIdx >= 0 ? hitIdx : null);
-    canvas.style.cursor = isDragging ? "grabbing" : hitIdx >= 0 ? "pointer" : "grab";
-  };
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    setIsDragging(true);
-    dragDistanceRef.current = 0;
-    setDragStart({
-      x: e.clientX - pan.x,
-      y: e.clientY - pan.y,
-    });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleCanvasClick = () => {
-    // Only register click selection if not a significant drag movement
-    if (dragDistanceRef.current > 8) return;
-
-    if (typeof hoveredIndex === "number" && hoveredIndex >= 0) {
-      if (onSelectIndex) {
-        onSelectIndex(hoveredIndex === selectedIndex ? null : hoveredIndex);
-      }
-      if (onSelectRoom) {
-        onSelectRoom(rooms[hoveredIndex] || null);
-      }
-    }
-  };
+  const isPaper = theme === "light";
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(3.5, +(prev + 0.25).toFixed(2)));
+    setZoom((prev) => Math.min(MAX_ZOOM, Number((prev + ZOOM_STEP).toFixed(2))));
   };
 
   const handleZoomOut = () => {
     setZoom((prev) => {
-      const next = Math.max(0.8, +(prev - 0.25).toFixed(2));
-      if (next === 1.0) setPan({ x: 0, y: 0 });
+      const next = Math.max(MIN_ZOOM, Number((prev - ZOOM_STEP).toFixed(2)));
+      if (next <= 1) setPan({ x: 0, y: 0 });
       return next;
     });
   };
 
   const handleResetView = () => {
-    setZoom(1.0);
+    setZoom(1);
     setPan({ x: 0, y: 0 });
   };
 
-  // Determine active highlighted room for top HUD inspector
-  const activeRoomIndex =
-    typeof hoveredIndex === "number" && hoveredIndex >= 0
-      ? hoveredIndex
-      : typeof selectedIndex === "number" && selectedIndex >= 0
-      ? selectedIndex
-      : null;
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+    setZoom((prev) => {
+      const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Number((prev + delta).toFixed(2))));
+      if (next <= 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
 
-  const activeRoom = activeRoomIndex !== null ? rooms[activeRoomIndex] : null;
-  const activeViolation = activeRoom
-    ? violations.find(
-        (v) =>
-          v.room_name.toLowerCase() === activeRoom.name.toLowerCase() ||
-          (v.box &&
-            v.box[0] === activeRoom.box[0] &&
-            v.box[1] === activeRoom.box[1] &&
-            v.box[2] === activeRoom.box[2] &&
-            v.box[3] === activeRoom.box[3])
-      )
-    : null;
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    if (zoom <= 1) return;
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      panX: pan.x,
+      panY: pan.y,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
 
-  const isPaper = theme === "paper";
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartRef.current) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    setPan({
+      x: dragStartRef.current.panX + dx,
+      y: dragStartRef.current.panY + dy,
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    dragStartRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
+
+  const isRoomViolating = (room: Room): boolean => {
+    return violations.some((v) => {
+      if (v.box && room.box) {
+        const [vy1, vx1, vy2, vx2] = v.box;
+        const [ry1, rx1, ry2, rx2] = room.box;
+        if (vy1 === ry1 && vx1 === rx1 && vy2 === ry2 && vx2 === rx2) {
+          return true;
+        }
+      }
+      return v.room_name.toLowerCase() === room.name.toLowerCase();
+    });
+  };
+
+  const getWallFillColor = (
+    room: Room,
+    isViolating: boolean,
+    isActive: boolean
+  ): string => {
+    if (isViolating) {
+      if (isPaper) {
+        return isActive ? "rgba(184, 67, 34, 0.25)" : "rgba(184, 67, 34, 0.14)";
+      }
+      return isActive ? "rgba(224, 109, 75, 0.35)" : "rgba(224, 109, 75, 0.20)";
+    }
+    const val = (room.zone?.zone_id || "").toLowerCase();
+    if (isPaper) {
+      if (val.includes("utama")) {
+        return isActive ? "rgba(28, 25, 22, 0.18)" : "rgba(28, 25, 22, 0.08)";
+      }
+      if (val.includes("madya")) {
+        return isActive ? "rgba(87, 80, 71, 0.16)" : "rgba(87, 80, 71, 0.06)";
+      }
+      return isActive ? "rgba(122, 114, 103, 0.18)" : "rgba(122, 114, 103, 0.08)";
+    }
+    if (val.includes("utama")) {
+      return isActive ? "rgba(240, 234, 225, 0.24)" : "rgba(240, 234, 225, 0.12)";
+    }
+    if (val.includes("madya")) {
+      return isActive ? "rgba(216, 208, 197, 0.20)" : "rgba(216, 208, 197, 0.09)";
+    }
+    return isActive ? "rgba(166, 157, 144, 0.20)" : "rgba(166, 157, 144, 0.09)";
+  };
 
   return (
     <div
-      ref={containerRef}
-      className={`border rounded-xl overflow-hidden flex flex-col transition-colors shadow-sm ${
-        isPaper
-          ? "bg-[#F4F0E6] border-[#D4CDBC]"
-          : "bg-ink-900 border-ink-700"
-      } ${
-        isFullscreen ? "fixed inset-3 sm:inset-6 z-50 shadow-2xl" : ""
-      } ${className}`}
+      className={`rounded-xl border border-ink-800 bg-ink-900 overflow-hidden flex flex-col h-full min-h-[300px] sm:min-h-[380px] ${className}`}
     >
-      {/* Top Architectural Toolbar */}
-      <div
-        className={`flex flex-wrap items-center justify-between px-4 py-2.5 border-b text-[13px] gap-2 transition-colors ${
-          isPaper
-            ? "bg-[#EAE4D5] border-[#D4CDBC] text-[#1C1917]"
-            : "bg-ink-950 border-ink-700 text-bone-100"
-        }`}
-      >
-        {/* Left: Title, Stats & Kaja Bearing */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold flex items-center gap-1.5">
-            <Compass size={16} className={isPaper ? "text-[#5A5040]" : "text-bone-400"} />
-            <span>Kanvas Tata Ruang</span>
-          </span>
-          <span
-            className={`text-[12px] font-mono px-2 py-0.5 rounded border ${
-              isPaper
-                ? "bg-[#F4F0E6] border-[#D4CDBC] text-[#5A5040]"
-                : "bg-ink-900 border-ink-700 text-bone-400"
-            }`}
-          >
-            {rooms.length} Ruangan
-          </span>
-          <span
-            className={`hidden sm:inline-block text-[12px] font-mono pl-2 border-l ${
-              isPaper
-                ? "text-[#5A5040] border-[#D4CDBC]"
-                : "text-bone-400 border-ink-700"
-            }`}
-          >
-            Arah Kaja: {kajaDirection} ({kajaBearing.toFixed(1)}°)
+      {/* Canvas Header with Zoom & Layer Controls */}
+      <div className="shrink-0 px-3 sm:px-3.5 py-2 border-b border-ink-800 flex flex-wrap items-center justify-between gap-2 bg-ink-900">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[11.5px] sm:text-[12px] font-mono text-bone-300">
+          <Compass size={14} className="text-bone-400 shrink-0" />
+          <span className="truncate">
+            <span className="hidden xs:inline">Kaja: </span>
+            <span>{kajaBearing.toFixed(1)}°</span>
+            <span className="hidden sm:inline"> ({kajaDirection})</span>
           </span>
         </div>
 
-        {/* Right: Controls & Toggles */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          {/* Theme Toggle: Dark vs Non-glaring Architectural Paper */}
-          <div
-            className={`flex items-center p-0.5 rounded border ${
-              isPaper
-                ? "bg-[#F4F0E6] border-[#D4CDBC]"
-                : "bg-ink-900 border-ink-700"
-            }`}
-          >
+          {/* Zoom Control Group */}
+          <div className="flex items-center bg-ink-950 border border-ink-800 rounded-md p-0.5">
             <button
               type="button"
-              onClick={() => setTheme("dark")}
-              className={`p-1.5 text-[11px] font-medium rounded flex items-center gap-1 transition-all ${
-                theme === "dark"
-                  ? "bg-ink-950 text-bone-100 shadow-sm"
-                  : "text-bone-400 hover:text-bone-100"
-              }`}
-              title="Mode Gelap (Kontras Tinggi)"
+              onClick={handleZoomOut}
+              disabled={zoom <= MIN_ZOOM}
+              aria-label="Perkecil denah (Zoom Out)"
+              title="Perkecil denah"
+              className="min-w-[26px] min-h-[26px] flex items-center justify-center rounded text-bone-300 hover:text-bone-100 hover:bg-ink-800 disabled:opacity-40 transition-colors"
             >
-              <Moon size={13} />
-              <span className="hidden md:inline">Gelap</span>
+              <ZoomOut size={13} />
             </button>
-            <button
-              type="button"
-              onClick={() => setTheme("paper")}
-              className={`p-1.5 text-[11px] font-medium rounded flex items-center gap-1 transition-all ${
-                theme === "paper"
-                  ? "bg-[#FFFFFF] text-[#1C1917] shadow-sm font-semibold"
-                  : "text-bone-400 hover:text-bone-100"
-              }`}
-              title="Mode Kertas Arsitektur (Bebas Silau)"
-            >
-              <Sun size={13} />
-              <span className="hidden md:inline">Kertas</span>
-            </button>
-          </div>
-
-          {/* Overlay Mode Toggle: Wireframe vs Shaded (Crucial for seeing uploaded blueprints) */}
-          {imageSrc && (
-            <button
-              type="button"
-              onClick={() => setOverlayMode(overlayMode === "wireframe" ? "shaded" : "wireframe")}
-              className={`px-2.5 py-1 text-[12px] font-medium rounded border transition-colors flex items-center gap-1.5 ${
-                overlayMode === "wireframe"
-                  ? isPaper
-                    ? "bg-[#1C1917] text-white border-[#1C1917]"
-                    : "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
-                  : isPaper
-                  ? "bg-[#F4F0E6] border-[#D4CDBC] text-[#5A5040] hover:bg-[#FFFFFF]"
-                  : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100"
-              }`}
-              title="Ganti mode kotak ruangan tembus pandang atau warna blok"
-            >
-              <Box size={13} />
-              <span>{overlayMode === "wireframe" ? "Tembus Pandang (Blueprint)" : "Blok Warna"}</span>
-            </button>
-          )}
-
-          {/* Toggle Image Visibility if image is present */}
-          {imageSrc && (
-            <button
-              type="button"
-              onClick={() => setShowImage(!showImage)}
-              className={`p-1.5 text-[12px] font-medium rounded border transition-colors flex items-center gap-1 ${
-                showImage
-                  ? isPaper
-                    ? "bg-[#1C1917] text-white border-[#1C1917]"
-                    : "bg-bone-100 text-ink-950 border-bone-100"
-                  : isPaper
-                  ? "bg-[#F4F0E6] border-[#D4CDBC] text-[#5A5040]"
-                  : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100"
-              }`}
-              title={showImage ? "Sembunyikan gambar denah asli" : "Tampilkan gambar denah asli"}
-            >
-              {showImage ? <Eye size={13} /> : <EyeOff size={13} />}
-              <span className="hidden lg:inline">{showImage ? "Gambar Asli" : "Denah Sembunyi"}</span>
-            </button>
-          )}
-
-          {/* Grid Toggle */}
-          <button
-            type="button"
-            onClick={() => setShowGrid(!showGrid)}
-            className={`px-2.5 py-1 text-[12px] font-medium rounded border transition-colors flex items-center gap-1 ${
-              showGrid
-                ? isPaper
-                  ? "bg-[#1C1917] text-white border-[#1C1917]"
-                  : "bg-bone-100 text-ink-950 border-bone-100"
-                : isPaper
-                ? "bg-[#F4F0E6] border-[#D4CDBC] text-[#5A5040]"
-                : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100 hover:bg-ink-800"
-            }`}
-          >
-            <Grid3X3 size={13} />
-            <span className="hidden sm:inline">Kisi 9 Zona</span>
-          </button>
-
-          {/* Rooms Toggle */}
-          <button
-            type="button"
-            onClick={() => setShowRooms(!showRooms)}
-            className={`px-2.5 py-1 text-[12px] font-medium rounded border transition-colors flex items-center gap-1 ${
-              showRooms
-                ? isPaper
-                  ? "bg-[#1C1917] text-white border-[#1C1917]"
-                  : "bg-bone-100 text-ink-950 border-bone-100"
-                : isPaper
-                ? "bg-[#F4F0E6] border-[#D4CDBC] text-[#5A5040]"
-                : "bg-ink-900 border-ink-700 text-bone-400 hover:text-bone-100 hover:bg-ink-800"
-            }`}
-          >
-            <Layers size={13} />
-            <span className="hidden sm:inline">Kotak Ruang</span>
-          </button>
-
-          {/* Zoom In, Out, Reset */}
-          <div
-            className={`flex items-center rounded border p-0.5 ml-0.5 ${
-              isPaper
-                ? "bg-[#F4F0E6] border-[#D4CDBC]"
-                : "bg-ink-900 border-ink-700"
-            }`}
-          >
-            <button
-              type="button"
-              onClick={handleZoomIn}
-              disabled={zoom >= 3.5}
-              className={`p-1.5 rounded disabled:opacity-30 transition-colors ${
-                isPaper
-                  ? "text-[#5A5040] hover:text-[#1C1917] hover:bg-[#FFFFFF]"
-                  : "text-bone-400 hover:text-bone-100 hover:bg-ink-800"
-              }`}
-              title="Perbesar (Scroll roda mouse ke atas)"
-              aria-label="Zoom in"
-            >
-              <ZoomIn size={14} />
-            </button>
-            <span
-              className={`text-[11px] font-mono px-1.5 select-none font-semibold ${
-                isPaper ? "text-[#1C1917]" : "text-bone-300"
-              }`}
-            >
+            <span className="px-1.5 sm:px-2 text-[10.5px] sm:text-[11px] font-mono text-bone-200 tabular-nums select-none">
               {Math.round(zoom * 100)}%
             </span>
             <button
               type="button"
-              onClick={handleZoomOut}
-              disabled={zoom <= 0.8}
-              className={`p-1.5 rounded disabled:opacity-30 transition-colors ${
-                isPaper
-                  ? "text-[#5A5040] hover:text-[#1C1917] hover:bg-[#FFFFFF]"
-                  : "text-bone-400 hover:text-bone-100 hover:bg-ink-800"
-              }`}
-              title="Perkecil (Scroll roda mouse ke bawah)"
-              aria-label="Zoom out"
+              onClick={handleZoomIn}
+              disabled={zoom >= MAX_ZOOM}
+              aria-label="Perbesar denah (Zoom In)"
+              title="Perbesar denah"
+              className="min-w-[26px] min-h-[26px] flex items-center justify-center rounded text-bone-300 hover:text-bone-100 hover:bg-ink-800 disabled:opacity-40 transition-colors"
             >
-              <ZoomOut size={14} />
+              <ZoomIn size={13} />
             </button>
-            {(zoom !== 1.0 || pan.x !== 0 || pan.y !== 0) && (
+            {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
               <button
                 type="button"
                 onClick={handleResetView}
-                className={`p-1.5 rounded transition-colors ml-0.5 ${
-                  isPaper
-                    ? "text-[#5A5040] hover:text-[#1C1917] hover:bg-[#FFFFFF]"
-                    : "text-bone-400 hover:text-bone-100 hover:bg-ink-800"
-                }`}
-                title="Pusatkan dan kembalikan ke ukuran 100%"
-                aria-label="Reset zoom and pan"
+                aria-label="Reset ukuran denah"
+                title="Reset zoom 100%"
+                className="min-w-[26px] min-h-[26px] flex items-center justify-center rounded text-bone-400 hover:text-bone-100 hover:bg-ink-800 border-l border-ink-800 ml-0.5 pl-0.5 transition-colors"
               >
-                <RotateCcw size={13} />
+                <RotateCcw size={12} />
               </button>
             )}
           </div>
 
-          {/* Fullscreen Button */}
           <button
             type="button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className={`p-1.5 rounded border transition-colors ml-0.5 ${
-              isPaper
-                ? "border-[#D4CDBC] text-[#5A5040] hover:text-[#1C1917] hover:bg-[#FFFFFF]"
-                : "border-ink-700 text-bone-400 hover:text-bone-100 hover:bg-ink-800"
+            onClick={() => setShowGrid(!showGrid)}
+            aria-pressed={showGrid}
+            className={`min-h-[28px] px-2 sm:px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1 sm:gap-1.5 border transition-colors ${
+              showGrid
+                ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
+                : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
             }`}
-            title={isFullscreen ? "Kecilkan kanvas" : "Perbesar penuh layar"}
-            aria-label={isFullscreen ? "Kecilkan kanvas" : "Perbesar penuh layar"}
           >
-            {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+            <Grid size={12} />
+            <span className="hidden sm:inline">Kisi </span><span>9 Zona</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowLabels(!showLabels)}
+            aria-pressed={showLabels}
+            className={`min-h-[28px] px-2 sm:px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1 sm:gap-1.5 border transition-colors ${
+              showLabels
+                ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
+                : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
+            }`}
+          >
+            {showLabels ? <Eye size={12} /> : <EyeOff size={12} />}
+            <span className="hidden sm:inline">Label </span><span>Ruang</span>
           </button>
         </div>
       </div>
 
-      {/* Main Canvas Viewport (Generous Full-Width Height) */}
+      {/* Main Viewport with Wheel Zoom & Drag Pan */}
       <div
-        className={`relative w-full flex items-center justify-center overflow-hidden select-none ${
-          isFullscreen
-            ? "flex-1 min-h-[500px]"
-            : "h-[480px] sm:h-[560px] lg:h-[620px]"
-        } ${isPaper ? "bg-[#F4F0E6]" : "bg-ink-950"}`}
+        onWheel={handleWheel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        className={`relative flex-1 min-h-0 w-full flex items-center justify-center p-2.5 sm:p-4 select-none overflow-hidden transition-colors duration-200 ${
+          isPaper ? "bg-[#E6DEC8]" : "bg-[#0E0D0C]"
+        } ${
+          zoom > 1
+            ? isDragging
+              ? "cursor-grabbing"
+              : "cursor-grab"
+            : "cursor-default"
+        }`}
       >
-        <canvas
-          ref={canvasRef}
-          onMouseMove={handleCanvasMouseMove}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={() => {
-            setIsDragging(false);
-            onHoverIndex?.(null);
-          }}
-          onClick={handleCanvasClick}
-          className="w-full h-full block cursor-grab active:cursor-grabbing"
-        />
-
-        {/* Dynamic Interactive Inspector HUD Bar on Hover / Select */}
-        {activeRoom ? (
-          <div
-            className={`absolute top-3 left-3 right-3 p-3 backdrop-blur-md rounded-lg shadow-2xl text-[12px] flex items-center justify-between gap-3 pointer-events-none transition-all border ${
-              isPaper
-                ? "bg-[#FFFFFF]/95 border-[#D4CDBC] text-[#1C1917]"
-                : "bg-ink-950/95 border-ink-700 text-bone-100"
-            }`}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className={`p-2 rounded-md shrink-0 ${
-                  activeViolation
-                    ? isPaper
-                      ? "bg-[#FBE8E3] text-[#C04523] border border-[#F2BDB0]"
-                      : "bg-clay/20 text-clay border border-clay/40"
-                    : isPaper
-                    ? "bg-[#EAE4D5] text-[#1C1917] border border-[#D4CDBC]"
-                    : "bg-bone-100/10 text-bone-100 border border-bone-100/30"
-                }`}
-              >
-                {activeViolation ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`font-bold text-[14px] truncate ${
-                      isPaper ? "text-[#1C1917]" : "text-bone-100"
-                    }`}
-                  >
-                    {activeRoom.name}
-                  </span>
-                  <span
-                    className={`font-mono text-[10.5px] px-2 py-0.5 rounded border uppercase ${
-                      isPaper
-                        ? "bg-[#F4F0E6] border-[#D4CDBC] text-[#5A5040]"
-                        : "bg-ink-900 border-ink-800 text-bone-400"
-                    }`}
-                  >
-                    {activeRoom.type}
-                  </span>
-                  <span
-                    className={`text-[10.5px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
-                      activeViolation
-                        ? isPaper
-                          ? "bg-[#FBE8E3] text-[#C04523] border border-[#C04523]"
-                          : "bg-clay/20 text-clay border border-clay"
-                        : isPaper
-                        ? "bg-[#E6E0D0] text-[#1C1917] border border-[#C8C0AF]"
-                        : "bg-bone-100/10 text-bone-100 border border-bone-100/30"
-                    }`}
-                  >
-                    {activeViolation ? "Perlu Penyesuaian Ruang" : "Sesuai Adat Bali"}
-                  </span>
-                </div>
-                <p
-                  className={`text-[12px] truncate mt-0.5 ${
-                    isPaper ? "text-[#575249]" : "text-bone-400"
-                  }`}
-                >
-                  Zona:{" "}
-                  <strong className={isPaper ? "text-[#1C1917]" : "text-bone-200"}>
-                    {activeRoom.zone?.zone_name || activeRoom.zone?.zone_id?.replace(/_/g, " ") || "Terpetakan"}
-                  </strong>
-                  {activeViolation
-                    ? ` • ${activeViolation.issue}`
-                    : " • Posisi memenuhi hierarki kesucian Sanga Mandala"}
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div
-            className={`absolute top-3 left-3 right-3 px-3.5 py-2 backdrop-blur-sm rounded-md text-[11.5px] flex items-center justify-between pointer-events-none border ${
-              isPaper
-                ? "bg-[#F4F0E6]/90 border-[#D4CDBC] text-[#575249]"
-                : "bg-ink-950/85 border-ink-800/80 text-bone-400"
-            }`}
-          >
-            <span className="flex items-center gap-1.5">
-              <Info size={14} className={isPaper ? "text-[#5A5040]" : "text-bone-400"} />
-              <span>
-                <strong>Panduan Interaktif:</strong> Klik dan geser (drag) untuk memindahkan denah, scroll mouse untuk zoom, atau arahkan kursor ke ruangan
-              </span>
-            </span>
-            <span className="font-mono text-[10.5px] hidden sm:inline opacity-80">
-              Scroll: Zoom | Drag: Pan
-            </span>
-          </div>
-        )}
-
-        {/* Bottom Legend Bar */}
         <div
-          className={`absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 px-3.5 py-2 rounded-lg text-[12px] pointer-events-none border shadow-md ${
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: "center center",
+            transition: isDragging ? "none" : "transform 150ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+          className={`relative aspect-square h-full max-h-full max-w-full rounded-lg overflow-hidden shadow-sm ${
             isPaper
-              ? "bg-[#FFFFFF]/95 border-[#D4CDBC] text-[#1C1917]"
-              : "bg-ink-950/95 border-ink-700 text-bone-100"
+              ? "bg-[#FAF6EE] border border-[#C4B9A5]"
+              : "bg-[#161412] border border-[#2C2825]"
           }`}
         >
-          <div className="flex items-center gap-4 flex-wrap">
-            {/* Compliant: Bone-100 / Deep Ink */}
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`w-3.5 h-3.5 rounded-sm border inline-block ${
-                  isPaper
-                    ? "border-[#2E2A24] bg-[#FFFFFF]"
-                    : "border-bone-100 bg-bone-100/10"
-                }`}
-              />
-              <span className="font-medium">Sesuai Adat</span>
-            </div>
-            {/* Violation: Terracotta / Clay */}
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`w-3.5 h-3.5 rounded-sm border-2 inline-block ${
-                  isPaper
-                    ? "border-[#C04523] bg-[#FBE8E3]"
-                    : "border-clay bg-clay/20"
-                }`}
-              />
-              <span className={isPaper ? "text-[#C04523] font-semibold" : "text-clay font-medium"}>
-                Perlu Perbaikan
-              </span>
-            </div>
-            {/* Sacred: Utamaning Utama */}
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`w-3.5 h-3.5 border border-dashed inline-block ${
-                  isPaper
-                    ? "border-[#9C7824] bg-[#F6EED8]"
-                    : "border-bone-100 bg-bone-100/5"
-                }`}
-              />
-              <span className={isPaper ? "text-[#6B5012]" : "text-bone-400"}>
-                Utamaning Utama (Kaja-Kangin)
-              </span>
-            </div>
-          </div>
+          {/* Optional Uploaded Image */}
+          {imageSrc ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={imageSrc}
+              alt="Denah bangunan"
+              className={`absolute inset-0 w-full h-full object-fill pointer-events-none ${
+                isPaper ? "opacity-55" : "opacity-35"
+              }`}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: isPaper
+                  ? "radial-gradient(circle, rgba(28, 25, 22, 0.10) 1px, transparent 1px)"
+                  : "radial-gradient(circle, rgba(240, 234, 225, 0.08) 1px, transparent 1px)",
+                backgroundSize: "20px 20px",
+              }}
+            />
+          )}
 
-          <span
-            className={`hidden md:inline font-mono text-[11px] ${
-              isPaper ? "text-[#6B6356]" : "text-bone-400"
-            }`}
+          {/* SVG Architectural Layer */}
+          <svg
+            viewBox="0 0 1000 1000"
+            preserveAspectRatio="xMidYMid meet"
+            className="absolute inset-0 w-full h-full"
           >
-            {activeRoom ? `Sorotan: ${activeRoom.name}` : "Peta Spasial Adat Bali"}
+            <defs>
+              <pattern
+                id="hatch-violation"
+                width="16"
+                height="16"
+                patternTransform="rotate(45 0 0)"
+                patternUnits="userSpaceOnUse"
+              >
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="16"
+                  stroke={isPaper ? "#B84322" : "#E06D4B"}
+                  strokeWidth="3"
+                  strokeOpacity="0.22"
+                />
+              </pattern>
+            </defs>
+
+            {/* 1. Sanga Mandala 3x3 Grid */}
+            {showGrid && (
+              <g className="sanga-mandala-grid">
+                <line
+                  x1="333.3"
+                  y1="0"
+                  x2="333.3"
+                  y2="1000"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+                <line
+                  x1="666.6"
+                  y1="0"
+                  x2="666.6"
+                  y2="1000"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+                <line
+                  x1="0"
+                  y1="333.3"
+                  x2="1000"
+                  y2="333.3"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+                <line
+                  x1="0"
+                  y1="666.6"
+                  x2="1000"
+                  y2="666.6"
+                  stroke={isPaper ? "rgba(28,25,22,0.16)" : "rgba(240,234,225,0.14)"}
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                />
+              </g>
+            )}
+
+            {/* 2. Architectural Room Boxes */}
+            {rooms.map((room, idx) => {
+              if (!room.box || room.box.length !== 4) return null;
+              const [ymin, xmin, ymax, xmax] = room.box;
+              const w = Math.max(20, xmax - xmin);
+              const h = Math.max(20, ymax - ymin);
+
+              const violating = isRoomViolating(room);
+              const isHovered = hoveredIndex === idx;
+              const isSelected = selectedIndex === idx;
+              const isActive = isHovered || isSelected;
+
+              const fill = getWallFillColor(room, violating, isActive);
+              const outerStroke = violating
+                ? isPaper
+                  ? "#B84322"
+                  : "#E06D4B"
+                : isActive
+                ? isPaper
+                  ? "#1C1916"
+                  : "#F0EAE1"
+                : isPaper
+                ? "#4A433B"
+                : "rgba(240, 234, 225, 0.55)";
+
+              const outerStrokeWidth = isActive ? 5 : violating ? 4 : 3;
+
+              return (
+                <g
+                  key={`room-${idx}`}
+                  onClick={() => onSelectIndex(isSelected ? null : idx)}
+                  onMouseEnter={() => onHoverIndex(idx)}
+                  onMouseLeave={() => onHoverIndex(null)}
+                  className="cursor-pointer transition-opacity"
+                >
+                  {violating && (
+                    <rect
+                      x={xmin}
+                      y={ymin}
+                      width={w}
+                      height={h}
+                      fill="url(#hatch-violation)"
+                      rx={6}
+                    />
+                  )}
+
+                  <rect
+                    x={xmin}
+                    y={ymin}
+                    width={w}
+                    height={h}
+                    fill={fill}
+                    stroke={outerStroke}
+                    strokeWidth={outerStrokeWidth}
+                    rx={6}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* 3. Zone Background Labels */}
+          {showGrid && gridLayout?.grid_matrix && gridLayout.grid_matrix.length === 3 && (
+            <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
+              {gridLayout.grid_matrix.map((row, rIdx) =>
+                row.map((zoneId, cIdx) => {
+                  const shortZone = zoneId.replace(/_/g, " ");
+                  return (
+                    <div
+                      key={`zone-lbl-${rIdx}-${cIdx}`}
+                      className="p-1 sm:p-2 flex flex-col justify-between"
+                    >
+                      <span
+                        className={`text-[8px] sm:text-[9.5px] font-mono uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded self-start ${
+                          isPaper
+                            ? "text-[#575047] bg-[#EAE2D3]/85"
+                            : "text-[#A69D90] bg-[#0E0D0C]/80"
+                        }`}
+                      >
+                        {shortZone}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+
+          {/* 4. Interactive HTML Room Name Badges */}
+          {showLabels &&
+            rooms.map((room, idx) => {
+              if (!room.box || room.box.length !== 4) return null;
+              const [ymin, xmin, ymax, xmax] = room.box;
+              const cx = ((xmin + xmax) / 2 / 1000) * 100;
+              const cy = ((ymin + ymax) / 2 / 1000) * 100;
+
+              const violating = isRoomViolating(room);
+              const isHovered = hoveredIndex === idx;
+              const isSelected = selectedIndex === idx;
+              const isActive = isHovered || isSelected;
+              const shortName = getShortRoomName(room.name);
+
+              return (
+                <button
+                  key={`lbl-${idx}`}
+                  type="button"
+                  onClick={() => onSelectIndex(isSelected ? null : idx)}
+                  onMouseEnter={() => onHoverIndex(idx)}
+                  onMouseLeave={() => onHoverIndex(null)}
+                  title={room.name}
+                  style={{
+                    left: `${cx}%`,
+                    top: `${cy}%`,
+                    transform: `translate(-50%, -50%) scale(${1 / Math.sqrt(zoom)})`,
+                  }}
+                  className={`absolute z-10 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-[11.5px] font-medium transition-colors shadow-sm max-w-[95px] sm:max-w-[145px] truncate border select-none cursor-pointer ${
+                    violating
+                      ? isPaper
+                        ? "bg-[#B84322] text-[#FAF6EE] border-[#8F3014] font-semibold"
+                        : "bg-[#E06D4B] text-[#0E0D0C] border-[#F0EAE1] font-semibold"
+                      : isActive
+                      ? isPaper
+                        ? "bg-[#1C1916] text-[#FAF6EE] border-[#1C1916] font-semibold"
+                        : "bg-[#F0EAE1] text-[#0E0D0C] border-[#F0EAE1] font-semibold"
+                      : isPaper
+                      ? "bg-[#FAF6EE]/95 text-[#1C1916] border-[#B5AA99] hover:border-[#1C1916]"
+                      : "bg-[#161412]/95 text-[#F0EAE1] border-[#38332E] hover:border-[#A69D90]"
+                  }`}
+                >
+                  {shortName}
+                </button>
+              );
+            })}
+        </div>
+      </div>
+
+      {/* Minimalist Legend Footer */}
+      <div className="shrink-0 px-3 sm:px-4 py-1.5 border-t border-ink-800 bg-ink-900 flex items-center justify-between text-[10.5px] sm:text-[11px] font-mono text-bone-400 gap-2">
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-bone-100/30 border border-bone-100 inline-block shrink-0" />
+            <span>Sesuai Pakem</span>
           </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-clay/40 border border-clay inline-block shrink-0" />
+            <span className="text-clay font-semibold">Perlu Revisi</span>
+          </span>
+        </div>
+        <div className="shrink-0">
+          <span className="hidden sm:inline">Scroll / + − untuk Zoom · </span>
+          <span className="text-bone-200 font-semibold">{rooms.length} Ruang</span>
         </div>
       </div>
     </div>
   );
 };
-
-export default PlanCanvas;

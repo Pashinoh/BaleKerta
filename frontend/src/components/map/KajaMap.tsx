@@ -1,364 +1,270 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Polyline,
   Tooltip,
-  useMap,
   useMapEvents,
+  useMap,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-import {
-  MOUNT_AGUNG,
-  isInBali,
-} from "@/lib/geo";
-import { AlertCircle, Moon, Sun } from "lucide-react";
+import { MOUNT_AGUNG, isInBali } from "@/lib/geo";
+import { AlertCircle, X, MousePointerClick } from "lucide-react";
+import { useTheme } from "@/components/layout/ThemeProvider";
 
 export interface KajaMapProps {
   lat: number;
   lon: number;
-  bearing?: number;
+  hasPin?: boolean;
+  bearing: number;
   cardinalDirection: string;
   distanceKm?: number;
   onChangeLocation: (lat: number, lon: number) => void;
   className?: string;
 }
 
-// Custom SVG DivIcon for Draggable Plot Pin (Terracotta & Bone Architectural Needle)
-const createPlotIcon = () =>
-  L.divIcon({
-    className: "custom-plot-pin",
-    html: `
-      <div style="position: relative; width: 34px; height: 44px; display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: grab;">
-        <!-- Glowing Pulse Ring anchored at tip -->
-        <div style="
-          position: absolute;
-          bottom: -1px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 14px;
-          height: 6px;
-          background: rgba(210, 96, 63, 0.45);
-          border-radius: 50%;
-          box-shadow: 0 0 10px rgba(210, 96, 63, 0.7);
-        "></div>
-        <!-- Architectural Pin Needle -->
-        <svg width="34" height="44" viewBox="0 0 34 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,0.65));">
-          <!-- Teardrop Pin Body (Clay Accent with Ink Outline) -->
-          <path d="M17 1C8.71573 1 2 7.71573 2 16C2 26.5 15.1 41.3 16.3 42.6C16.7 43.1 17.3 43.1 17.7 42.6C18.9 41.3 32 26.5 32 16C32 7.71573 25.2843 1 17 1Z"
-                fill="#D2603F" stroke="#0E0D0C" stroke-width="2" stroke-linejoin="round"/>
-          <!-- Inner Concentric Ring (Bone) -->
-          <circle cx="17" cy="16" r="7.5" fill="#EDE7DA" stroke="#0E0D0C" stroke-width="1.5"/>
-          <!-- Core Target Dot (Ink) -->
-          <circle cx="17" cy="16" r="3.5" fill="#0E0D0C"/>
-        </svg>
-      </div>
-    `,
-    iconSize: [34, 44],
-    iconAnchor: [17, 43], // Needle tip touches coordinate exactly
-    tooltipAnchor: [0, 4],
+const BALI_BOUNDS: L.LatLngBoundsExpression = [
+  [-8.95, 114.35],
+  [-7.95, 115.80],
+];
+
+const getUserPinIcon = (isLight: boolean) =>
+  new L.DivIcon({
+    className: "balekerta-custom-marker",
+    html: `<div style="width: 30px; height: 40px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,${isLight ? "0.22" : "0.5"}));">
+      <svg width="30" height="40" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 1.5C8.00883 1.5 1.5 8.00883 1.5 16C1.5 26.25 16 40.5 16 40.5C16 40.5 30.5 26.25 30.5 16C30.5 8.00883 23.9912 1.5 16 1.5Z" fill="#D9532F" stroke="${isLight ? "#FAF6EE" : "#181512"}" stroke-width="2.5"/>
+        <circle cx="16" cy="15.5" r="5.5" fill="#FAF6EE" stroke="#181512" stroke-width="2"/>
+      </svg>
+    </div>`,
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
   });
 
-// Custom SVG DivIcon for Mount Agung Summit (Sacred Peak Landmark)
-const createAgungIcon = () =>
-  L.divIcon({
-    className: "custom-agung-pin",
-    html: `
-      <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; pointer-events: none;">
-        <!-- Sacred Peak Badge -->
-        <div style="
-          width: 32px;
-          height: 32px;
-          background-color: #1A1815;
-          border: 2px solid #EDE7DA;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.75);
-        ">
-          <!-- Mountain Peak Icon -->
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EDE7DA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m8 3 4 8 5-5 5 15H2L8 3z"/>
-          </svg>
-        </div>
-      </div>
-    `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-    tooltipAnchor: [0, -18],
+const getGunungAgungIcon = (isLight: boolean) =>
+  new L.DivIcon({
+    className: "balekerta-custom-marker",
+    html: `<div style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,${isLight ? "0.18" : "0.5"}));">
+      <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="32" height="32" rx="8" fill="${isLight ? "#FAF6EE" : "#181512"}" stroke="${isLight ? "#1C1916" : "#EFECE6"}" stroke-width="2"/>
+        <path d="M18 8L28 26H8L18 8Z" fill="${isLight ? "#1C1916" : "#EFECE6"}"/>
+        <path d="M18 13L22.5 21H13.5L18 13Z" fill="#D9532F"/>
+      </svg>
+    </div>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
   });
 
-// Map Controller to handle clicks & pan
-function MapEventHandler({
-  onLocationSelect,
-  onError,
+function MapEvents({
+  onSelect,
+  onOutOfBounds,
 }: {
-  onLocationSelect: (lat: number, lon: number) => void;
-  onError: (msg: string | null) => void;
+  onSelect: (lat: number, lon: number) => void;
+  onOutOfBounds: () => void;
 }) {
   useMapEvents({
     click(e) {
       const { lat, lng } = e.latlng;
-      if (!isInBali(lat, lng)) {
-        onError(
-          "Batas Wilayah Bali: Pilihan dibatasi hanya di dalam wilayah Pulau Bali. Silakan klik area daratan di dalam Pulau Bali."
-        );
-        return;
+      if (isInBali(lat, lng)) {
+        onSelect(lat, lng);
+      } else {
+        onOutOfBounds();
       }
-      onError(null);
-      onLocationSelect(lat, lng);
     },
   });
   return null;
 }
 
-// Controller to smoothly pan when the location (lat/lon) changes
-function MapPanController({
-  lat,
-  lon,
-}: {
-  lat: number;
-  lon: number;
-}) {
+function MapFlyTo({ lat, lon, hasPin }: { lat: number; lon: number; hasPin: boolean }) {
   const map = useMap();
   useEffect(() => {
-    map.panTo([lat, lon], { animate: true, duration: 0.4 });
-  }, [lat, lon, map]);
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [map]);
+
+  useEffect(() => {
+    if (hasPin) {
+      map.panTo([lat, lon], { animate: true, duration: 0.4 });
+    }
+  }, [lat, lon, hasPin, map]);
   return null;
 }
 
-export default function KajaMap({
+export const KajaMap: React.FC<KajaMapProps> = ({
   lat,
   lon,
+  hasPin = true,
   cardinalDirection,
   onChangeLocation,
   className = "",
-}: KajaMapProps) {
-  const [geoError, setGeoError] = useState<string | null>(null);
-  const [scrollActive, setScrollActive] = useState(false);
-  const markerRef = useRef<L.Marker>(null);
+}) => {
+  const { theme } = useTheme();
+  const [outOfBoundsNotice, setOutOfBoundsNotice] = useState(false);
 
-  // Map theme state: "dark" (default) or "light" (parchment - non glaring)
-  const [mapTheme, setMapTheme] = useState<"dark" | "light">("dark");
+  const isLight = theme === "light";
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("balekerta_map_theme");
-      if (saved === "light" || saved === "dark") {
-        setMapTheme(saved);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
+    if (!outOfBoundsNotice) return;
+    const t = setTimeout(() => setOutOfBoundsNotice(false), 4000);
+    return () => clearTimeout(t);
+  }, [outOfBoundsNotice]);
 
-  const handleThemeToggle = (theme: "dark" | "light") => {
-    setMapTheme(theme);
-    try {
-      localStorage.setItem("balekerta_map_theme", theme);
-    } catch {
-      // ignore
-    }
-  };
-
-  // Midpoint between Plot and Mount Agung for the bearing tooltip
-  const midpoint = useMemo(() => {
-    return [(lat + MOUNT_AGUNG.lat) / 2, (lon + MOUNT_AGUNG.lon) / 2] as [number, number];
-  }, [lat, lon]);
-
-  // Sync marker position if lat / lon props change externally (dropdown / GPS)
-  useEffect(() => {
-    if (markerRef.current) {
-      markerRef.current.setLatLng([lat, lon]);
-    }
-  }, [lat, lon]);
-
-  // Handle pin drag
-  const onDragEnd = useMemo(
-    () => () => {
-      const marker = markerRef.current;
-      if (marker != null) {
-        const newPos = marker.getLatLng();
-        if (!isInBali(newPos.lat, newPos.lng)) {
-          marker.setLatLng([lat, lon]);
-          setGeoError(
-            "Batas Wilayah Bali: Pin tidak dapat ditempatkan di luar wilayah Pulau Bali. Posisi pin dikembalikan ke titik sebelumnya."
-          );
-          return;
-        }
-        setGeoError(null);
-        onChangeLocation(newPos.lat, newPos.lng);
-      }
-    },
-    [lat, lon, onChangeLocation]
-  );
+  const userPosition: [number, number] = [lat, lon];
+  const agungPosition: [number, number] = [MOUNT_AGUNG.lat, MOUNT_AGUNG.lon];
+  const midLat = (lat + MOUNT_AGUNG.lat) / 2;
+  const midLon = (lon + MOUNT_AGUNG.lon) / 2;
 
   return (
-    <div className={`flex flex-col space-y-2.5 ${className}`}>
-      {/* Out of Bali warning alert */}
-      {geoError && (
-        <div className="flex items-center justify-between p-3 bg-ink-900 border border-clay text-clay rounded-md text-[13px]">
+    <div className={`relative w-full h-full min-h-[380px] flex flex-col ${className}`}>
+      {outOfBoundsNotice && (
+        <div
+          role="alert"
+          className="absolute top-3 left-14 right-3 z-20 flex items-center justify-between p-2.5 bg-ink-900/95 border border-clay text-clay rounded-lg text-[12.5px] shadow-lg"
+        >
           <div className="flex items-center gap-2">
-            <AlertCircle size={16} className="shrink-0 text-clay" />
-            <span>{geoError}</span>
+            <AlertCircle size={15} className="shrink-0" />
+            <span>
+              <strong>Batas Wilayah Bali:</strong> Silakan klik area daratan di dalam wilayah Pulau Bali.
+            </span>
           </div>
           <button
             type="button"
-            onClick={() => setGeoError(null)}
-            className="text-bone-400 hover:text-bone-100 text-xs px-2 py-0.5 rounded border border-ink-700 hover:bg-ink-800 transition-colors"
+            onClick={() => setOutOfBoundsNotice(false)}
+            className="min-w-[28px] min-h-[28px] flex items-center justify-center text-bone-400 hover:text-bone-100 rounded transition-colors"
+            aria-label="Tutup peringatan batas wilayah"
           >
-            Tutup
+            <X size={14} />
           </button>
         </div>
       )}
 
-      {/* 
-        Interactive Leaflet Map Canvas
-        Isolate stacking context to NEVER bleed through sticky Header (z-[100]) or dock 
-      */}
-      <div
-        className={`relative w-full h-[400px] sm:h-[460px] lg:h-[490px] rounded-lg overflow-hidden border border-ink-700 isolate z-0 shadow-sm transition-colors ${
-          mapTheme === "light" ? "bg-[#F8F9FA] light-map-theme" : "bg-ink-950 dark-map-theme"
-        }`}
-        style={{ isolation: "isolate" }}
-        onClick={() => setScrollActive(true)}
-      >
-        {/* Floating Theme Switcher Toggle (Gelap / Terang Lembut) */}
-        <div className="absolute top-3 right-3 z-[500] flex items-center bg-ink-950/95 backdrop-blur-md border border-ink-700 rounded-lg p-1 shadow-lg pointer-events-auto">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleThemeToggle("dark");
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-mono rounded-md transition-all cursor-pointer ${
-              mapTheme === "dark"
-                ? "bg-ink-800 text-bone-100 border border-ink-500 shadow-sm font-semibold"
-                : "text-bone-400 hover:text-bone-100 hover:bg-ink-900"
-            }`}
-            title="Mode Peta Gelap (Ink Dark)"
-          >
-            <Moon size={13} className={mapTheme === "dark" ? "text-bone-100" : "text-bone-400"} />
-            <span>Gelap</span>
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleThemeToggle("light");
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-mono rounded-md transition-all cursor-pointer ${
-              mapTheme === "light"
-                ? "bg-bone-100 text-ink-950 border border-bone-300 font-bold shadow-sm"
-                : "text-bone-400 hover:text-bone-100 hover:bg-ink-900"
-            }`}
-            title="Mode Peta Terang Lembut (Parchment - Muted Warm, Bebas Silau)"
-          >
-            <Sun size={13} className={mapTheme === "light" ? "text-ink-950" : "text-bone-400"} />
-            <span>Terang</span>
-          </button>
+      {/* Prompt Banner when no pin has been placed yet */}
+      {!hasPin && (
+        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-1.5rem)] w-max px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-full bg-ink-900/95 border border-bone-100/30 text-bone-100 text-[11px] sm:text-[12px] font-medium shadow-xl flex items-center gap-2 pointer-events-none text-center leading-snug">
+          <MousePointerClick size={14} className="text-clay shrink-0" />
+          <span>Klik pada peta Bali atau cari wilayah di atas untuk meletakkan pin lokasi</span>
         </div>
+      )}
 
+      {/* Map Frame */}
+      <div
+        className={`relative flex-1 w-full h-full overflow-hidden ${
+          isLight
+            ? "light-map-theme bg-[#CFC8B8]"
+            : "dark-map-theme bg-[#1A1C1E]"
+        }`}
+      >
         <MapContainer
-          center={[lat, lon]}
+          center={[-8.48, 115.22]}
           zoom={10}
           minZoom={9}
-          maxZoom={16}
-          scrollWheelZoom={scrollActive}
-          maxBounds={[
-            [-9.50, 113.50],
-            [-7.50, 116.60],
-          ]}
-          className="w-full h-full"
+          maxZoom={18}
+          maxBounds={BALI_BOUNDS}
+          maxBoundsViscosity={1.0}
+          scrollWheelZoom={true}
+          className="w-full h-full z-10"
         >
-          {/* OpenStreetMap Layer (Filter dikontrol penuh oleh tema parent) */}
           <TileLayer
-            key={mapTheme}
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          <MapPanController lat={lat} lon={lon} />
-          <MapEventHandler
-            onLocationSelect={(newLat, newLon) => {
-              setGeoError(null);
+          <MapEvents
+            onSelect={(newLat, newLon) => {
+              setOutOfBoundsNotice(false);
               onChangeLocation(newLat, newLon);
             }}
-            onError={(err) => setGeoError(err)}
+            onOutOfBounds={() => setOutOfBoundsNotice(true)}
           />
+          <MapFlyTo lat={lat} lon={lon} hasPin={hasPin} />
 
-          {/* Mount Agung Summit Marker */}
-          <Marker
-            position={[MOUNT_AGUNG.lat, MOUNT_AGUNG.lon]}
-            icon={createAgungIcon()}
-          >
+          {/* User Site Marker (Only rendered after user pins or loads saved location) */}
+          {hasPin && (
+            <>
+              <Marker
+                position={userPosition}
+                icon={getUserPinIcon(isLight)}
+                draggable={true}
+                eventHandlers={{
+                  dragend: (e) => {
+                    const marker = e.target;
+                    const pos = marker.getLatLng();
+                    if (isInBali(pos.lat, pos.lng)) {
+                      setOutOfBoundsNotice(false);
+                      onChangeLocation(pos.lat, pos.lng);
+                    } else {
+                      setOutOfBoundsNotice(true);
+                      marker.setLatLng(userPosition);
+                    }
+                  },
+                }}
+              >
+                <Tooltip
+                  direction="bottom"
+                  offset={[0, 8]}
+                  opacity={1}
+                  permanent
+                  className="balekerta-map-tooltip"
+                >
+                  Tapak Anda (Geser pin)
+                </Tooltip>
+              </Marker>
+
+              {/* Kaja Vector Line */}
+              <Polyline
+                positions={[userPosition, agungPosition]}
+                pathOptions={{
+                  color: isLight ? "#B84322" : "#EFECE6",
+                  weight: 2.5,
+                  dashArray: "6, 6",
+                  opacity: 0.9,
+                }}
+              />
+
+              {/* Midpoint Bearing Label */}
+              <Marker
+                position={[midLat, midLon]}
+                icon={
+                  new L.DivIcon({
+                    className: "balekerta-custom-marker",
+                    html: `<div style="width:1px;height:1px;"></div>`,
+                  })
+                }
+              >
+                <Tooltip
+                  direction="center"
+                  permanent
+                  opacity={1}
+                  className="balekerta-map-tooltip balekerta-bearing-tooltip"
+                >
+                  Kaja: {cardinalDirection}
+                </Tooltip>
+              </Marker>
+            </>
+          )}
+
+          {/* Gunung Agung Marker */}
+          <Marker position={agungPosition} icon={getGunungAgungIcon(isLight)}>
             <Tooltip
               direction="top"
-              offset={[0, -16]}
+              offset={[0, -18]}
               opacity={1}
               permanent
-              className="text-[11px] font-sans font-medium px-2 py-0.5"
+              className="balekerta-map-tooltip"
             >
               Gunung Agung (Titik Suci Kaja)
             </Tooltip>
           </Marker>
-
-          {/* User Land Plot Pin (Draggable) */}
-          <Marker
-            position={[lat, lon]}
-            draggable={true}
-            eventHandlers={{ dragend: onDragEnd }}
-            ref={markerRef}
-            icon={createPlotIcon()}
-          >
-            <Tooltip
-              direction="bottom"
-              offset={[0, 8]}
-              opacity={1}
-              permanent
-              className="text-[11px] font-sans font-medium px-2 py-0.5"
-            >
-              Tanah Anda (Geser pin)
-            </Tooltip>
-          </Marker>
-
-          {/* Azimuth Ray to Mount Agung */}
-          <Polyline
-            positions={[
-              [lat, lon],
-              [MOUNT_AGUNG.lat, MOUNT_AGUNG.lon],
-            ]}
-            pathOptions={{
-              color: mapTheme === "light" ? "#C85A38" : "#EDE7DA",
-              weight: 2.5,
-              dashArray: "6, 6",
-              opacity: 0.95,
-            }}
-          >
-            <Tooltip
-              position={midpoint}
-              direction="center"
-              permanent
-              className="px-2.5 py-0.5 text-[12px] font-mono shadow-md"
-            >
-              Kaja: {cardinalDirection}
-            </Tooltip>
-          </Polyline>
         </MapContainer>
-
-        {/* Floating Instruction overlay */}
-        <div className="absolute bottom-3 left-3 z-[400] pointer-events-none">
-          <div className="bg-ink-950/90 backdrop-blur-sm border border-ink-700 rounded px-3 py-1 text-[11px] font-mono text-bone-400 shadow-sm">
-            Klik peta atau geser pin untuk menetapkan titik koordinat
-          </div>
-        </div>
       </div>
     </div>
   );
-}
+};
+
+export default KajaMap;

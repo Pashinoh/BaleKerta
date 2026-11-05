@@ -21,7 +21,7 @@ export const Tabs: React.FC<TabsProps> = ({
 }) => {
   return (
     <div
-      className={`inline-flex p-1 bg-ink-950 border border-ink-700 rounded-md gap-1 ${className}`}
+      className={`grid grid-cols-1 sm:inline-flex p-1 bg-ink-950 border border-ink-700 rounded-lg gap-1 ${className}`}
       role="tablist"
     >
       {tabs.map((tab) => {
@@ -29,20 +29,21 @@ export const Tabs: React.FC<TabsProps> = ({
         return (
           <button
             key={tab.id}
+            type="button"
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(tab.id)}
-            className={`px-3 py-1.5 text-[13px] font-medium rounded transition-colors duration-150 flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-bone-100 ${
+            className={`min-h-[42px] sm:min-h-[36px] px-3.5 py-2 text-[13px] rounded-md transition-colors duration-150 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-bone-100 ${
               isActive
-                ? "bg-ink-800 text-bone-100 border border-ink-700 font-semibold"
-                : "text-bone-400 hover:text-bone-100 hover:bg-ink-900"
+                ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
+                : "text-bone-400 hover:text-bone-100 hover:bg-ink-900 font-medium"
             }`}
           >
             <span>{tab.label}</span>
             {typeof tab.count === "number" && (
               <span
-                className={`text-[11px] px-1.5 py-0.2 rounded-full font-mono ${
-                  isActive ? "bg-ink-700 text-bone-100" : "bg-ink-850 text-bone-400"
+                className={`text-[11px] px-1.5 py-0.5 rounded font-mono ${
+                  isActive ? "bg-ink-950/15 text-ink-950" : "bg-ink-850 text-bone-400"
                 }`}
               >
                 {tab.count}

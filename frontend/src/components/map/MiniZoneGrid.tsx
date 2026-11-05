@@ -1,23 +1,23 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { Sparkles, Compass, Landmark } from "lucide-react";
+import React from "react";
+import { Compass, Landmark } from "lucide-react";
 
-// Types matching backend API response
 export interface SangaMandalaCell {
   row: number;
   col: number;
   zone_id: string;
-  box: [number, number, number, number];
-  center: [number, number];
+  balinese_name: string;
+  sacred_level: string;
+  label_short: string;
+  allowed_summary: string;
+  color_tier: "utama" | "madya" | "nista";
+  compass_dir: string;
 }
 
 export interface SangaMandalaGrid {
   kaja_quadrant: string;
   plan_north_deg: number;
-  sacred_row_col: [number, number] | null;
-  lot_bounds: [number, number, number, number];
-  grid_matrix: string[][];
   cells: SangaMandalaCell[];
 }
 
@@ -26,183 +26,123 @@ export interface MiniZoneGridProps {
   cardinalDirection?: string;
   kajaQuadrant?: string;
   planNorthDeg?: number;
-  locationLabel?: string;
+  className?: string;
 }
 
-// Helper: cardinal direction to singular Indonesian
-function cardinalSingular(cardinal?: string): string {
-  if (!cardinal) return "Timur";
-  const map: Record<string, string> = {
-    "Timur Laut (NE)": "Timur Laut",
-    "Timur (E)": "Timur",
-    "Timur Daya (SE)": "Timur Daya",
-    "Selatan (S)": "Selatan",
-    "Barat Daya (SW)": "Barat Daya",
-    "Barat (W)": "Barat",
-    "Barat Laut (NW)": "Barat Laut",
-    "Utara (N)": "Utara",
-  };
-  return map[cardinal] || cardinal.replace(/\s*\([A-Z]{1,2}\)/, "");
-}
+const SHORT_ROLE_MAP: Record<string, string> = {
+  UTAMANING_UTAMA: "Sanggah / Suci",
+  MADYANING_UTAMA: "Bale Daja",
+  NISTANING_UTAMA: "Dapur / Sumur",
+  UTAMANING_MADYA: "Bale Dangin",
+  MADYANING_MADYA: "Natah (Pusat)",
+  NISTANING_MADYA: "Bale Dauh",
+  UTAMANING_NISTA: "Bale Delod",
+  MADYANING_NISTA: "Lebuh / Pintu",
+  NISTANING_NISTA: "Teba / Sanitasi",
+};
 
-// Helper: corner label to capitalized Indonesian
-function cornerCapitalized(corner: string): string {
-  const map: Record<string, string> = {
-    "kanan-atas": "Sudut Kanan Atas",
-    "kanan-bawah": "Sudut Kanan Bawah",
-    "kiri-bawah": "Sudut Kiri Bawah",
-    "kiri-atas": "Sudut Kiri Atas",
-  };
-  return map[corner] || corner;
-}
+const FALLBACK_CELLS: SangaMandalaCell[] = [
+  { row: 0, col: 0, zone_id: "NISTANING_UTAMA", balinese_name: "Kaja Kauh", sacred_level: "Nistaning Utama", label_short: "Utama III", allowed_summary: "Dapur / Sumur", color_tier: "utama", compass_dir: "NW" },
+  { row: 0, col: 1, zone_id: "MADYANING_UTAMA", balinese_name: "Kaja", sacred_level: "Madyaning Utama", label_short: "Utama II", allowed_summary: "Bale Daja", color_tier: "utama", compass_dir: "N" },
+  { row: 0, col: 2, zone_id: "UTAMANING_UTAMA", balinese_name: "Kaja Kangin", sacred_level: "Utamaning Utama", label_short: "Paling Suci", allowed_summary: "Pemerajan / Sanggah", color_tier: "utama", compass_dir: "NE" },
+  { row: 1, col: 0, zone_id: "NISTANING_MADYA", balinese_name: "Kauh", sacred_level: "Nistaning Madya", label_short: "Madya III", allowed_summary: "Bale Dauh", color_tier: "madya", compass_dir: "W" },
+  { row: 1, col: 1, zone_id: "MADYANING_MADYA", balinese_name: "Tengah", sacred_level: "Madyaning Madya", label_short: "Pusat", allowed_summary: "Natah Terbuka", color_tier: "madya", compass_dir: "C" },
+  { row: 1, col: 2, zone_id: "UTAMANING_MADYA", balinese_name: "Kangin", sacred_level: "Utamaning Madya", label_short: "Madya I", allowed_summary: "Bale Dangin", color_tier: "madya", compass_dir: "E" },
+  { row: 2, col: 0, zone_id: "NISTANING_NISTA", balinese_name: "Kelod Kauh", sacred_level: "Nistaning Nista", label_short: "Teba / Hilir", allowed_summary: "Toilet / Utilitas", color_tier: "nista", compass_dir: "SW" },
+  { row: 2, col: 1, zone_id: "MADYANING_NISTA", balinese_name: "Kelod", sacred_level: "Madyaning Nista", label_short: "Nista II", allowed_summary: "Angkul-Angkul", color_tier: "nista", compass_dir: "S" },
+  { row: 2, col: 2, zone_id: "UTAMANING_NISTA", balinese_name: "Kelod Kangin", sacred_level: "Utamaning Nista", label_short: "Nista I", allowed_summary: "Paon / Jineng", color_tier: "nista", compass_dir: "SE" },
+];
 
-export function sacredCornerLabel(
-  kajaQuadrant: string = "TOP_RIGHT",
-  planNorthDeg: number = 0
-): "kanan-atas" | "kanan-bawah" | "kiri-bawah" | "kiri-atas" {
-  let baseRow = 0;
-  let baseCol = 2; // TOP_RIGHT default
-
-  if (kajaQuadrant === "BOTTOM_RIGHT") {
-    baseRow = 2;
-    baseCol = 2;
-  } else if (kajaQuadrant === "TOP_LEFT") {
-    baseRow = 0;
-    baseCol = 0;
-  } else if (kajaQuadrant === "BOTTOM_LEFT") {
-    baseRow = 2;
-    baseCol = 0;
+export function sacredCornerLabel(kajaQuadrant?: string): string {
+  switch (kajaQuadrant) {
+    case "TOP_RIGHT":
+      return "kanan-atas";
+    case "BOTTOM_RIGHT":
+      return "kanan-bawah";
+    case "BOTTOM_LEFT":
+      return "kiri-bawah";
+    case "TOP_LEFT":
+      return "kiri-atas";
+    default:
+      return "kanan-atas";
   }
-
-  const steps = (Math.floor(planNorthDeg) / 90) % 4;
-  let r = baseRow;
-  let c = baseCol;
-  for (let i = 0; i < steps; i++) {
-    const nextR = c;
-    const nextC = 2 - r;
-    r = nextR;
-    c = nextC;
-  }
-
-  if (r === 0 && c === 2) return "kanan-atas";
-  if (r === 2 && c === 2) return "kanan-bawah";
-  if (r === 2 && c === 0) return "kiri-bawah";
-  return "kiri-atas";
 }
 
 export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
   gridConfig,
-  cardinalDirection,
-  kajaQuadrant = "TOP_RIGHT",
-  planNorthDeg = 0,
+  cardinalDirection = "Timur Laut (NE)",
+  className = "",
 }) => {
-  // If gridConfig is provided (from backend API), use it; otherwise compute deterministically
-  const cornerLabel = gridConfig?.sacred_row_col 
-    ? (() => {
-        const [r, c] = gridConfig.sacred_row_col;
-        if (r === 0 && c === 2) return "kanan-atas";
-        if (r === 2 && c === 2) return "kanan-bawah";
-        if (r === 2 && c === 0) return "kiri-bawah";
-        return "kiri-atas";
-      })()
-    : sacredCornerLabel(kajaQuadrant, planNorthDeg);
+  const cells =
+    gridConfig?.cells && gridConfig.cells.length === 9
+      ? gridConfig.cells
+      : FALLBACK_CELLS;
 
-  const sacredPos = useMemo(() => {
-    if (gridConfig?.sacred_row_col) {
-      return { row: gridConfig.sacred_row_col[0], col: gridConfig.sacred_row_col[1] };
-    }
-    const c = sacredCornerLabel(kajaQuadrant, planNorthDeg);
-    if (c === "kanan-atas") return { row: 0, col: 2 };
-    if (c === "kanan-bawah") return { row: 2, col: 2 };
-    if (c === "kiri-bawah") return { row: 2, col: 0 };
-    return { row: 0, col: 0 };
-  }, [gridConfig?.sacred_row_col, kajaQuadrant, planNorthDeg]);
-
-  const cells = gridConfig?.cells || [];
-  const cornerCap = cornerCapitalized(cornerLabel);
-  const cardSingular = cardinalSingular(cardinalDirection);
+  const sortedCells = [...cells].sort((a, b) =>
+    a.row !== b.row ? a.row - b.row : a.col - b.col
+  );
 
   return (
-    <div className="space-y-2.5">
-      {/* 3x3 Mini Grid */}
-      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-ink-950 border border-ink-700 rounded-md aspect-square max-w-[270px] mx-auto">
-        {[0, 1, 2].map((r) =>
-          [0, 1, 2].map((c) => {
-            const isSacred = r === sacredPos.row && c === sacredPos.col;
-            const isCenter = r === 1 && c === 1;
-            const isMadya = isCenter || (r === 1 && c !== 1) || (c === 1 && r !== 1);
-
-            // Find cell data from API if available
-            const cellData = cells.find(cell => cell.row === r && cell.col === c);
-            const zoneId = cellData?.zone_id;
-
-            let cellClass =
-              "flex flex-col items-center justify-center p-1 rounded text-center transition-colors border ";
-            if (isSacred) {
-              cellClass +=
-                "bg-bone-100 text-ink-950 border-bone-100 font-semibold shadow-sm";
-            } else if (isMadya) {
-              cellClass +=
-                "bg-ink-900 border-ink-700 text-bone-100";
-            } else {
-              cellClass +=
-                "bg-ink-950/60 border-ink-700/60 text-bone-400";
-            }
-
-            return (
-              <div key={`${r}-${c}`} className={cellClass}>
-                {isSacred ? (
-                  <>
-                    <Sparkles size={14} className="text-ink-950 mb-0.5" />
-                    <span className="text-[12px] font-bold text-ink-950 leading-tight">
-                      Utamaning Utama
-                    </span>
-                    <span className="text-[10px] text-ink-900/80 font-mono">
-                      (Paling Suci)
-                    </span>
-                  </>
-                ) : isCenter ? (
-                  <>
-                    <span className="text-[12px] font-semibold text-bone-100 leading-tight">
-                      Natah
-                    </span>
-                    <span className="text-[10px] text-bone-400 font-mono">
-                      (Halaman)
-                    </span>
-                  </>
-                ) : zoneId ? (
-                  <>
-                    <span className="text-[11px] font-medium leading-tight">
-                      {zoneId.replace("_", " ")}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-[11px] font-medium leading-tight">
-                    {r === 0 ? "Kaja" : r === 2 ? "Kelod" : ""}{" "}
-                    {c === 0 ? "Kauh" : c === 2 ? "Kangin" : ""}
-                  </span>
-                )}
-              </div>
-            );
-          })
-        )}
+    <div className={`space-y-2 ${className}`}>
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-mono uppercase tracking-wider text-bone-400">
+          Matriks 9 Zona Sanga Mandala
+        </span>
+        <span className="text-[11px] font-mono text-bone-300 flex items-center gap-1">
+          <Compass size={12} className="text-bone-400" />
+          <span>Kaja: {cardinalDirection}</span>
+        </span>
       </div>
 
-      {/* Cultural Meaning Explanation */}
-      <div className="text-[12px] text-bone-300 bg-ink-950 p-3 rounded border border-ink-700/60 leading-relaxed">
-        <div className="flex items-start gap-1.5 mb-1">
-          <Compass size={14} className="text-bone-100 shrink-0 mt-0.5" />
-          <span>
-            <strong className="text-bone-100">Arah Kaja</strong> = menghadap ke Gunung Agung ({cardSingular}).
-          </span>
-        </div>
-        <div className="flex items-start gap-1.5">
-          <Landmark size={14} className="text-bone-100 shrink-0 mt-0.5" />
-          <span>
-            <strong className="text-bone-100">Area Suci (Sanggah/Merajan)</strong> = terletak di <span className="text-bone-100 font-semibold">{cornerCap}</span> denah Anda.
-          </span>
-        </div>
+      {/* 3x3 Grid */}
+      <div className="grid grid-cols-3 gap-1.5">
+        {sortedCells.map((cell) => {
+          const isMostSacred = cell.zone_id === "UTAMANING_UTAMA";
+          const isMostProfane = cell.zone_id === "NISTANING_NISTA";
+          const isCenter = cell.zone_id === "MADYANING_MADYA";
+          const roleText = SHORT_ROLE_MAP[cell.zone_id] || cell.allowed_summary;
+
+          return (
+            <div
+              key={`${cell.row}-${cell.col}`}
+              className={`p-2.5 rounded-lg border flex flex-col justify-between min-h-[60px] transition-colors ${
+                isMostSacred
+                  ? "bg-bone-100 text-ink-950 border-bone-100 shadow-sm"
+                  : isMostProfane
+                  ? "bg-clay/10 border-clay/50 text-bone-100"
+                  : isCenter
+                  ? "bg-ink-800 border-ink-600 text-bone-100"
+                  : "bg-ink-950 border-ink-800 text-bone-200"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-1">
+                <span
+                  className={`text-[11.5px] font-bold leading-tight ${
+                    isMostSacred ? "text-ink-950" : "text-bone-100"
+                  }`}
+                >
+                  {cell.balinese_name}
+                </span>
+                {isMostSacred && <Landmark size={12} className="text-ink-950 shrink-0" />}
+              </div>
+
+              <span
+                className={`text-[10.5px] leading-tight mt-1 ${
+                  isMostSacred
+                    ? "text-ink-900 font-medium"
+                    : isMostProfane
+                    ? "text-clay font-medium"
+                    : "text-bone-400"
+                }`}
+              >
+                {roleText}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
+
+export default MiniZoneGrid;

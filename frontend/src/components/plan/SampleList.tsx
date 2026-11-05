@@ -14,32 +14,28 @@ export interface PresetOption {
 export const PRESET_OPTIONS: PresetOption[] = [
   {
     id: "preset_4_kompleks_ageng",
-    title: "Pekarangan Ageng Bali (Kompleks 10 Ruangan)",
-    subtitle:
-      "Denah skala besar pola Puri/Griya dengan 10 zona lengkap: Sanggah, Bale Daja, Bale Dangin, Natah, Bale Dauh, Paon, Jineng, dan Teba.",
-    highlight: "Denah Skala Besar (10 Ruang)",
+    title: "Pekarangan Ageng (10 Ruang)",
+    subtitle: "Pola Puri/Griya lengkap: Sanggah, Bale Daja, Dangin, Natah, Paon, Teba.",
+    highlight: "Skala Besar",
   },
   {
     id: "preset_1_pass",
-    title: "Denah Hunian Tradisional",
-    subtitle:
-      "Pola Sanga Mandala ideal dengan tempat suci di sudut Kaja-Kangin dan Natah terbuka.",
-    highlight: "Sesuai Adat & Layak PBG",
+    title: "Hunian Tradisional Ideal",
+    subtitle: "Sanggah di sudut Kaja-Kangin dan Natah terbuka di pusat tapak.",
+    highlight: "Layak PBG",
   },
   {
     id: "preset_2_toilet_violation",
-    title: "Rumah Modern (Pelanggaran Toilet)",
-    subtitle:
-      "Kamar mandi/toilet diletakkan di sudut paling suci pekarangan (Utamaning Utama).",
-    highlight: "Toilet di Sudut Suci",
+    title: "Rumah Modern (Uji Toilet)",
+    subtitle: "Studi kasus kamar mandi/sanitasi berada di sudut suci Utamaning Utama.",
+    highlight: "1 Pelanggaran",
     isViolation: true,
   },
   {
     id: "preset_3_villa_overbuild",
-    title: "Villa Komersial (Pelanggaran KDB & Natah)",
-    subtitle:
-      "Bangunan masif menutupi zona tengah (Natah) dan luas terbangun melebihi 60%.",
-    highlight: "Natah Tertutup & KDB Berlebih",
+    title: "Villa Komersial (Uji KDB & Natah)",
+    subtitle: "Studi kasus bangunan menutupi Natah tengah dan KDB melampaui 60%.",
+    highlight: "2 Pelanggaran",
     isViolation: true,
   },
 ];
@@ -54,7 +50,7 @@ export const SampleList: React.FC<SampleListProps> = ({
   onSelectPreset,
 }) => {
   return (
-    <div className="space-y-2.5" role="radiogroup" aria-label="Pilih denah contoh">
+    <div className="space-y-2 max-h-[220px] sm:max-h-none overflow-y-auto pr-0.5" role="radiogroup" aria-label="Pilih denah contoh">
       {PRESET_OPTIONS.map((opt) => {
         const isSelected = selectedPresetId === opt.id;
         return (
@@ -70,42 +66,41 @@ export const SampleList: React.FC<SampleListProps> = ({
                 onSelectPreset(opt.id);
               }
             }}
-            className={`p-3.5 rounded-lg border transition-colors duration-150 cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-bone-100 ${
+            className={`p-3 sm:p-3.5 rounded-lg border transition-colors duration-150 cursor-pointer select-none ${
               isSelected
                 ? "bg-ink-800 border-bone-100 shadow-sm"
-                : "bg-ink-900 border-ink-700 hover:border-ink-600 hover:bg-ink-850"
+                : "bg-ink-950/60 border-ink-800 hover:border-ink-600 hover:bg-ink-900"
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="text-[14px] font-semibold text-bone-100">
+                  <h4 className="text-[13.5px] font-semibold text-bone-100">
                     {opt.title}
                   </h4>
                   <span
-                    className={`text-[11px] font-mono px-2 py-0.2 rounded border ${
+                    className={`text-[10.5px] font-mono px-2 py-0.5 rounded ${
                       opt.isViolation
-                        ? "bg-clay/10 border-clay text-clay"
-                        : "bg-ink-950 border-ink-700 text-bone-400"
+                        ? "bg-clay/10 text-clay border border-clay/40"
+                        : "bg-ink-900 text-bone-300 border border-ink-700"
                     }`}
                   >
                     {opt.highlight}
                   </span>
                 </div>
-                <p className="text-[13px] text-bone-400 leading-relaxed">
+                <p className="text-[12px] text-bone-400 leading-snug">
                   {opt.subtitle}
                 </p>
               </div>
 
-              {/* Radio Indicator */}
               <div
-                className={`w-5 h-5 rounded-full border shrink-0 flex items-center justify-center transition-colors mt-0.5 ${
+                className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center transition-colors mt-1 ${
                   isSelected
                     ? "bg-bone-100 border-bone-100"
                     : "border-ink-600 bg-ink-950"
                 }`}
               >
-                {isSelected && <Check size={12} strokeWidth={3} className="text-ink-950" />}
+                {isSelected && <Check size={10} strokeWidth={3} className="text-ink-950" />}
               </div>
             </div>
           </div>

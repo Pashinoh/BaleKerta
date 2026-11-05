@@ -11,10 +11,10 @@ export const Card: React.FC<CardProps> = ({
   className = "",
   ...props
 }) => {
-  const base = "bg-ink-900 border border-ink-700 rounded-lg";
+  const base = "bg-ink-900 border border-ink-700 rounded-xl";
   const variants = {
-    default: "",
-    elevated: "bg-ink-850 border-ink-600 shadow-sm",
+    default: "shadow-card",
+    elevated: "bg-ink-850 border-ink-600 shadow-card",
     interactive:
       "hover:border-ink-600 hover:bg-ink-850 transition-colors duration-150 cursor-pointer",
   };

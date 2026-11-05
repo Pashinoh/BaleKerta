@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,8 +15,17 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "BaleKerta — Pra-Pemeriksaan Arsitektur Adat Bali",
-  description: "Verifikasi kepatuhan orientasi Asta Kosala-Kosali dan Asta Bumi sebelum pengajuan PBG. Sistem analisis kepatuhan tata ruang arsitektur tradisional Bali berbasis kecerdasan spasial.",
+  title: "BaleKerta | Pra-Pemeriksaan Tata Ruang Adat Bali (Sanga Mandala & PBG)",
+  description:
+    "Sistem verifikasi kepatuhan orientasi kosmologis Asta Kosala-Kosali, Asta Bumi, dan Perda Provinsi Bali No. 5/2005 sebelum pengajuan Persetujuan Bangunan Gedung (PBG).",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -24,11 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="dark">
+    <html lang="id" className="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-ink-950 text-bone-100 min-h-screen selection:bg-bone-100 selection:text-ink-950`}
       >
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

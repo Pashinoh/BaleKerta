@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Database, Sparkles, Server, AlertCircle, RefreshCw, FileText } from "lucide-react";
+import { Database, Cpu, Server, AlertCircle, RefreshCw, FileText } from "lucide-react";
 import { Button } from "../ui/Button";
 
 export interface SourceBannerProps {
@@ -28,7 +28,7 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
   if (error) {
     return (
       <div
-        className={`p-4 bg-ink-900 border border-clay rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${className}`}
+        className={`p-4 bg-ink-900 border border-clay rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${className}`}
       >
         <div className="flex items-start gap-3">
           <AlertCircle size={20} className="text-clay shrink-0 mt-0.5" />
@@ -79,7 +79,7 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
 
   if (isLiveAI) {
     label = `AI Vision Langsung (${model || "Gemini"})`;
-    icon = <Sparkles size={13} className="text-bone-400" />;
+    icon = <Cpu size={13} className="text-bone-400" />;
   } else if (isCache) {
     label = `Hasil Cache AI (${source.replace("cache:", "")})`;
     icon = <Server size={13} className="text-bone-400" />;
