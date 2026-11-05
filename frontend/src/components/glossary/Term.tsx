@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { getGlossaryTerm } from "@/data/glossary";
-import { ExternalLink, Info } from "lucide-react";
 
 export interface TermProps {
   id: string;
@@ -33,6 +32,8 @@ export const Term: React.FC<TermProps> = ({
       onOpenDrawer(termData ? termData.id : id);
     } else if (onOpenGlossary) {
       onOpenGlossary();
+    } else {
+      window.location.href = `/panduan?term=${termData ? termData.id : id}`;
     }
   };
 
@@ -97,7 +98,11 @@ export const Term: React.FC<TermProps> = ({
                 {termData.group}
               </span>
             </div>
-            <Info size={15} className="text-bone-400 shrink-0 mt-0.5" />
+            <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-bone-400 shrink-0 mt-0.5">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
           </div>
 
           {/* Definition */}
@@ -107,21 +112,25 @@ export const Term: React.FC<TermProps> = ({
 
           {/* Why it matters */}
           <div className="text-[12px] text-bone-400 bg-ink-950 p-2 rounded border border-ink-700/60 mb-2.5">
-            <span className="text-bone-100 font-medium">Fungsi denah:</span>{" "}
+            <span className="text-bone-100 font-medium">
+              Fungsi denah:
+            </span>{" "}
             {termData.why}
           </div>
 
           {/* Action */}
-          {(onOpenDrawer || onOpenGlossary) && (
-            <button
-              type="button"
-              onClick={handleOpenDetailed}
-              className="w-full flex items-center justify-between text-[12px] text-bone-400 hover:text-bone-100 hover:underline pt-1 transition-colors"
-            >
-              <span>Buka panduan lengkap</span>
-              <ExternalLink size={13} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleOpenDetailed}
+            className="w-full flex items-center justify-between text-[12px] text-bone-400 hover:text-bone-100 hover:underline pt-1 transition-colors"
+          >
+            <span>Buka Panduan</span>
+            <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </button>
         </div>
       )}
     </span>
