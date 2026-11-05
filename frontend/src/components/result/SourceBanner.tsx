@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Database, Sparkles, Server, AlertCircle } from "lucide-react";
+import { Database, Sparkles, Server, AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "../ui/Button";
 
 export interface SourceBannerProps {
   source?: string;
@@ -10,6 +11,7 @@ export interface SourceBannerProps {
   retryAfterS?: number;
   onRetry?: () => void;
   className?: string;
+  compact?: boolean;
 }
 
 export const SourceBanner: React.FC<SourceBannerProps> = ({
@@ -19,6 +21,7 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
   retryAfterS,
   onRetry,
   className = "",
+  compact = false,
 }) => {
   if (error) {
     return (
@@ -39,13 +42,14 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
         </div>
 
         {onRetry && (
-          <button
-            type="button"
+          <Button
+            variant="danger"
+            size="sm"
             onClick={onRetry}
-            className="shrink-0 px-3 py-1.5 text-[13px] font-medium border border-clay text-clay hover:bg-clay/10 rounded transition-colors"
+            icon={<RefreshCw size={14} />}
           >
             Coba Lagi
-          </button>
+          </Button>
         )}
       </div>
     );
@@ -56,42 +60,32 @@ export const SourceBanner: React.FC<SourceBannerProps> = ({
   const isCache = source.startsWith("cache:");
   const isLiveAI = source.startsWith("ai:");
 
+  let label = "Contoh Bawaan Sistem";
+  let icon = <Database size={13} className="text-bone-400" />;
+
+  if (isLiveAI) {
+    label = `AI Vision Langsung (${model || "Gemini"})`;
+    icon = <Sparkles size={13} className="text-bone-400" />;
+  } else if (isCache) {
+    label = `Hasil Cache AI (${source.replace("cache:", "")})`;
+    icon = <Server size={13} className="text-bone-400" />;
+  }
+
   return (
     <div
-      className={`p-3 bg-ink-900 border border-ink-700 rounded-lg flex items-center justify-between gap-3 text-[13px] ${className}`}
+      className={`px-3 ${
+        compact ? "py-1 text-[11px]" : "py-1.5 text-[12px]"
+      } rounded border border-ink-700 bg-ink-900 flex items-center justify-between gap-2 text-bone-400 ${className}`}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
-        {isLiveAI ? (
-          <Sparkles size={16} className="text-bone-100 shrink-0" />
-        ) : isCache ? (
-          <Server size={16} className="text-bone-400 shrink-0" />
-        ) : (
-          <Database size={16} className="text-bone-400 shrink-0" />
-        )}
-
-        <div className="min-w-0">
-          <span className="font-medium text-bone-100">
-            {isLiveAI
-              ? "Dianalisis langsung oleh AI Vision"
-              : isCache
-              ? "Dari Cache Hasil AI Nyata"
-              : "Denah Contoh Bawaan"}
-          </span>
-          <span className="text-bone-400 ml-2 font-mono text-[11px] truncate">
-            {model
-              ? `(${model})`
-              : isLiveAI
-              ? `(${source.replace("ai:", "")})`
-              : isCache
-              ? `(${source.replace("cache:ai:", "")})`
-              : "(Bukan hasil AI · Referensi Statis)"}
-          </span>
-        </div>
+      <div className="flex items-center gap-1.5">
+        {icon}
+        <span>Sumber:</span>
+        <span className="font-mono text-bone-100">{label}</span>
       </div>
 
-      <span className="shrink-0 text-[11px] font-mono px-2 py-0.5 bg-ink-950 border border-ink-700 text-bone-400 rounded">
-        {isLiveAI ? "AI Aktif" : isCache ? "Cache Valid" : "Preset"}
-      </span>
+      <div className="font-mono text-[11px] text-bone-400/80">
+        Keputusan: Deterministik
+      </div>
     </div>
   );
 };

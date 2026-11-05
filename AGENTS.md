@@ -36,7 +36,7 @@ frontend/public/   satu-satunya lokasi asset sampel
 
 1. **Pemisahan AI vs rules**: Gemini HANYA membaca denah → rooms `[ymin,xmin,ymax,xmax]` skala 0–1000. Semua keputusan kepatuhan/pelanggaran/skor itu deterministik di `audit_checker.py`. Jangan pernah biarkan model AI memberi verdict.
 2. **Anti fake fallback**: Jika AI gagal/kuota habis (429), balas error transparan + tombol coba lagi. DILARANG data mock/data palsu. Frontend selalu menampilkan sumber data (`preset` / `ai:*` / `cache:*`).
-3. **Palet 3 warna**: Ink `#0E0D0C–#2A2622`, Bone `#EDE7DA/#A39B8B`, Clay `#D2603F` (Clay khusus pelanggaran/masalah). Tanpa gradien, blur, emoji, animasi dekoratif, micro-copy uppercase.
+3. **Palet 3 warna**: Ink `#0E0D0C–#2A2622`, Bone `#EDE7DA/#A39B8B`, Clay `#D2603F` (Clay khusus pelanggaran/masalah). Tanpa gradien, blur, emoji, animasi dekoratif liar, micro-copy uppercase. Animasi presisi, profesional, dan subtle didukung oleh `anime.js` (durasi singkat, easing halus, tanpa pergerakan berlebihan). Prioritaskan kontras keterbacaan (WCAG).
 4. **Alur logika audit**: `vision_parser.VISION_SYSTEM_PROMPT` → `classify_and_normalize_room` → `build_sanga_mandala_grid(kaja_quadrant, plan_north)` → `map_room_to_zone` → `run_spatial_audit`. Utamakan mengubah root cause di shared code, bukan patch di endpoint.
 
 ## Konfigurasi & env

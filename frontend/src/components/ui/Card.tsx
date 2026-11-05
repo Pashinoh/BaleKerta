@@ -14,8 +14,9 @@ export const Card: React.FC<CardProps> = ({
   const base = "bg-ink-900 border border-ink-700 rounded-lg";
   const variants = {
     default: "",
-    elevated: "bg-ink-800 border-ink-600",
-    interactive: "hover:border-ink-600 hover:bg-ink-800 transition-colors duration-150 cursor-pointer",
+    elevated: "bg-ink-850 border-ink-600 shadow-sm",
+    interactive:
+      "hover:border-ink-600 hover:bg-ink-850 transition-colors duration-150 cursor-pointer",
   };
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { X, Search, Sliders } from "lucide-react";
+import { X, Search, Sliders, BookOpen } from "lucide-react";
 import { GLOSSARY_TERMS, GlossaryGroup } from "@/data/glossary";
 
 export interface GlossaryDrawerProps {
@@ -83,27 +83,32 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink-950/80 transition-opacity"
+        className="fixed inset-0 bg-navy-950/80 transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-xl h-full bg-ink-900 border-l border-ink-700 flex flex-col shadow-2xl z-10">
+      <div className="relative w-full max-w-xl h-full bg-navy-900 border-l border-berry-700/70 flex flex-col shadow-2xl z-10">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-ink-700 flex items-center justify-between">
-          <div>
-            <h2 className="text-[18px] font-semibold text-bone-100">
-              Panduan Istilah Adat Bali
-            </h2>
-            <p className="text-[13px] text-bone-400">
-              Kamus arsitektur tradisional, arah suci, dan pedoman tata ruang
-            </p>
+        <div className="p-4 sm:p-5 border-b border-berry-700/60 bg-navy-950 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-cta flex items-center justify-center text-white shadow-cta">
+              <BookOpen size={18} />
+            </div>
+            <div>
+              <h2 className="text-[17px] font-bold text-white">
+                Panduan Istilah Adat Bali
+              </h2>
+              <p className="text-[12px] text-peach-300 font-mono">
+                Kamus arsitektur tradisional, arah suci, dan pedoman Asta Bumi
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-bone-400 hover:text-bone-100 hover:bg-ink-800 rounded-md transition-colors"
+            className="p-2 text-bone-400 hover:text-white hover:bg-navy-800 rounded-lg transition-colors"
             aria-label="Tutup panduan istilah"
           >
             <X size={20} />
@@ -111,19 +116,19 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
         </div>
 
         {/* Search & Filters */}
-        <div className="p-4 border-b border-ink-700/80 space-y-3 bg-ink-950/50">
+        <div className="p-4 border-b border-berry-700/50 space-y-3 bg-navy-950/50">
           {/* Search Box */}
           <div className="relative">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-bone-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-peach"
             />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari istilah, misal: Natah, Kaja, Sanga Mandala..."
-              className="w-full pl-9 pr-3 py-2 text-[14px] bg-ink-900 border border-ink-700 rounded-md text-bone-100 placeholder:text-bone-400/70 focus:outline-none focus:border-bone-100 transition-colors"
+              className="w-full pl-9 pr-3 py-2.5 text-[14px] bg-navy-900 border border-berry-700/60 rounded-lg text-white placeholder:text-bone-400 focus:outline-none focus:border-peach transition-colors"
             />
           </div>
 
@@ -136,10 +141,10 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
                   key={grp}
                   type="button"
                   onClick={() => setSelectedGroup(grp)}
-                  className={`text-[12px] px-2.5 py-1 rounded-md shrink-0 transition-colors ${
+                  className={`text-[12px] px-3 py-1 rounded-full shrink-0 font-medium transition-all ${
                     isSelected
-                      ? "bg-bone-100 text-ink-950 font-medium"
-                      : "bg-ink-800 text-bone-400 hover:text-bone-100 hover:bg-ink-700"
+                      ? "bg-gradient-cta text-white shadow-cta"
+                      : "bg-navy-800 text-bone-300 border border-berry-700/60 hover:text-white hover:bg-berry-800"
                   }`}
                 >
                   {grp}
@@ -150,32 +155,32 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
         </div>
 
         {/* Content Scrollable Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
           {/* Anthropometric Calculator Section */}
-          <div className="border border-ink-700 rounded-lg p-4 bg-ink-950/80">
+          <div className="border border-berry-700/60 rounded-xl p-4 bg-navy-950/80 shadow-card">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Sliders size={16} className="text-bone-400" />
-                <h3 className="text-[14px] font-semibold text-bone-100">
-                  Kalkulator Ukuran Adat
+                <Sliders size={16} className="text-peach" />
+                <h3 className="text-[14px] font-bold text-white">
+                  Kalkulator Ukuran Adat (Asta Kosala-Kosali)
                 </h3>
               </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 border border-ink-700 text-bone-400 rounded">
-                Perkiraan
+              <span className="text-[11px] font-mono px-2 py-0.5 border border-berry-700/60 text-peach rounded-full bg-berry-900/60">
+                Antropometri
               </span>
             </div>
-            <p className="text-[13px] text-bone-400 mb-4 leading-relaxed">
-              Proporsi bangunan dalam Asta Kosala-Kosali mengacu pada modul tubuh
-              pemilik rumah. Ukuran ini bersifat perkiraan antropometris.
+            <p className="text-[12px] text-bone-300 mb-3.5 leading-relaxed">
+              Proporsi bangunan dalam arsitektur Bali mengacu pada modul tubuh
+              pemilik rumah (antropometris) demi keselarasan spiritual dan mikrokosmos.
             </p>
 
             {/* Slider */}
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-[13px]">
-                <label htmlFor="hasta-slider" className="text-bone-400">
-                  Panjang 1 Hasta (siku ke ujung jari):
+                <label htmlFor="hasta-slider" className="text-bone-300">
+                  Panjang 1 Hasta (siku ke ujung jari tengah):
                 </label>
-                <span className="font-mono text-bone-100 font-medium">
+                <span className="font-mono text-peach font-bold text-[14px]">
                   {hastaCm} cm
                 </span>
               </div>
@@ -187,9 +192,9 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
                 step={0.5}
                 value={hastaCm}
                 onChange={(e) => setHastaCm(parseFloat(e.target.value))}
-                className="w-full accent-bone-100 bg-ink-700 cursor-pointer"
+                className="w-full accent-peach bg-navy-800 cursor-pointer"
               />
-              <div className="flex justify-between text-[11px] text-bone-400/80 font-mono">
+              <div className="flex justify-between text-[11px] text-bone-400 font-mono">
                 <span>38 cm (Kecil)</span>
                 <span>44.5 cm (Rata-rata)</span>
                 <span>52 cm (Tinggi)</span>
@@ -197,27 +202,27 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
             </div>
 
             {/* Computed Units Grid */}
-            <div className="grid grid-cols-2 gap-2 text-center">
-              <div className="p-2.5 bg-ink-900 border border-ink-700 rounded">
-                <span className="block text-[11px] text-bone-400">
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="p-3 bg-navy-900 border border-berry-700/60 rounded-lg">
+                <span className="block text-[11px] text-bone-400 font-mono">
                   1 Depa (4 Hasta)
                 </span>
-                <span className="font-mono text-[16px] font-semibold text-bone-100">
+                <span className="font-mono text-[16px] font-bold text-peach">
                   {depaCm} cm
                 </span>
-                <span className="block text-[11px] text-bone-400/80 mt-0.5">
-                  Rentang 2 lengan
+                <span className="block text-[11px] text-bone-400 mt-0.5">
+                  Rentang 2 lengan terbuka
                 </span>
               </div>
-              <div className="p-2.5 bg-ink-900 border border-ink-700 rounded">
-                <span className="block text-[11px] text-bone-400">
+              <div className="p-3 bg-navy-900 border border-berry-700/60 rounded-lg">
+                <span className="block text-[11px] text-bone-400 font-mono">
                   1 Musti (1/4 Hasta)
                 </span>
-                <span className="font-mono text-[16px] font-semibold text-bone-100">
+                <span className="font-mono text-[16px] font-bold text-peach">
                   {mustiCm} cm
                 </span>
-                <span className="block text-[11px] text-bone-400/80 mt-0.5">
-                  Kepalan tangan
+                <span className="block text-[11px] text-bone-400 mt-0.5">
+                  Kepalan tangan rapat
                 </span>
               </div>
             </div>
@@ -225,13 +230,13 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
 
           {/* Term List */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-[13px] text-bone-400 px-1">
+            <div className="flex items-center justify-between text-[12px] text-peach-300 px-1 font-mono">
               <span>Menampilkan {filteredTerms.length} istilah</span>
               <span>Total {GLOSSARY_TERMS.length} entri</span>
             </div>
 
             {filteredTerms.length === 0 ? (
-              <div className="p-8 text-center text-bone-400 border border-dashed border-ink-700 rounded-lg">
+              <div className="p-8 text-center text-bone-400 border border-dashed border-berry-700/60 rounded-xl bg-navy-950/50">
                 Tidak ada istilah yang cocok dengan kata kunci &quot;{searchQuery}&quot;.
               </div>
             ) : (
@@ -243,54 +248,49 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
                     ref={(el) => {
                       itemRefs.current[t.id] = el;
                     }}
-                    className={`p-4 rounded-lg border transition-colors ${
+                    className={`p-4 rounded-xl border transition-all duration-200 ${
                       isTarget
-                        ? "bg-ink-800 border-bone-100"
-                        : "bg-ink-900 border-ink-700 hover:border-ink-600"
+                        ? "bg-navy-800 border-peach shadow-card scale-[1.01]"
+                        : "bg-navy-800/80 border-berry-700/50 hover:border-peach/50 hover:bg-navy-800"
                     }`}
                   >
                     {/* Title + Group */}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div>
-                        <h4 className="text-[16px] font-medium text-bone-100">
+                        <h4 className="text-[15px] font-bold text-white">
                           {t.term}
                         </h4>
-                        <span className="text-[11px] font-mono text-bone-400 uppercase tracking-wider">
+                        <span className="text-[11px] font-mono text-peach uppercase tracking-wider">
                           {t.group}
                         </span>
                       </div>
                       <span
-                        className={`text-[11px] px-2 py-0.5 rounded border font-mono ${
+                        className={`text-[10px] px-2 py-0.5 rounded-full border font-mono font-medium ${
                           t.verified
-                            ? "border-ink-700 text-bone-400"
-                            : "border-ink-700 text-bone-400/70"
+                            ? "border-peach/60 text-peach bg-berry-900/60"
+                            : "border-berry-700/80 text-bone-400"
                         }`}
-                        title={
-                          t.verified
-                            ? "Terverifikasi dalam pedoman adat / regulasi"
-                            : "Ukuran atau interpretasi perkiraan adat"
-                        }
                       >
                         {t.verified ? "Pedoman Adat" : "Perkiraan"}
                       </span>
                     </div>
 
                     {/* Short definition */}
-                    <p className="text-[14px] text-bone-100 leading-relaxed mb-2.5">
+                    <p className="text-[13px] text-bone-200 leading-relaxed mb-2.5">
                       {t.short}
                     </p>
 
                     {/* Why */}
-                    <div className="text-[13px] text-bone-400 bg-ink-950 p-2.5 rounded border border-ink-700/60">
-                      <span className="text-bone-100 font-medium">
-                        Pengaruh pada tata letak denah:
+                    <div className="text-[12px] text-bone-300 bg-navy-950/80 p-2.5 rounded-lg border border-berry-700/50">
+                      <span className="text-peach font-semibold">
+                        Pengaruh pada denah:
                       </span>{" "}
                       {t.why}
                     </div>
 
                     {/* Example */}
                     {t.example && (
-                      <p className="text-[12px] text-bone-400/90 italic mt-2">
+                      <p className="text-[11px] text-bone-400 italic mt-2">
                         Contoh: {t.example}
                       </p>
                     )}
@@ -302,14 +302,14 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-ink-700 bg-ink-950/80 text-[12px] text-bone-400 flex items-center justify-between">
-          <span>BaleKerta Cultural Reference Guide</span>
+        <div className="p-4 border-t border-berry-700/60 bg-navy-950 text-[12px] text-bone-400 flex items-center justify-between">
+          <span className="font-mono text-peach-300">BaleKerta Cultural Reference Guide</span>
           <button
             type="button"
             onClick={onClose}
-            className="text-bone-100 underline hover:text-bone-200"
+            className="text-white hover:text-peach underline font-semibold transition-colors"
           >
-            Tutup
+            Tutup Panduan
           </button>
         </div>
       </div>
