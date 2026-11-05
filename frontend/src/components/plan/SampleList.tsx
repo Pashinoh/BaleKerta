@@ -50,7 +50,7 @@ export const SampleList: React.FC<SampleListProps> = ({
   onSelectPreset,
 }) => {
   return (
-    <div className="space-y-2" role="radiogroup" aria-label="Pilih denah contoh">
+    <div className="space-y-2 max-h-[220px] sm:max-h-none overflow-y-auto pr-0.5" role="radiogroup" aria-label="Pilih denah contoh">
       {PRESET_OPTIONS.map((opt) => {
         const isSelected = selectedPresetId === opt.id;
         return (
@@ -66,7 +66,7 @@ export const SampleList: React.FC<SampleListProps> = ({
                 onSelectPreset(opt.id);
               }
             }}
-            className={`p-3.5 rounded-lg border transition-colors duration-150 cursor-pointer select-none ${
+            className={`p-3 sm:p-3.5 rounded-lg border transition-colors duration-150 cursor-pointer select-none ${
               isSelected
                 ? "bg-ink-800 border-bone-100 shadow-sm"
                 : "bg-ink-950/60 border-ink-800 hover:border-ink-600 hover:bg-ink-900"

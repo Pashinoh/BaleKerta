@@ -23,6 +23,16 @@ const MIN_ZOOM = 0.75;
 const MAX_ZOOM = 3.0;
 const ZOOM_STEP = 0.25;
 
+function getShortRoomName(name: string): string {
+  const clean = name.replace(/\s*\([^)]*\)/g, "").trim();
+  if (clean === "Sanggah Pemerajan Keluarga" || clean === "Pemerajan Keluarga") return "Pemerajan / Sanggah";
+  if (clean === "Natah Pekarangan Suci Terbuka") return "Natah Terbuka";
+  if (clean === "Kamar Mandi / Toilet Teba") return "Toilet / Teba";
+  if (clean === "Paon Tradisional") return "Paon (Dapur)";
+  if (clean === "Angkul-angkul Pintu Gerbang Masuk") return "Angkul-angkul";
+  return clean || name;
+}
+
 export const PlanCanvas: React.FC<PlanCanvasProps> = ({
   imageSrc,
   gridLayout,
@@ -241,7 +251,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className={`relative flex-1 min-h-0 w-full flex items-center justify-center p-4 sm:p-5 select-none overflow-hidden transition-colors duration-200 ${
+        className={`relative flex-1 min-h-0 w-full flex items-center justify-center p-2.5 sm:p-4 select-none overflow-hidden transition-colors duration-200 ${
           isPaper ? "bg-[#E6DEC8]" : "bg-[#0E0D0C]"
         } ${
           zoom > 1
@@ -257,9 +267,9 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
             transformOrigin: "center center",
             transition: isDragging ? "none" : "transform 150ms cubic-bezier(0.22, 1, 0.36, 1)",
           }}
-          className={`relative w-full h-full rounded-lg overflow-hidden ${
+          className={`relative aspect-square h-full max-h-full max-w-full rounded-lg overflow-hidden shadow-sm ${
             isPaper
-              ? "bg-[#FAF6EE] border border-[#C4B9A5] shadow-sm"
+              ? "bg-[#FAF6EE] border border-[#C4B9A5]"
               : "bg-[#161412] border border-[#2C2825]"
           }`}
         >
@@ -288,7 +298,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
           {/* SVG Architectural Layer */}
           <svg
             viewBox="0 0 1000 1000"
-            preserveAspectRatio="none"
+            preserveAspectRatio="xMidYMid meet"
             className="absolute inset-0 w-full h-full"
           >
             <defs>
@@ -423,10 +433,10 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
                   return (
                     <div
                       key={`zone-lbl-${rIdx}-${cIdx}`}
-                      className="p-2 flex flex-col justify-between"
+                      className="p-1 sm:p-2 flex flex-col justify-between"
                     >
                       <span
-                        className={`text-[9.5px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded self-start ${
+                        className={`text-[8px] sm:text-[9.5px] font-mono uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded self-start ${
                           isPaper
                             ? "text-[#575047] bg-[#EAE2D3]/85"
                             : "text-[#A69D90] bg-[#0E0D0C]/80"
@@ -453,6 +463,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
               const isHovered = hoveredIndex === idx;
               const isSelected = selectedIndex === idx;
               const isActive = isHovered || isSelected;
+              const shortName = getShortRoomName(room.name);
 
               return (
                 <button
@@ -461,12 +472,13 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
                   onClick={() => onSelectIndex(isSelected ? null : idx)}
                   onMouseEnter={() => onHoverIndex(idx)}
                   onMouseLeave={() => onHoverIndex(null)}
+                  title={room.name}
                   style={{
                     left: `${cx}%`,
                     top: `${cy}%`,
                     transform: `translate(-50%, -50%) scale(${1 / Math.sqrt(zoom)})`,
                   }}
-                  className={`absolute z-10 px-2 py-0.5 rounded text-[11px] font-medium transition-colors shadow-sm max-w-[150px] truncate border ${
+                  className={`absolute z-10 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-[11.5px] font-medium transition-colors shadow-sm max-w-[95px] sm:max-w-[145px] truncate border select-none cursor-pointer ${
                     violating
                       ? isPaper
                         ? "bg-[#B84322] text-[#FAF6EE] border-[#8F3014] font-semibold"
@@ -480,7 +492,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
                       : "bg-[#161412]/95 text-[#F0EAE1] border-[#38332E] hover:border-[#A69D90]"
                   }`}
                 >
-                  {room.name}
+                  {shortName}
                 </button>
               );
             })}
@@ -488,18 +500,21 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
       </div>
 
       {/* Minimalist Legend Footer */}
-      <div className="shrink-0 px-4 py-1.5 border-t border-ink-800 bg-ink-900 flex items-center justify-between text-[11px] font-mono text-bone-400">
-        <div className="flex items-center gap-4">
+      <div className="shrink-0 px-3 sm:px-4 py-1.5 border-t border-ink-800 bg-ink-900 flex items-center justify-between text-[10.5px] sm:text-[11px] font-mono text-bone-400 gap-2">
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-bone-100/30 border border-bone-100 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-sm bg-bone-100/30 border border-bone-100 inline-block shrink-0" />
             <span>Sesuai Pakem</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-clay/40 border border-clay inline-block" />
-            <span className="text-clay font-semibold">Perlu Penyesuaian</span>
+            <span className="w-2.5 h-2.5 rounded-sm bg-clay/40 border border-clay inline-block shrink-0" />
+            <span className="text-clay font-semibold">Perlu Revisi</span>
           </span>
         </div>
-        <span>Scroll / + − untuk Zoom · {rooms.length} Ruangan</span>
+        <div className="shrink-0">
+          <span className="hidden sm:inline">Scroll / + − untuk Zoom · </span>
+          <span className="text-bone-200 font-semibold">{rooms.length} Ruang</span>
+        </div>
       </div>
     </div>
   );

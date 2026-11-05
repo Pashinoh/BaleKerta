@@ -592,7 +592,7 @@ export default function Home() {
               </div>
 
               {/* Kanan (8 Kolom): Pratinjau Kanvas Full-Height (Bisa Zoom In/Out & Pan) */}
-              <div className="lg:col-span-8 flex flex-col min-h-[300px] sm:min-h-[420px] lg:min-h-0 relative">
+              <div className="lg:col-span-8 flex flex-col h-[420px] sm:h-[480px] lg:h-auto lg:min-h-0 relative">
                 <PlanCanvas
                   imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
                   gridLayout={auditData?.grid_layout || null}
@@ -643,7 +643,7 @@ export default function Home() {
                   {/* Area Inspeksi 2 Kolom Full-Height */}
                   <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
                     {/* Kolom Kiri (7 Kolom): Kanvas Denah Interaktif (Bisa Zoom In/Out & Pan) */}
-                    <div className="lg:col-span-7 flex flex-col min-h-[300px] sm:min-h-[400px] lg:min-h-0">
+                    <div className="lg:col-span-7 flex flex-col h-[400px] sm:h-[460px] lg:h-auto lg:min-h-0">
                       <PlanCanvas
                         imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
                         gridLayout={auditData.grid_layout || null}
