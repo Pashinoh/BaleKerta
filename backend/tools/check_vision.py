@@ -17,9 +17,9 @@ if not api_key:
     sys.exit(1)
 
 import google.generativeai as genai
-genai.configure(api_key=api_key)
+genai.configure(api_key=api_key, transport="rest")
 
-test_image_path = Path(__file__).resolve().parent.parent / "tests" / "samples" / "test_denah_bali.png
+test_image_path = Path(__file__).resolve().parent.parent / "tests" / "samples" / "test_denah_bali.png"
 if not test_image_path.exists():
     test_image_path = ROOT_DIR / "backend" / "tests" / "samples" / "test_denah_bali.png"
 if not test_image_path.exists():
@@ -38,11 +38,12 @@ Kembalikan HANYA JSON:
 }"""
 
 candidate_models = [
-    "gemini-3.5-flash-lite",
-    "gemini-3.5-flash",
-    "gemini-2.5-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-flash-lite-latest",
     "gemini-flash-latest",
-    "gemini-3.8-flash"
+    "gemini-3.5-flash-lite",
+    "gemini-3.6-flash",
+    "gemini-3.8-flash",
 ]
 
 print("=== PENGUJIAN MODEL GEMINI VISION ===")
@@ -58,7 +59,7 @@ for model_name in candidate_models:
             model_name=model_name,
             generation_config={"response_mime_type": "application/json", "temperature": 0.1}
         )
-        res = model.generate_content([PROMPT, img], request_options={"timeout": 30})
+        res = model.generate_content([PROMPT, img], request_options={"timeout": 12})
         latency = round(time.time() - start_t, 2)
         raw_text = res.text.strip()
         data = json.loads(raw_text)

@@ -230,16 +230,17 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
     if not settings.GEMINI_API_KEY:
         raise ValueError("GEMINI_API_KEY belum dikonfigurasi di file .env")
         
-    genai.configure(api_key=settings.GEMINI_API_KEY)
+    genai.configure(api_key=settings.GEMINI_API_KEY, transport="rest")
     
-    # Model target dengan urutan prioritas efisiensi token & kuota
+    # Model target dengan urutan prioritas kecepatan respons (latensi ~2-4s) & fallback instan
     candidate_models = [
+        "gemini-3.1-flash-lite",
+        "gemini-flash-lite-latest",
+        "gemini-flash-latest",
         settings.GEMINI_MODEL,
-        "gemini-2.5-flash-lite",
-        "gemini-2.5-flash",
         "gemini-3.5-flash-lite",
-        "gemini-3.5-flash",
-        "gemini-flash-latest"
+        "gemini-3.6-flash",
+        "gemini-3.8-flash",
     ]
     # Hapus duplikat sambil mempertahankan urutan
     seen = set()
@@ -267,7 +268,7 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
             )
             response = model.generate_content(
                 [VISION_SYSTEM_PROMPT, image],
-                request_options={"timeout": 25}
+                request_options={"timeout": 12}
             )
             if response and response.text:
                 successful_model = m_name
