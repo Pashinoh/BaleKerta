@@ -277,11 +277,10 @@ export default function KajaMap({
           ]}
           className="w-full h-full"
         >
-          {/* OpenStreetMap with Dark or Soft Light (Parchment) Filter - 100% Bebas API Key */}
+          {/* OpenStreetMap Layer (Filter dikontrol penuh oleh tema parent) */}
           <TileLayer
             key={mapTheme}
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-            className={mapTheme === "dark" ? "dark-map-tiles" : "soft-light-map-tiles"}
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
           />
 

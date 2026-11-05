@@ -51,23 +51,24 @@ body {
   box-shadow: none !important;
 }
 
-/* OpenStreetMap Dark Tiles (Native architectural dark slate, 100% Bebas API Key) */
-/* Mode Gelap (Dark Ink Slate - Kontras Tinggi, Laut Gelap Pekat Sesuai Desain Asli) */
-.dark-map-theme .leaflet-tile-pane,
-.dark-map-theme .leaflet-layer,
-.dark-map-theme .leaflet-tile,
-.dark-map-tiles {
+/* Mode Gelap (Dark Ink Slate - Diterapkan TEPAT 1x pada tile-pane) */
+.dark-map-theme .leaflet-tile-pane {
   filter: brightness(0.6) invert(100%) contrast(1.6) hue-rotate(205deg) saturate(0.2) brightness(0.7) !important;
   background-color: #0E0D0C !important;
 }
+.dark-map-theme .leaflet-layer,
+.dark-map-theme .leaflet-tile {
+  filter: none !important;
+}
 
-/* Mode Terang Lembut (Clean Light Architectural - Natural, Segar, Bebas Silau, Tanpa Efek Kuning Sepia) */
-.light-map-theme .leaflet-tile-pane,
+/* Mode Terang Lembut (Clean Light Architectural - Alami & Bebas Silau, Diterapkan TEPAT 1x) */
+.light-map-theme .leaflet-tile-pane {
+  filter: brightness(0.97) contrast(0.95) saturate(0.85) !important;
+  background-color: #FFFFFF !important;
+}
 .light-map-theme .leaflet-layer,
-.light-map-theme .leaflet-tile,
-.soft-light-map-tiles {
-  filter: brightness(0.97) contrast(0.96) saturate(0.8) !important;
-  background-color: #F8F9FA !important;
+.light-map-theme .leaflet-tile {
+  filter: none !important;
 }
 
 .leaflet-tile,
