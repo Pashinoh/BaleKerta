@@ -65,7 +65,7 @@ export const GlossarySearch: React.FC<GlossarySearchProps> = ({
       </div>
 
       {/* Group Filter */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
         {["Semua", "Arah", "9 Zona", "Bangunan", "Pedoman", "Ukuran", "Aturan"].map((grp) => {
           const isSelected = selectedGroup === grp;
           return (

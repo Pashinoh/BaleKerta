@@ -17,6 +17,7 @@ import {
   ExternalLink,
   ShieldCheck,
   Compass,
+  SlidersHorizontal,
 } from "lucide-react";
 import { GLOSSARY_TERMS, GlossaryGroup, GlossaryTerm } from "@/data/glossary";
 import { GlossaryCalculator } from "@/components/glossary/GlossaryCalculator";
@@ -49,6 +50,105 @@ export const PanduanPageClient: React.FC = () => {
 
   const detailScrollRef = useRef<HTMLDivElement>(null);
   const listScrollRef = useRef<HTMLDivElement>(null);
+
+  // Category slider interaction state & handlers
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isExpandedCategories, setIsExpandedCategories] = useState(false);
+  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
+  const dragStartX = useRef(0);
+  const dragStartScrollLeft = useRef(0);
+  const hasMovedSlider = useRef(false);
+
+  const checkSliderScroll = () => {
+    const el = sliderRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 6);
+  };
+
+  useEffect(() => {
+    checkSliderScroll();
+    const handleResize = () => checkSliderScroll();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Translate mouse wheel to horizontal slider scroll
+  const handleSliderWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (isExpandedCategories) return;
+    const el = sliderRef.current;
+    if (!el) return;
+    if (Math.abs(e.deltaY) > 0 || Math.abs(e.deltaX) > 0) {
+      const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      el.scrollLeft += delta;
+      checkSliderScroll();
+    }
+  };
+
+  // Mouse / Pointer drag handlers for silky-smooth slide
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isExpandedCategories) return;
+    const el = sliderRef.current;
+    if (!el) return;
+    setIsDraggingSlider(true);
+    hasMovedSlider.current = false;
+    dragStartX.current = e.clientX;
+    dragStartScrollLeft.current = el.scrollLeft;
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingSlider) return;
+    const el = sliderRef.current;
+    if (!el) return;
+    const diff = e.clientX - dragStartX.current;
+    if (Math.abs(diff) > 4) {
+      hasMovedSlider.current = true;
+    }
+    el.scrollLeft = dragStartScrollLeft.current - diff;
+    checkSliderScroll();
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingSlider) return;
+    setIsDraggingSlider(false);
+    const el = sliderRef.current;
+    if (el) {
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {
+        // pointer capture released automatically
+      }
+    }
+    checkSliderScroll();
+  };
+
+  const slideByAmount = (amount: number) => {
+    const el = sliderRef.current;
+    if (!el) return;
+    el.scrollBy({ left: amount, behavior: "smooth" });
+    setTimeout(checkSliderScroll, 200);
+  };
+
+  const handleCategoryClick = (
+    grp: "Semua" | GlossaryGroup,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    if (hasMovedSlider.current) {
+      return;
+    }
+    setSelectedGroup(grp);
+    if (!isExpandedCategories) {
+      e.currentTarget.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+      setTimeout(checkSliderScroll, 250);
+    }
+  };
 
   // Sync term query param in browser URL
   useEffect(() => {
@@ -334,39 +434,111 @@ export const PanduanPageClient: React.FC = () => {
                   )}
                 </div>
 
-                {/* Category Filter Pills */}
-                <div
-                  role="tablist"
-                  aria-label="Filter kategori istilah"
-                  className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"
-                >
-                  {CATEGORY_GROUPS.map((grp) => {
-                    const isSelected = selectedGroup === grp;
-                    const count = groupCounts[grp] || 0;
-                    return (
+                {/* Category Filter Bar with Smooth Sliding Controls & Wrap Toggle */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10.5px] font-mono uppercase tracking-wider text-bone-400 font-semibold">
+                      Kategori Istilah
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsExpandedCategories(!isExpandedCategories)}
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-bone-400 hover:text-bone-100 transition-colors px-1.5 py-0.5 rounded hover:bg-ink-900 border border-transparent hover:border-ink-800"
+                      title={isExpandedCategories ? "Kembali ke tampilan slider (1 baris)" : "Tampilkan semua kategori (2 baris tanpa geser)"}
+                    >
+                      {isExpandedCategories ? (
+                        <>
+                          <SlidersHorizontal size={11} />
+                          <span>Mode Geser</span>
+                        </>
+                      ) : (
+                        <>
+                          <Grid3X3 size={11} />
+                          <span>Buka Semua</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Slider or Wrap Container */}
+                  <div className="relative flex items-center gap-1">
+                    {/* Left Chevron Button (Active in slider mode) */}
+                    {!isExpandedCategories && (
                       <button
-                        key={grp}
                         type="button"
-                        onClick={() => setSelectedGroup(grp)}
-                        className={`min-h-[28px] text-[11.5px] px-2.5 py-0.5 rounded-md shrink-0 font-medium border transition-colors flex items-center gap-1.5 ${
-                          isSelected
-                            ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold shadow-sm"
-                            : "bg-ink-900 text-bone-400 border-ink-800 hover:text-bone-100 hover:bg-ink-850"
+                        disabled={!canScrollLeft}
+                        onClick={() => slideByAmount(-120)}
+                        aria-label="Geser kategori ke kiri"
+                        className={`shrink-0 w-6 h-7 rounded flex items-center justify-center border transition-all ${
+                          canScrollLeft
+                            ? "bg-ink-900 text-bone-200 border-ink-700 hover:bg-ink-800 hover:text-bone-100 cursor-pointer shadow-sm active:scale-95"
+                            : "bg-ink-950 text-ink-700 border-ink-850 cursor-not-allowed opacity-35"
                         }`}
                       >
-                        <span>{grp}</span>
-                        <span
-                          className={`text-[10px] font-mono px-1 rounded ${
-                            isSelected
-                              ? "bg-ink-950/20 text-ink-950 font-bold"
-                              : "bg-ink-950 text-bone-400"
-                          }`}
-                        >
-                          {count}
-                        </span>
+                        <ChevronLeft size={13} />
                       </button>
-                    );
-                  })}
+                    )}
+
+                    {/* Scrollable Pills Track */}
+                    <div
+                      ref={sliderRef}
+                      onWheel={handleSliderWheel}
+                      onPointerDown={handlePointerDown}
+                      onPointerMove={handlePointerMove}
+                      onPointerUp={handlePointerUp}
+                      onPointerCancel={handlePointerUp}
+                      className={`min-w-0 flex-1 ${
+                        isExpandedCategories
+                          ? "flex flex-wrap gap-1.5 pt-0.5"
+                          : "flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth select-none cursor-grab active:cursor-grabbing pb-0.5"
+                      }`}
+                    >
+                      {CATEGORY_GROUPS.map((grp) => {
+                        const isSelected = selectedGroup === grp;
+                        const count = groupCounts[grp] || 0;
+                        return (
+                          <button
+                            key={grp}
+                            type="button"
+                            onClick={(e) => handleCategoryClick(grp, e)}
+                            className={`min-h-[28px] text-[11.5px] px-2.5 py-0.5 rounded-md shrink-0 font-medium border transition-colors flex items-center gap-1.5 ${
+                              isSelected
+                                ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold shadow-sm"
+                                : "bg-ink-900 text-bone-400 border-ink-800 hover:text-bone-100 hover:bg-ink-850"
+                            }`}
+                          >
+                            <span>{grp}</span>
+                            <span
+                              className={`text-[10px] font-mono px-1 rounded ${
+                                isSelected
+                                  ? "bg-ink-950/20 text-ink-950 font-bold"
+                                  : "bg-ink-950 text-bone-400"
+                              }`}
+                            >
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Right Chevron Button (Active in slider mode) */}
+                    {!isExpandedCategories && (
+                      <button
+                        type="button"
+                        disabled={!canScrollRight}
+                        onClick={() => slideByAmount(120)}
+                        aria-label="Geser kategori ke kanan"
+                        className={`shrink-0 w-6 h-7 rounded flex items-center justify-center border transition-all ${
+                          canScrollRight
+                            ? "bg-ink-900 text-bone-200 border-ink-700 hover:bg-ink-800 hover:text-bone-100 cursor-pointer shadow-sm active:scale-95"
+                            : "bg-ink-950 text-ink-700 border-ink-850 cursor-not-allowed opacity-35"
+                        }`}
+                      >
+                        <ChevronRight size={13} />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] font-mono text-bone-400 px-0.5">
