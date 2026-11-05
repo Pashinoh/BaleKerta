@@ -1,14 +1,61 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { Sparkles, Compass, Landmark } from "lucide-react";
 
+// Types matching backend API response
+export interface SangaMandalaCell {
+  row: number;
+  col: number;
+  zone_id: string;
+  box: [number, number, number, number];
+  center: [number, number];
+}
+
+export interface SangaMandalaGrid {
+  kaja_quadrant: string;
+  plan_north_deg: number;
+  sacred_row_col: [number, number] | null;
+  lot_bounds: [number, number, number, number];
+  grid_matrix: string[][];
+  cells: SangaMandalaCell[];
+}
+
 export interface MiniZoneGridProps {
+  gridConfig?: SangaMandalaGrid | null;
+  // Legacy props for backward compatibility (deprecated)
   bearing?: number;
   cardinalDirection?: string;
-  kajaQuadrant: string;
+  kajaQuadrant?: string;
   planNorthDeg?: number;
   locationLabel?: string;
+}
+
+// Helper: cardinal direction to singular Indonesian
+function cardinalSingular(cardinal?: string): string {
+  if (!cardinal) return "Timur";
+  const map: Record<string, string> = {
+    "Timur Laut (NE)": "Timur Laut",
+    "Timur (E)": "Timur",
+    "Timur Daya (SE)": "Timur Daya",
+    "Selatan (S)": "Selatan",
+    "Barat Daya (SW)": "Barat Daya",
+    "Barat (W)": "Barat",
+    "Barat Laut (NW)": "Barat Laut",
+    "Utara (N)": "Utara",
+  };
+  return map[cardinal] || cardinal.replace(/\s*\([A-Z]{1,2}\)/, "");
+}
+
+// Helper: corner label to capitalized Indonesian
+function cornerCapitalized(corner: string): string {
+  const map: Record<string, string> = {
+    "kanan-atas": "Sudut Kanan Atas",
+    "kanan-bawah": "Sudut Kanan Bawah",
+    "kiri-bawah": "Sudut Kiri Bawah",
+    "kiri-atas": "Sudut Kiri Atas",
+  };
+  return map[corner] || corner;
 }
 
 export function sacredCornerLabel(
@@ -45,70 +92,28 @@ export function sacredCornerLabel(
   return "kiri-atas";
 }
 
-// Helper: cardinal direction to singular Indonesian
-function cardinalSingular(cardinal?: string): string {
-  if (!cardinal) return "Timur";
-  const map: Record<string, string> = {
-    "Timur Laut (NE)": "Timur Laut",
-    "Timur (E)": "Timur",
-    "Timur Daya (SE)": "Timur Daya",
-    "Selatan (S)": "Selatan",
-    "Barat Daya (SW)": "Barat Daya",
-    "Barat (W)": "Barat",
-    "Barat Laut (NW)": "Barat Laut",
-    "Utara (N)": "Utara",
-  };
-  return map[cardinal] || cardinal.replace(/\s*\([A-Z]{1,2}\)/, "");
-}
-
-// Helper: corner label to capitalized Indonesian
-function cornerCapitalized(corner: string): string {
-  const map: Record<string, string> = {
-    "kanan-atas": "Sudut Kanan Atas",
-    "kanan-bawah": "Sudut Kanan Bawah",
-    "kiri-bawah": "Sudut Kiri Bawah",
-    "kiri-atas": "Sudut Kiri Atas",
-  };
-  return map[corner] || corner;
-}
-
 export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
-  kajaQuadrant,
-  planNorthDeg = 0,
+  gridConfig,
   cardinalDirection,
 }) => {
-  // Determine sacred cell (row, col) based on quadrant and plan rotation
-  const sacredPos = useMemo(() => {
-    let baseRow = 0;
-    let baseCol = 2; // TOP_RIGHT default
+  // If gridConfig is provided (new API), use it; otherwise fall back to legacy computation
+  const sacredPos = gridConfig?.sacred_row_col 
+    ? { row: gridConfig.sacred_row_col[0], col: gridConfig.sacred_row_col[1] }
+    : { row: 0, col: 2 };
 
-    if (kajaQuadrant === "BOTTOM_RIGHT") {
-      baseRow = 2;
-      baseCol = 2;
-    } else if (kajaQuadrant === "TOP_LEFT") {
-      baseRow = 0;
-      baseCol = 0;
-    } else if (kajaQuadrant === "BOTTOM_LEFT") {
-      baseRow = 2;
-      baseCol = 0;
-    }
+  const cells = gridConfig?.cells || [];
+  const cornerLabel = gridConfig?.sacred_row_col 
+    ? (() => {
+        const [r, c] = gridConfig.sacred_row_col;
+        if (r === 0 && c === 2) return "kanan-atas";
+        if (r === 2 && c === 2) return "kanan-bawah";
+        if (r === 2 && c === 0) return "kiri-bawah";
+        return "kiri-atas";
+      })()
+    : "kanan-atas";
 
-    // Rotate matrix (steps of 90 deg clockwise)
-    const steps = (Math.floor(planNorthDeg) / 90) % 4;
-    let r = baseRow;
-    let c = baseCol;
-    for (let i = 0; i < steps; i++) {
-      const nextR = c;
-      const nextC = 2 - r;
-      r = nextR;
-      c = nextC;
-    }
-    return { row: r, col: c };
-  }, [kajaQuadrant, planNorthDeg]);
-
-  const cornerLabel = sacredCornerLabel(kajaQuadrant, planNorthDeg);
-  const cardSingular = cardinalSingular(cardinalDirection);
   const cornerCap = cornerCapitalized(cornerLabel);
+  const cardSingular = cardinalSingular(cardinalDirection);
 
   return (
     <div className="space-y-2.5">
@@ -119,6 +124,10 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
             const isSacred = r === sacredPos.row && c === sacredPos.col;
             const isCenter = r === 1 && c === 1;
             const isMadya = isCenter || (r === 1 && c !== 1) || (c === 1 && r !== 1);
+
+            // Find cell data from API if available
+            const cellData = cells.find(cell => cell.row === r && cell.col === c);
+            const zoneId = cellData?.zone_id;
 
             let cellClass =
               "flex flex-col items-center justify-center p-1 rounded text-center transition-colors border ";
@@ -152,6 +161,12 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
                     </span>
                     <span className="text-[10px] text-bone-400 font-mono">
                       (Halaman)
+                    </span>
+                  </>
+                ) : zoneId ? (
+                  <>
+                    <span className="text-[11px] font-medium leading-tight">
+                      {zoneId.replace("_", " ")}
                     </span>
                   </>
                 ) : (

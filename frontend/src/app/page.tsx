@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { Stepper } from "@/components/layout/Stepper";
 import { StickyControlDock } from "@/components/layout/StickyControlDock";
 import { GlossaryDrawer } from "@/components/glossary/GlossaryDrawer";
-import { MiniZoneGrid, sacredCornerLabel } from "@/components/map/MiniZoneGrid";
+import { MiniZoneGrid, sacredCornerLabel, type SangaMandalaGrid } from "@/components/map/MiniZoneGrid";
 import { SampleList, PRESET_OPTIONS } from "@/components/plan/SampleList";
 import { UploadBox } from "@/components/plan/UploadBox";
 import { OrientationPicker } from "@/components/plan/OrientationPicker";
@@ -135,6 +135,9 @@ export default function Home() {
   const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
   const [apiOnline, setApiOnline] = useState<boolean>(true);
 
+  // State grid Sanga Mandala (dari API backend)
+  const [gridConfig, setGridConfig] = useState<SangaMandalaGrid | null>(null);
+
   // Animasi transisi step menggunakan Anime.js
   const handleStepChange = (newStep: number, direction: "forward" | "backward" = "forward") => {
     setStep(newStep);
@@ -213,6 +216,19 @@ export default function Home() {
       { timeout: 8000 }
     );
   }, [handleLocationChange]);
+
+  // Fetch grid config Sanga Mandala dari backend saat kajaData berubah
+  useEffect(() => {
+    if (!kajaData.kaja_quadrant) return;
+    const params = new URLSearchParams({
+      kaja_quadrant: kajaData.kaja_quadrant,
+      plan_north_deg: planNorthDeg.toString(),
+    });
+    fetch(`/api/sanga-mandala-grid?${params}`)
+      .then((res) => res.json())
+      .then((data) => setGridConfig(data))
+      .catch(() => setGridConfig(null));
+  }, [kajaData.kaja_quadrant, planNorthDeg]);
 
   // 3. Handle pemilihan berkas
   const handleFileChange = (file: File | null) => {
@@ -431,7 +447,7 @@ export default function Home() {
                 {/* Grid 3×3 dan Penjelasan */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
                   <div>
-                    <MiniZoneGrid kajaQuadrant={kajaData.kaja_quadrant} />
+                    <MiniZoneGrid gridConfig={gridConfig} cardinalDirection={kajaData.cardinal_direction} />
                   </div>
                   <div className="space-y-4 bg-ink-950 p-5 rounded-xl border border-ink-700">
                     <h4 className="text-[14px] font-semibold text-bone-100 flex items-center gap-2">
