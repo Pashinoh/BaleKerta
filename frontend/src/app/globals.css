@@ -238,69 +238,51 @@ html.light {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 10mm;
+    margin: 10mm 12mm;
   }
 
   html,
   html.dark,
   html.light,
-  body {
+  body,
+  #app-root {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    color: #141210 !important;
+    color: #18181B !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    min-height: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  header,
-  nav,
-  main,
-  footer,
-  aside,
+  #app-header,
+  #app-main-workspace,
   .no-print {
     display: none !important;
-    visibility: hidden !important;
   }
 
-  #printable-report-wrapper {
+  #printable-report-modal,
+  #printable-report-card,
+  #printable-report-scroll {
     position: static !important;
     display: block !important;
     visibility: visible !important;
     width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #FFFFFF !important;
-    overflow: visible !important;
-    box-shadow: none !important;
-    border: none !important;
-  }
-
-  #printable-report-card {
-    position: static !important;
-    display: block !important;
-    width: 100% !important;
     max-width: 100% !important;
+    height: auto !important;
     max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #FFFFFF !important;
-    border: none !important;
+    background-color: #FFFFFF !important;
+    overflow: visible !important;
     box-shadow: none !important;
-    overflow: visible !important;
-  }
-
-  #printable-report-body {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-height: none !important;
-    background: #FFFFFF !important;
-    overflow: visible !important;
+    border: none !important;
   }
 
   #printable-report-sheet {
@@ -309,9 +291,11 @@ html.light {
     margin: 0 !important;
     padding: 0 !important;
     border: none !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     background: #FFFFFF !important;
-    color: #141210 !important;
+    background-color: #FFFFFF !important;
+    color: #18181B !important;
   }
 
   .print-avoid-break {

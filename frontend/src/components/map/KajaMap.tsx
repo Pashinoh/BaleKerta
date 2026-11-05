@@ -81,6 +81,13 @@ function MapEvents({
 function MapFlyTo({ lat, lon }: { lat: number; lon: number }) {
   const map = useMap();
   useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [map]);
+
+  useEffect(() => {
     map.panTo([lat, lon], { animate: true, duration: 0.4 });
   }, [lat, lon, map]);
   return null;
@@ -110,11 +117,11 @@ export const KajaMap: React.FC<KajaMapProps> = ({
   const midLon = (lon + MOUNT_AGUNG.lon) / 2;
 
   return (
-    <div className={`space-y-2.5 ${className}`}>
+    <div className={`relative w-full h-full min-h-[380px] flex flex-col ${className}`}>
       {outOfBoundsNotice && (
         <div
           role="alert"
-          className="flex items-center justify-between p-3 bg-ink-900 border border-clay/60 text-clay rounded-lg text-[13px]"
+          className="absolute top-3 left-14 right-3 z-20 flex items-center justify-between p-2.5 bg-ink-900/95 border border-clay text-clay rounded-lg text-[12.5px] shadow-lg"
         >
           <div className="flex items-center gap-2">
             <AlertCircle size={15} className="shrink-0" />
@@ -125,7 +132,7 @@ export const KajaMap: React.FC<KajaMapProps> = ({
           <button
             type="button"
             onClick={() => setOutOfBoundsNotice(false)}
-            className="min-w-[32px] min-h-[32px] flex items-center justify-center text-bone-400 hover:text-bone-100 rounded transition-colors"
+            className="min-w-[28px] min-h-[28px] flex items-center justify-center text-bone-400 hover:text-bone-100 rounded transition-colors"
             aria-label="Tutup peringatan batas wilayah"
           >
             <X size={14} />
@@ -135,7 +142,7 @@ export const KajaMap: React.FC<KajaMapProps> = ({
 
       {/* Map Frame */}
       <div
-        className={`relative w-full h-[420px] sm:h-[450px] rounded-xl overflow-hidden border border-ink-800 ${
+        className={`relative flex-1 w-full h-full overflow-hidden ${
           isLight
             ? "light-map-theme bg-[#CFC8B8]"
             : "dark-map-theme bg-[#1A1C1E]"

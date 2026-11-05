@@ -83,10 +83,10 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
 
   return (
     <div
-      className={`rounded-xl border border-ink-800 bg-ink-900 overflow-hidden flex flex-col ${className}`}
+      className={`rounded-xl border border-ink-800 bg-ink-900 overflow-hidden flex flex-col h-full min-h-[380px] ${className}`}
     >
       {/* Minimalist Canvas Header */}
-      <div className="px-4 py-2.5 border-b border-ink-800 flex items-center justify-between gap-2 bg-ink-900">
+      <div className="shrink-0 px-4 py-2 border-b border-ink-800 flex items-center justify-between gap-2 bg-ink-900">
         <div className="flex items-center gap-2 text-[12px] font-mono text-bone-300">
           <Compass size={14} className="text-bone-400" />
           <span>Kaja: {kajaBearing.toFixed(1)}° ({kajaDirection})</span>
@@ -97,7 +97,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
             type="button"
             onClick={() => setShowGrid(!showGrid)}
             aria-pressed={showGrid}
-            className={`min-h-[30px] px-2.5 py-1 rounded-md text-[11.5px] font-mono flex items-center gap-1.5 border transition-colors ${
+            className={`min-h-[28px] px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1.5 border transition-colors ${
               showGrid
                 ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
                 : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
@@ -111,7 +111,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
             type="button"
             onClick={() => setShowLabels(!showLabels)}
             aria-pressed={showLabels}
-            className={`min-h-[30px] px-2.5 py-1 rounded-md text-[11.5px] font-mono flex items-center gap-1.5 border transition-colors ${
+            className={`min-h-[28px] px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1.5 border transition-colors ${
               showLabels
                 ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
                 : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
@@ -123,14 +123,14 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
         </div>
       </div>
 
-      {/* Main Viewport */}
+      {/* Main Viewport (Fills remaining flex height!) */}
       <div
-        className={`relative w-full h-[420px] sm:h-[460px] flex items-center justify-center p-4 sm:p-6 select-none overflow-hidden transition-colors duration-200 ${
+        className={`relative flex-1 min-h-0 w-full flex items-center justify-center p-4 sm:p-5 select-none overflow-hidden transition-colors duration-200 ${
           isPaper ? "bg-[#E6DEC8]" : "bg-[#0E0D0C]"
         }`}
       >
         <div
-          className={`relative w-full h-full max-w-[680px] max-h-[440px] rounded-lg overflow-hidden transition-colors duration-200 ${
+          className={`relative w-full h-full rounded-lg overflow-hidden transition-colors duration-200 ${
             isPaper
               ? "bg-[#FAF6EE] border border-[#C4B9A5] shadow-sm"
               : "bg-[#161412] border border-[#2C2825]"
@@ -361,7 +361,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
       </div>
 
       {/* Minimalist Legend Footer */}
-      <div className="px-4 py-2 border-t border-ink-800 bg-ink-900 flex items-center justify-between text-[11px] font-mono text-bone-400">
+      <div className="shrink-0 px-4 py-1.5 border-t border-ink-800 bg-ink-900 flex items-center justify-between text-[11px] font-mono text-bone-400">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm bg-bone-100/30 border border-bone-100 inline-block" />

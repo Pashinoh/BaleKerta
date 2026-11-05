@@ -31,13 +31,13 @@ export interface MiniZoneGridProps {
 
 const SHORT_ROLE_MAP: Record<string, string> = {
   UTAMANING_UTAMA: "Sanggah / Suci",
-  MADYANING_UTAMA: "Bale Daja (Tidur)",
-  NISTANING_UTAMA: "Dapur / Lumbung",
-  UTAMANING_MADYA: "Bale Dangin (Adat)",
-  MADYANING_MADYA: "Natah (Tengah)",
-  NISTANING_MADYA: "Bale Dauh (Tamu)",
+  MADYANING_UTAMA: "Bale Daja",
+  NISTANING_UTAMA: "Dapur / Sumur",
+  UTAMANING_MADYA: "Bale Dangin",
+  MADYANING_MADYA: "Natah (Pusat)",
+  NISTANING_MADYA: "Bale Dauh",
   UTAMANING_NISTA: "Bale Delod",
-  MADYANING_NISTA: "Lebuh (Pintu Masuk)",
+  MADYANING_NISTA: "Lebuh / Pintu",
   NISTANING_NISTA: "Teba / Sanitasi",
 };
 
@@ -83,19 +83,19 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
   );
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       <div className="flex items-center justify-between">
-        <span className="text-[12px] font-mono uppercase tracking-wider text-bone-400">
+        <span className="text-[11px] font-mono uppercase tracking-wider text-bone-400">
           Matriks 9 Zona Sanga Mandala
         </span>
-        <span className="text-[12px] font-mono text-bone-300 flex items-center gap-1">
-          <Compass size={13} className="text-bone-400" />
+        <span className="text-[11px] font-mono text-bone-300 flex items-center gap-1">
+          <Compass size={12} className="text-bone-400" />
           <span>Kaja: {cardinalDirection}</span>
         </span>
       </div>
 
       {/* 3x3 Grid */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5">
         {sortedCells.map((cell) => {
           const isMostSacred = cell.zone_id === "UTAMANING_UTAMA";
           const isMostProfane = cell.zone_id === "NISTANING_NISTA";
@@ -105,7 +105,7 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
           return (
             <div
               key={`${cell.row}-${cell.col}`}
-              className={`p-3 rounded-lg border flex flex-col justify-between min-h-[76px] transition-colors ${
+              className={`p-2.5 rounded-lg border flex flex-col justify-between min-h-[60px] transition-colors ${
                 isMostSacred
                   ? "bg-bone-100 text-ink-950 border-bone-100 shadow-sm"
                   : isMostProfane
@@ -117,17 +117,17 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
             >
               <div className="flex items-center justify-between gap-1">
                 <span
-                  className={`text-[12px] font-bold leading-tight ${
+                  className={`text-[11.5px] font-bold leading-tight ${
                     isMostSacred ? "text-ink-950" : "text-bone-100"
                   }`}
                 >
                   {cell.balinese_name}
                 </span>
-                {isMostSacred && <Landmark size={13} className="text-ink-950 shrink-0" />}
+                {isMostSacred && <Landmark size={12} className="text-ink-950 shrink-0" />}
               </div>
 
               <span
-                className={`text-[11px] leading-snug mt-1 ${
+                className={`text-[10.5px] leading-tight mt-1 ${
                   isMostSacred
                     ? "text-ink-900 font-medium"
                     : isMostProfane

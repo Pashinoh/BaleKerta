@@ -23,68 +23,66 @@ export const Verdict: React.FC<VerdictProps> = ({
 
   return (
     <div
-      className={`p-5 sm:p-6 rounded-xl border bg-ink-900 ${
+      className={`px-4 py-3 rounded-xl border bg-ink-900 ${
         isPass ? "border-ink-800" : "border-clay/50"
       } ${className}`}
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         {/* Left: Status & Conclusion */}
-        <div className="space-y-2 max-w-xl">
-          <div className="inline-flex items-center gap-2">
-            {isPass ? (
-              <CheckCircle2 size={17} className="text-emerald-500 shrink-0" />
-            ) : (
-              <AlertCircle size={17} className="text-clay shrink-0" />
-            )}
-            <span
-              className={`text-[11.5px] font-mono uppercase tracking-wider font-semibold ${
-                isPass ? "text-bone-200" : "text-clay"
-              }`}
-            >
-              {isPass ? "Memenuhi Kepatuhan Adat" : `${violationsCount} Temuan Perlu Penyesuaian`}
-            </span>
+        <div className="flex items-center gap-3 min-w-0">
+          {isPass ? (
+            <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
+          ) : (
+            <AlertCircle size={20} className="text-clay shrink-0" />
+          )}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className={`text-[11px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded border ${
+                  isPass
+                    ? "bg-ink-950 text-bone-100 border-ink-700"
+                    : "bg-clay/10 text-clay border-clay/40"
+                }`}
+              >
+                {isPass ? "Layak Aju PBG" : `${violationsCount} Temuan Revisi`}
+              </span>
+              <h2 className="text-[15px] sm:text-[16px] font-bold text-bone-100 truncate">
+                {isPass
+                  ? "Denah mematuhi pakem tata ruang Sanga Mandala."
+                  : "Terdapat ruang yang belum selaras dengan hierarki Sanga Mandala."}
+              </h2>
+            </div>
           </div>
-
-          <h2 className="text-[19px] sm:text-[21px] font-bold text-bone-100 leading-snug tracking-tight">
-            {isPass
-              ? "Denah mematuhi pakem tata ruang Sanga Mandala & layak diajukan PBG."
-              : "Terdapat penempatan ruang yang belum selaras dengan hierarki Sanga Mandala."}
-          </h2>
         </div>
 
         {/* Right: Metrics & Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-5 lg:gap-6 shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-ink-800">
-          <div className="flex items-center gap-6">
-            <div>
-              <span className="text-[11px] font-mono text-bone-400 block">
-                Skor Kepatuhan
-              </span>
-              <span className="text-[22px] font-bold font-mono text-bone-100 tabular-nums">
+        <div className="flex items-center justify-between lg:justify-end gap-4 sm:gap-5 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[11px] font-mono text-bone-400">Skor:</span>
+              <span className="text-[17px] font-bold font-mono text-bone-100 tabular-nums">
                 {report.compliance_score}
-                <span className="text-[13px] text-bone-400 font-normal">/100</span>
+                <span className="text-[11.5px] text-bone-400 font-normal">/100</span>
               </span>
             </div>
 
-            <div className="h-8 w-px bg-ink-800" />
+            <div className="h-4 w-px bg-ink-800" />
 
-            <div>
-              <span className="text-[11px] font-mono text-bone-400 block">
-                Estimasi KDB
-              </span>
-              <span className="text-[22px] font-bold font-mono text-bone-100 tabular-nums">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[11px] font-mono text-bone-400">KDB:</span>
+              <span className="text-[17px] font-bold font-mono text-bone-100 tabular-nums">
                 {report.kdb_percentage}%
-                <span className="text-[12px] text-bone-400 font-normal ml-1">(≤60%)</span>
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {onEditPlan && (
               <Button
                 variant="secondary"
-                size="md"
+                size="sm"
                 onClick={onEditPlan}
-                icon={<ArrowLeft size={14} />}
+                icon={<ArrowLeft size={13} />}
               >
                 Ubah Denah
               </Button>
@@ -92,11 +90,11 @@ export const Verdict: React.FC<VerdictProps> = ({
             {onPrintReport && (
               <Button
                 variant="primary"
-                size="md"
+                size="sm"
                 onClick={onPrintReport}
-                icon={<Printer size={15} />}
+                icon={<Printer size={14} />}
               >
-                Laporan PDF
+                Cetak PDF
               </Button>
             )}
           </div>
