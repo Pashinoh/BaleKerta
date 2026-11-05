@@ -35,11 +35,12 @@ def enrich_bare_room_name(name: str, rtype: str) -> str:
         return f"Kode {cleaned} ({label})"
     return cleaned
 
-def get_image_hash(image_bytes: bytes) -> str:
-    """Menghitung SHA256 hash dari data byte gambar untuk keperluan caching."""
-    return hashlib.sha256(image_bytes).hexdigest()
+def get_image_hash(image_bytes: bytes, model_name: str = "") -> str:
+    """Menghitung SHA256 hash dari data byte gambar (+ model name) untuk keperluan caching."""
+    payload = image_bytes + model_name.encode()
+    return hashlib.sha256(payload).hexdigest()
 
-def check_cache(image_hash: str) -> Optional[Dict[str, Any]]:
+def check_cache(image_hash: str, model_name: str = "") -> Optional[Dict[str, Any]]:
     """
     Mengecek apakah hasil ekstraksi AI gambar sudah tersimpan di cache.
     Hanya mengembalikan cache jika berasal dari AI valid (bukan mock/fallback).
@@ -100,8 +101,8 @@ Kembalikan HANYA format JSON valid tanpa backtick markdown dengan skema:
 }
 
 PANDUAN PEMETAAN TIPE RUANGAN (Mendukung sinonim bahasa Indonesia, Bali, dan Inggris):
-- pemerajan_sanggah: Sanggah, Pemerajan, Merajan, Mrajan, Pura, Altar, Pelangkiran, Shrine, Tempat Sembahyang (Kecuali jika berlabel Taman/Kebun).
-- taman: Taman, Kebun, Garden, Landscape, Lanskap, Kolam, RTH, Green Area, Taman Suci, Taman Depan, Taman Belakang.
+- pemerajan_sanggah: Sanggah, Pemerajan, Merajan, Mrajan, Pura, Altar, Pelangkiran, Shrine, Tempat Sembahyang, Parahyangan (Kecuali jika berlabel Taman/Kebun).
+- taman: Taman, Kebun, Garden, Landscape, Lanskap, Kolam, RTH, Green Area, Taman Suci, Taman Depan, Taman Belakang, Telajakan, Teba, Sawah, Penyengker.
 - natah_open_space: Natah, Halaman Tengah, Courtyard, Open Space, Plaza Tengah, Atrium.
 - bale_daja: Kamar Tidur Utama, Master Bedroom, Bale Daja, Gedong Meten, Bale Meten, Kamar Orang Tua, K. Utama, Ruang Tidur Utama.
 - bale_dangin: Bale Dangin, Bale Gede, Bale Upacara, Bale Yadnya, Paviliun Timur, Bale Adat.
@@ -109,8 +110,8 @@ PANDUAN PEMETAAN TIPE RUANGAN (Mendukung sinonim bahasa Indonesia, Bali, dan Ing
 - kamar_tidur: Kamar Tidur, Bedroom, K. Tidur, Kamar Anak, Guest Room, Ruang Tidur 2, Ruang Tidur 3.
 - dapur_paon: Dapur, Paon, Pawon, Kitchen, Pantry, Area Masak.
 - toilet: Toilet, Kamar Mandi, KM, WC, KM/WC, Bathroom, Restroom, Powder Room, Lavatory, Septic Tank.
-- angkul_angkul_pintu: Angkul-angkul, Kori, Gerbang, Gate, Pintu Masuk, Aling-aling, Portal, Entrance.
-- ruang_tamu: Bale Delod, Jineng, Lumbung, Klumpu, Ruang Tamu, Living Room, Gudang, Teras.
+- angkul_angkul_pintu: Angkul-angkul, Kori, Gerbang, Gate, Pintu Masuk, Aling-aling, Kulkul, Portal, Entrance.
+- ruang_tamu: Bale Delod, Jineng, Lumbung, Klumpu, Ruang Tamu, Living Room, Gudang, Teras, Bale Bengong, Sikut.
 - garasi: Garasi, Garage, Carport, Area Parkir.
 
 PENTING:
@@ -306,9 +307,12 @@ async def parse_floor_plan_image(image_bytes: bytes) -> Dict[str, Any]:
     3. Simpan hasil AI ke cache
     CATATAN INTEGRITAS: TIDAK ADA DATA MOCK / FALLBACK PALSU DI SINI.
     """
+    # Note: model name will be determined after successful AI call
+    # For cache check, we check without model first (backward compat)
+    # Then we use model-specific cache for subsequent calls
     img_hash = get_image_hash(image_bytes)
     
-    # 1. Cek Cache Asli
+    # 1. Cek Cache Asli (try without model first for backward compat)
     cached = check_cache(img_hash)
     if cached:
         return {
@@ -321,8 +325,9 @@ async def parse_floor_plan_image(image_bytes: bytes) -> Dict[str, Any]:
     # 2. Panggil AI secara nyata (threadpool: panggilan sinkron jangan blokir event loop)
     successful_model, rooms = await asyncio.to_thread(call_gemini_vision, image_bytes)
     
-    # 3. Simpan cache hasil AI yang valid
-    save_cache(img_hash, successful_model, rooms)
+    # 3. Simpan cache hasil AI yang valid (with model-specific hash)
+    model_specific_hash = get_image_hash(image_bytes, successful_model)
+    save_cache(model_specific_hash, successful_model, rooms)
     
     return {
         "source": f"ai:{successful_model}",
