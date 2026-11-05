@@ -224,7 +224,7 @@ export default function KajaMap({
       */}
       <div
         className={`relative w-full h-[400px] sm:h-[460px] lg:h-[490px] rounded-lg overflow-hidden border border-ink-700 isolate z-0 shadow-sm transition-colors ${
-          mapTheme === "light" ? "bg-[#EDE7DA] light-map-theme" : "bg-ink-950 dark-map-theme"
+          mapTheme === "light" ? "bg-[#F8F9FA] light-map-theme" : "bg-ink-950 dark-map-theme"
         }`}
         style={{ isolation: "isolate" }}
         onClick={() => setScrollActive(true)}
@@ -336,7 +336,7 @@ export default function KajaMap({
               [MOUNT_AGUNG.lat, MOUNT_AGUNG.lon],
             ]}
             pathOptions={{
-              color: mapTheme === "light" ? "#B44C28" : "#EDE7DA",
+              color: mapTheme === "light" ? "#C85A38" : "#EDE7DA",
               weight: 2.5,
               dashArray: "6, 6",
               opacity: 0.95,
