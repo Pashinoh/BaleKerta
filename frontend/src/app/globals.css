@@ -52,14 +52,20 @@ body {
 }
 
 /* OpenStreetMap Dark Tiles (Native architectural dark slate, 100% Bebas API Key) */
-.dark-map-tiles .leaflet-tile-pane {
-  filter: brightness(0.72) invert(100%) contrast(1.25) saturate(0.25) hue-rotate(185deg);
+.dark-map-theme .leaflet-tile-pane,
+.dark-map-theme .leaflet-layer,
+.dark-map-theme .leaflet-tile,
+.dark-map-tiles {
+  filter: brightness(0.72) invert(100%) contrast(1.25) saturate(0.25) hue-rotate(185deg) !important;
   background-color: #0E0D0C !important;
 }
 
 /* OpenStreetMap Soft Light Tiles (Architectural Parchment - Muted Warm, Bebas Silau, 100% Bebas API Key) */
-.soft-light-map-tiles .leaflet-tile-pane {
-  filter: brightness(0.94) contrast(0.92) saturate(0.55) sepia(0.14);
+.light-map-theme .leaflet-tile-pane,
+.light-map-theme .leaflet-layer,
+.light-map-theme .leaflet-tile,
+.soft-light-map-tiles {
+  filter: brightness(0.94) contrast(0.92) saturate(0.55) sepia(0.14) !important;
   background-color: #EDE7DA !important;
 }
 

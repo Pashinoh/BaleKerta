@@ -145,18 +145,25 @@ export default function KajaMap({
   const markerRef = useRef<L.Marker>(null);
 
   // Map theme state: "dark" (default) or "light" (parchment - non glaring)
-  const [mapTheme, setMapTheme] = useState<"dark" | "light">(() => {
-    if (typeof window !== "undefined") {
+  const [mapTheme, setMapTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    try {
       const saved = localStorage.getItem("balekerta_map_theme");
-      if (saved === "light" || saved === "dark") return saved;
+      if (saved === "light" || saved === "dark") {
+        setMapTheme(saved);
+      }
+    } catch {
+      // ignore
     }
-    return "dark";
-  });
+  }, []);
 
   const handleThemeToggle = (theme: "dark" | "light") => {
     setMapTheme(theme);
-    if (typeof window !== "undefined") {
+    try {
       localStorage.setItem("balekerta_map_theme", theme);
+    } catch {
+      // ignore
     }
   };
 
@@ -217,37 +224,43 @@ export default function KajaMap({
       */}
       <div
         className={`relative w-full h-[400px] sm:h-[460px] lg:h-[490px] rounded-lg overflow-hidden border border-ink-700 isolate z-0 shadow-sm transition-colors ${
-          mapTheme === "light" ? "bg-[#EDE7DA]" : "bg-ink-950"
+          mapTheme === "light" ? "bg-[#EDE7DA] light-map-theme" : "bg-ink-950 dark-map-theme"
         }`}
         style={{ isolation: "isolate" }}
         onClick={() => setScrollActive(true)}
       >
         {/* Floating Theme Switcher Toggle (Gelap / Terang Lembut) */}
-        <div className="absolute top-3 right-3 z-[400] flex items-center bg-ink-950/95 backdrop-blur-md border border-ink-700 rounded-lg p-1 shadow-lg">
+        <div className="absolute top-3 right-3 z-[500] flex items-center bg-ink-950/95 backdrop-blur-md border border-ink-700 rounded-lg p-1 shadow-lg pointer-events-auto">
           <button
             type="button"
-            onClick={() => handleThemeToggle("dark")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono rounded-md transition-all ${
+            onClick={(e) => {
+              e.stopPropagation();
+              handleThemeToggle("dark");
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-mono rounded-md transition-all cursor-pointer ${
               mapTheme === "dark"
-                ? "bg-ink-800 text-bone-100 border border-ink-600 shadow-sm font-semibold"
-                : "text-bone-400 hover:text-bone-200"
+                ? "bg-ink-800 text-bone-100 border border-ink-500 shadow-sm font-semibold"
+                : "text-bone-400 hover:text-bone-100 hover:bg-ink-900"
             }`}
             title="Mode Peta Gelap (Ink Dark)"
           >
-            <Moon size={12} className={mapTheme === "dark" ? "text-bone-100" : "text-bone-400"} />
+            <Moon size={13} className={mapTheme === "dark" ? "text-bone-100" : "text-bone-400"} />
             <span>Gelap</span>
           </button>
           <button
             type="button"
-            onClick={() => handleThemeToggle("light")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono rounded-md transition-all ${
+            onClick={(e) => {
+              e.stopPropagation();
+              handleThemeToggle("light");
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-mono rounded-md transition-all cursor-pointer ${
               mapTheme === "light"
                 ? "bg-bone-100 text-ink-950 border border-bone-300 font-bold shadow-sm"
-                : "text-bone-400 hover:text-bone-200"
+                : "text-bone-400 hover:text-bone-100 hover:bg-ink-900"
             }`}
             title="Mode Peta Terang Lembut (Parchment - Muted Warm, Bebas Silau)"
           >
-            <Sun size={12} className={mapTheme === "light" ? "text-ink-950" : "text-bone-400"} />
+            <Sun size={13} className={mapTheme === "light" ? "text-ink-950" : "text-bone-400"} />
             <span>Terang</span>
           </button>
         </div>
