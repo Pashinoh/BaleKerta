@@ -65,7 +65,7 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="no-print fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 transition-opacity"

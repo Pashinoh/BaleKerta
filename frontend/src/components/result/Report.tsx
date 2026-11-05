@@ -106,32 +106,32 @@ export const Report: React.FC<ReportProps> = ({
         className="relative w-full max-w-4xl bg-ink-900 border border-ink-800 rounded-xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col print:max-w-none print:max-h-none print:border-none print:shadow-none print:rounded-none print:bg-white print:block"
       >
         {/* Top Action Bar (Screen Only) */}
-        <div className="no-print px-5 py-3 border-b border-ink-800 bg-ink-950 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span className="text-[14px] font-semibold text-bone-100">
-              Pratinjau Lembar Evaluasi PBG (1 Halaman A4)
+        <div className="no-print px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-ink-800 bg-ink-950 flex items-center justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[13px] sm:text-[14px] font-semibold text-bone-100 truncate">
+              Pratinjau Lembar Evaluasi PBG (A4)
             </span>
-            <span className="hidden sm:inline-block text-[11px] font-mono px-2 py-0.5 rounded bg-ink-900 text-bone-400 border border-ink-800">
-              Siap Cetak / Simpan PDF
+            <span className="hidden md:inline-block text-[11px] font-mono px-2 py-0.5 rounded bg-ink-900 text-bone-400 border border-ink-800 shrink-0">
+              Siap Cetak 1 Halaman
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={() => window.print()}
-              className="min-h-[36px] px-4 py-1.5 rounded-lg bg-bone-100 text-ink-950 hover:bg-bone-200 font-semibold text-[13px] inline-flex items-center gap-2 transition-colors shadow-sm"
+              className="min-h-[34px] sm:min-h-[36px] px-3 sm:px-4 py-1.5 rounded-lg bg-bone-100 text-ink-950 hover:bg-bone-200 font-semibold text-[12px] sm:text-[13px] inline-flex items-center gap-1.5 sm:gap-2 transition-colors shadow-sm"
             >
-              <Printer size={15} />
-              <span>Cetak / Simpan PDF</span>
+              <Printer size={14} />
+              <span>Cetak PDF</span>
             </button>
             <button
               type="button"
               onClick={onClose}
               aria-label="Tutup pratinjau"
-              className="min-w-[36px] min-h-[36px] rounded-lg border border-ink-800 bg-ink-900 text-bone-400 hover:text-bone-100 flex items-center justify-center transition-colors"
+              className="min-w-[34px] min-h-[34px] sm:min-w-[36px] sm:min-h-[36px] rounded-lg border border-ink-800 bg-ink-900 text-bone-400 hover:text-bone-100 flex items-center justify-center transition-colors"
             >
-              <X size={18} />
+              <X size={17} />
             </button>
           </div>
         </div>
@@ -141,27 +141,27 @@ export const Report: React.FC<ReportProps> = ({
         {/* ================================================================ */}
         <div
           id="printable-report-scroll"
-          className="flex-1 overflow-y-auto p-4 sm:p-6 bg-ink-950 print:p-0 print:bg-white print:overflow-visible"
+          className="flex-1 overflow-y-auto p-2.5 sm:p-6 bg-ink-950 print:p-0 print:bg-white print:overflow-visible"
         >
           <div
             id="printable-report-sheet"
-            className="mx-auto max-w-[210mm] bg-[#FFFFFF] text-[#18181B] rounded-lg shadow-lg p-6 sm:p-8 space-y-4 font-sans"
+            className="mx-auto max-w-[210mm] bg-[#FFFFFF] text-[#18181B] rounded-lg shadow-lg p-4 sm:p-8 space-y-4 font-sans"
           >
             {/* 1. DOCUMENT HEADER (Strict 2-Column Grid so Left & Right never collide) */}
-            <div className="grid grid-cols-12 gap-4 items-end pb-3 border-b-2 border-[#18181B]">
-              <div className="col-span-8 space-y-0.5">
+            <div className="grid grid-cols-12 gap-2 sm:gap-4 items-end pb-3 border-b-2 border-[#18181B]">
+              <div className="col-span-12 sm:col-span-8 print:col-span-8 space-y-0.5">
                 <div className="text-[9.5px] font-mono uppercase tracking-widest text-[#52525B] font-bold">
                   BALEKERTA · SISTEM EVALUASI TATA RUANG ADAT BALI
                 </div>
-                <h1 className="text-[17px] sm:text-[18px] font-bold tracking-tight text-[#18181B] leading-snug">
+                <h1 className="text-[15px] sm:text-[18px] print:text-[18px] font-bold tracking-tight text-[#18181B] leading-snug">
                   Berita Acara Evaluasi Kepatuhan Sanga Mandala (PBG)
                 </h1>
-                <p className="text-[10.5px] text-[#52525B] leading-tight">
+                <p className="text-[10px] sm:text-[10.5px] text-[#52525B] leading-tight">
                   Lampiran Verifikasi Teknis Berdasarkan Perda Provinsi Bali No. 5 Tahun 2005 &amp; Pakem Asta Bumi
                 </p>
               </div>
 
-              <div className="col-span-4 text-right font-mono text-[10px] text-[#52525B] space-y-0.5">
+              <div className="col-span-12 sm:col-span-4 print:col-span-4 sm:text-right print:text-right font-mono text-[10px] text-[#52525B] space-y-0.5 pt-1 sm:pt-0 border-t sm:border-t-0 border-[#E4E4E7] print:border-t-0">
                 <div className="font-bold text-[#18181B] text-[10.5px]">{docNumber}</div>
                 <div>Tanggal: {currentDate}</div>
                 <div className="truncate" title={regionLabel}>
@@ -173,7 +173,7 @@ export const Report: React.FC<ReportProps> = ({
             {/* 2. UNIFIED 2-ROW EXECUTIVE SUMMARY & GEODESIC METADATA */}
             <div className="rounded-lg border border-[#D4D4D8] overflow-hidden print-avoid-break">
               {/* Top Row: 4 Key Verdict Metrics */}
-              <div className="grid grid-cols-4 divide-x divide-[#D4D4D8] bg-[#F8FAFC]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 print:grid-cols-4 divide-x divide-y sm:divide-y-0 print:divide-y-0 divide-[#D4D4D8] bg-[#F8FAFC]">
                 <div className="p-2.5">
                   <span className="text-[9px] font-mono uppercase tracking-wider text-[#64748B] block">
                     Status Kelayakan
@@ -227,7 +227,7 @@ export const Report: React.FC<ReportProps> = ({
               </div>
 
               {/* Bottom Row: 4 Geodesic Site Parameters */}
-              <div className="grid grid-cols-4 divide-x divide-[#E4E4E7] border-t border-[#D4D4D8] bg-[#FFFFFF] text-[9.5px] font-mono text-[#52525B]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 print:grid-cols-4 divide-x divide-y sm:divide-y-0 print:divide-y-0 divide-[#E4E4E7] border-t border-[#D4D4D8] bg-[#FFFFFF] text-[9.5px] font-mono text-[#52525B]">
                 <div className="px-2.5 py-1.5">
                   <span className="text-[#71717A] block text-[8.5px]">Koordinat WGS84</span>
                   <strong className="text-[#18181B]">
@@ -254,7 +254,7 @@ export const Report: React.FC<ReportProps> = ({
             {/* 3. SIDE-BY-SIDE: ROOM EVALUATION TABLE (7 cols) + 3x3 SANGA MANDALA MATRIX (5 cols) */}
             <div className="grid grid-cols-12 gap-4 items-start print-avoid-break">
               {/* Left 7 Cols: Room Evaluation Table */}
-              <div className="col-span-7 space-y-1.5">
+              <div className="col-span-12 md:col-span-7 print:col-span-7 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-[10px] font-mono uppercase tracking-wider text-[#3F3F46] font-bold">
                     1. Evaluasi Tata Ruang ({rooms.length} Ruang)
@@ -311,7 +311,7 @@ export const Report: React.FC<ReportProps> = ({
               </div>
 
               {/* Right 5 Cols: 3x3 Sanga Mandala Matrix */}
-              <div className="col-span-5 space-y-1.5">
+              <div className="col-span-12 md:col-span-5 print:col-span-5 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-[10px] font-mono uppercase tracking-wider text-[#3F3F46] font-bold">
                     2. Peta 9 Zona Sanga Mandala (3×3)
@@ -399,15 +399,15 @@ export const Report: React.FC<ReportProps> = ({
             </div>
 
             {/* 5. LEGAL FOOTER & SIGNATURES */}
-            <div className="pt-3 border-t border-[#D4D4D8] grid grid-cols-12 gap-4 items-end text-[9px] text-[#52525B] print-avoid-break">
-              <div className="col-span-7 space-y-0.5 leading-snug">
+            <div className="pt-3 border-t border-[#D4D4D8] grid grid-cols-12 gap-3 sm:gap-4 items-end text-[9px] text-[#52525B] print-avoid-break">
+              <div className="col-span-12 sm:col-span-7 print:col-span-7 space-y-0.5 leading-snug">
                 <div className="font-bold text-[#18181B]">Dasar Hukum &amp; Rujukan Normatif:</div>
                 <div>1. Perda Provinsi Bali No. 5 Tahun 2005 tentang Persyaratan Arsitektur Bangunan Gedung.</div>
                 <div>2. UU No. 28 Tahun 2002 jo. PP No. 16 Tahun 2021 tentang Persetujuan Bangunan Gedung (PBG).</div>
                 <div>3. Lontar Asta Kosala-Kosali &amp; Asta Bumi (Kaidah Kosmologi Sanga Mandala).</div>
               </div>
 
-              <div className="col-span-5 grid grid-cols-2 gap-4 font-mono text-[9px] text-center">
+              <div className="col-span-12 sm:col-span-5 print:col-span-5 grid grid-cols-2 gap-4 font-mono text-[9px] text-center pt-2 sm:pt-0 print:pt-0">
                 <div>
                   <div className="text-[#71717A] mb-7">Pemohon / Arsitek</div>
                   <div className="border-t border-[#71717A] pt-1 font-semibold text-[#18181B]">

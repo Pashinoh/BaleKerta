@@ -146,7 +146,7 @@ export const KajaMap: React.FC<KajaMapProps> = ({
 
       {/* Prompt Banner when no pin has been placed yet */}
       {!hasPin && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-ink-900/95 border border-bone-100/30 text-bone-100 text-[12px] font-medium shadow-xl flex items-center gap-2 pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-1.5rem)] w-max px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-full bg-ink-900/95 border border-bone-100/30 text-bone-100 text-[11px] sm:text-[12px] font-medium shadow-xl flex items-center gap-2 pointer-events-none text-center leading-snug">
           <MousePointerClick size={14} className="text-clay shrink-0" />
           <span>Klik pada peta Bali atau cari wilayah di atas untuk meletakkan pin lokasi</span>
         </div>
