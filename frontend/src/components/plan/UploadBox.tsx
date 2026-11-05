@@ -21,6 +21,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const urlRefs = useRef<Set<string>>(new Set());
 
   const validateAndProcessFile = useCallback(
     (file: File) => {
@@ -37,6 +38,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
       }
 
       const objectUrl = URL.createObjectURL(file);
+      urlRefs.current.add(objectUrl);
       setPreviewUrl(objectUrl);
       onFileSelect(file);
     },
@@ -58,13 +60,17 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
 
   const handleDragLeave = () => {
     setIsDragOver(false);
+    if (!selectedFile) {
+      urlRefs.current.forEach(URL.revokeObjectURL);
+      urlRefs.current.clear();
+      setPreviewUrl(null);
+    }
   };
 
   const handleClear = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
+    urlRefs.current.forEach(URL.revokeObjectURL);
+    urlRefs.current.clear();
+    setPreviewUrl(null);
     setErrorMessage(null);
     onFileSelect(null);
     if (inputRef.current) inputRef.current.value = "";
@@ -75,6 +81,15 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
+
+  // Cleanup object URLs on unmount
+  React.useEffect(() => {
+    const refs = urlRefs.current;
+    return () => {
+      refs.forEach(URL.revokeObjectURL);
+      refs.clear();
+    };
+  }, []);
 
   return (
     <div className={`space-y-3 ${className}`}>

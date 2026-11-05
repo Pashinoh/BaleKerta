@@ -24,6 +24,28 @@ export const Stepper: React.FC<StepperProps> = ({
   maxStepReached,
   onSelectStep,
 }) => {
+  const handleKeyDown = (e: React.KeyboardEvent, step: number, isClickable: boolean, currentStep: number, maxStepReached: number) => {
+    if (!isClickable) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelectStep(step);
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      const nextStep = STEPS.find(stepItem => 
+        stepItem.step > step && stepItem.step <= Math.max(maxStepReached, currentStep)
+      );
+      if (nextStep) onSelectStep(nextStep.step);
+    }
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      const prevStep = [...STEPS].reverse().find(stepItem => 
+        stepItem.step < step && stepItem.step <= Math.max(maxStepReached, currentStep)
+      );
+      if (prevStep) onSelectStep(prevStep.step);
+    }
+  };
+
   return (
     <nav
       aria-label="Alur pemeriksaan tata ruang adat Bali"
@@ -56,6 +78,7 @@ export const Stepper: React.FC<StepperProps> = ({
                   type="button"
                   disabled={!isClickable}
                   onClick={() => isClickable && onSelectStep(s.step)}
+                  onKeyDown={(e) => handleKeyDown(e, s.step, isClickable, currentStep, maxStepReached)}
                   className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-mono text-[12px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-bone-100 ${
                     isActive
                       ? "bg-bone-100 text-ink-950 shadow-sm"
