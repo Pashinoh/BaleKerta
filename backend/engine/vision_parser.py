@@ -36,38 +36,45 @@ def enrich_bare_room_name(name: str, rtype: str) -> str:
     return cleaned
 
 def get_image_hash(image_bytes: bytes, model_name: str = "") -> str:
-    """Menghitung SHA256 hash dari data byte gambar (+ model name) untuk keperluan caching."""
-    payload = image_bytes + model_name.encode()
+    """Menghitung SHA256 hash dari data byte gambar (+ model name jika ada) untuk keperluan caching."""
+    payload = image_bytes + (model_name.encode() if model_name else b"")
     return hashlib.sha256(payload).hexdigest()
 
 def check_cache(image_hash: str, model_name: str = "") -> Optional[Dict[str, Any]]:
     """
     Mengecek apakah hasil ekstraksi AI gambar sudah tersimpan di cache.
-    Hanya mengembalikan cache jika berasal dari AI valid (bukan mock/fallback).
+    Mendukung pengecekan hash konten gambar murni maupun hash spesifik model.
     """
-    cache_file = settings.CACHE_DIR / f"{image_hash}.json"
-    if cache_file.exists():
-        try:
-            with open(cache_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                # Validasi bahwa cache ini adalah hasil AI asli
-                source = data.get("source", "")
-                if source.startswith("ai:") and data.get("rooms"):
-                    enriched_rooms = [
-                        {
-                            **r,
-                            "name": enrich_bare_room_name(str(r.get("name", "Ruangan")), str(r.get("type", "ruang_tamu")))
+    candidates = [image_hash]
+    if model_name:
+        candidates.insert(0, get_image_hash(image_hash.encode(), model_name))
+
+    for h in candidates:
+        cache_file = settings.CACHE_DIR / f"{h}.json"
+        if cache_file.exists():
+            try:
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    source = data.get("source", "")
+                    if source.startswith("ai:") and data.get("rooms"):
+                        enriched_rooms = [
+                            {
+                                **r,
+                                "name": enrich_bare_room_name(
+                                    str(r.get("name", "Ruangan")),
+                                    str(r.get("type", "ruang_tamu")),
+                                ),
+                            }
+                            for r in data.get("rooms", [])
+                        ]
+                        return {
+                            "source": f"cache:{source}",
+                            "model": data.get("model", "unknown"),
+                            "rooms": enriched_rooms,
                         }
-                        for r in data.get("rooms", [])
-                    ]
-                    return {
-                        "source": f"cache:{source}",
-                        "model": data.get("model", "unknown"),
-                        "rooms": enriched_rooms
-                    }
-        except Exception as e:
-            print(f"[CACHE READ ERROR] {e}")
-            return None
+            except Exception as e:
+                print(f"[CACHE READ ERROR] {e}")
+                continue
     return None
 
 def save_cache(image_hash: str, model_name: str, rooms_data: List[Dict[str, Any]]) -> None:
@@ -80,7 +87,7 @@ def save_cache(image_hash: str, model_name: str, rooms_data: List[Dict[str, Any]
             "source": f"ai:{model_name}",
             "model": model_name,
             "cached_at": time.time(),
-            "rooms": rooms_data
+            "rooms": rooms_data,
         }
         with open(cache_file, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2, ensure_ascii=False)
@@ -101,8 +108,8 @@ Kembalikan HANYA format JSON valid tanpa backtick markdown dengan skema:
 }
 
 PANDUAN PEMETAAN TIPE RUANGAN (Mendukung sinonim bahasa Indonesia, Bali, dan Inggris):
-- pemerajan_sanggah: Sanggah, Pemerajan, Merajan, Mrajan, Pura, Altar, Pelangkiran, Shrine, Tempat Sembahyang, Parahyangan (Kecuali jika berlabel Taman/Kebun).
-- taman: Taman, Kebun, Garden, Landscape, Lanskap, Kolam, RTH, Green Area, Taman Suci, Taman Depan, Taman Belakang, Telajakan, Teba, Sawah, Penyengker.
+- pemerajan_sanggah: Sanggah, Pemerajan, Merajan, Mrajan, Pura, Altar, Pelangkiran, Shrine, Tempat Sembahyang (Kecuali jika berlabel Taman/Kebun).
+- taman: Taman, Kebun, Garden, Landscape, Lanskap, Kolam, RTH, Green Area, Taman Suci, Taman Depan, Taman Belakang.
 - natah_open_space: Natah, Halaman Tengah, Courtyard, Open Space, Plaza Tengah, Atrium.
 - bale_daja: Kamar Tidur Utama, Master Bedroom, Bale Daja, Gedong Meten, Bale Meten, Kamar Orang Tua, K. Utama, Ruang Tidur Utama.
 - bale_dangin: Bale Dangin, Bale Gede, Bale Upacara, Bale Yadnya, Paviliun Timur, Bale Adat.
@@ -225,14 +232,14 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
         
     genai.configure(api_key=settings.GEMINI_API_KEY)
     
-    # Model target dengan urutan prioritas (mengganti gemini-2.5-flash yang sudah 404/deprecated)
+    # Model target dengan urutan prioritas efisiensi token & kuota
     candidate_models = [
         settings.GEMINI_MODEL,
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-flash",
         "gemini-3.5-flash-lite",
-        "gemini-3.1-flash-lite",
         "gemini-3.5-flash",
-        "gemini-3.8-flash",
-        "gemini-flash-lite-latest"
+        "gemini-flash-latest"
     ]
     # Hapus duplikat sambil mempertahankan urutan
     seen = set()
@@ -242,7 +249,6 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
     if image.mode not in ("RGB", "L"):
         image = image.convert("RGB")
     # Downscale proporsional maks 1280px untuk mencegah 504 Deadline Expired pada gambar resolusi sangat besar
-    # (Tidak mengubah skala koordinat karena Gemini selalu mengembalikan skala normalisasi 0-1000)
     if max(image.size) > 1280:
         image.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
 
@@ -261,14 +267,19 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
             )
             response = model.generate_content(
                 [VISION_SYSTEM_PROMPT, image],
-                request_options={"timeout": 35}
+                request_options={"timeout": 25}
             )
             if response and response.text:
                 successful_model = m_name
                 break
         except Exception as e:
             last_error = e
+            err_lower = str(e).lower()
             print(f"[AI MODEL ATTEMPT] {m_name} gagal: {e}", flush=True)
+            # Jika batas kuota API key habis (429 / ResourceExhausted),
+            # mencoba model lain dengan API key yang sama pasti gagal dan hanya memperparah rate limit.
+            if "quota" in err_lower or "resourceexhausted" in err_lower or "429" in err_lower:
+                raise RuntimeError(f"Batas kuota Gemini API tercapai (429): {e}")
             continue
             
     if not response or not response.text or not successful_model:
@@ -302,17 +313,13 @@ def call_gemini_vision(image_bytes: bytes) -> Tuple[str, List[Dict[str, Any]]]:
 async def parse_floor_plan_image(image_bytes: bytes) -> Dict[str, Any]:
     """
     Fungsi orkestrasi pemrosesan denah:
-    1. Cek Caching Hash (Hanya jika cache valid)
-    2. Panggil Gemini Vision secara nyata
-    3. Simpan hasil AI ke cache
-    CATATAN INTEGRITAS: TIDAK ADA DATA MOCK / FALLBACK PALSU DI SINI.
+    1. Cek Caching Hash murni gambar (Menghindari pemanggilan AI ulang untuk gambar yang sama)
+    2. Panggil Gemini Vision secara nyata jika belum ada di cache
+    3. Simpan hasil AI ke cache dengan hash konten gambar murni & hash model
     """
-    # Note: model name will be determined after successful AI call
-    # For cache check, we check without model first (backward compat)
-    # Then we use model-specific cache for subsequent calls
     img_hash = get_image_hash(image_bytes)
     
-    # 1. Cek Cache Asli (try without model first for backward compat)
+    # 1. Cek Cache Asli
     cached = check_cache(img_hash)
     if cached:
         return {
@@ -325,9 +332,11 @@ async def parse_floor_plan_image(image_bytes: bytes) -> Dict[str, Any]:
     # 2. Panggil AI secara nyata (threadpool: panggilan sinkron jangan blokir event loop)
     successful_model, rooms = await asyncio.to_thread(call_gemini_vision, image_bytes)
     
-    # 3. Simpan cache hasil AI yang valid (with model-specific hash)
+    # 3. Simpan cache hasil AI yang valid di bawah hash konten gambar murni
+    save_cache(img_hash, successful_model, rooms)
     model_specific_hash = get_image_hash(image_bytes, successful_model)
-    save_cache(model_specific_hash, successful_model, rooms)
+    if model_specific_hash != img_hash:
+        save_cache(model_specific_hash, successful_model, rooms)
     
     return {
         "source": f"ai:{successful_model}",

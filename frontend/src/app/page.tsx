@@ -30,6 +30,7 @@ import {
 import {
   checkBackendHealth,
   getKaja,
+  getSangaMandalaGrid,
   runPresetAudit,
   auditUploadedFloorPlan,
   ApiError,
@@ -220,12 +221,7 @@ export default function Home() {
   // Fetch grid config Sanga Mandala dari backend saat kajaData berubah
   useEffect(() => {
     if (!kajaData.kaja_quadrant) return;
-    const params = new URLSearchParams({
-      kaja_quadrant: kajaData.kaja_quadrant,
-      plan_north_deg: planNorthDeg.toString(),
-    });
-    fetch(`/api/sanga-mandala-grid?${params}`)
-      .then((res) => res.json())
+    getSangaMandalaGrid(kajaData.kaja_quadrant, planNorthDeg)
       .then((data) => setGridConfig(data))
       .catch(() => setGridConfig(null));
   }, [kajaData.kaja_quadrant, planNorthDeg]);
@@ -337,6 +333,7 @@ export default function Home() {
                     </label>
                     <select
                       id="quick-location-select"
+                      value={BALI_QUICK_LOCATIONS.find((loc) => Math.abs(loc.lat - lat) < 0.03 && Math.abs(loc.lon - lon) < 0.03)?.id || ""}
                       className="bg-ink-950 border border-ink-700 text-bone-100 rounded-lg px-3 py-1.5 text-[13px] focus-visible:outline-2 focus-visible:outline-bone-100"
                       onChange={(e) => {
                         const selected = BALI_QUICK_LOCATIONS.find(
@@ -447,7 +444,12 @@ export default function Home() {
                 {/* Grid 3×3 dan Penjelasan */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
                   <div>
-                    <MiniZoneGrid gridConfig={gridConfig} cardinalDirection={kajaData.cardinal_direction} />
+                    <MiniZoneGrid
+                      gridConfig={gridConfig}
+                      cardinalDirection={kajaData.cardinal_direction}
+                      kajaQuadrant={kajaData.kaja_quadrant}
+                      planNorthDeg={planNorthDeg}
+                    />
                   </div>
                   <div className="space-y-4 bg-ink-950 p-5 rounded-xl border border-ink-700">
                     <h4 className="text-[14px] font-semibold text-bone-100 flex items-center gap-2">
@@ -623,6 +625,11 @@ export default function Home() {
                     error={auditError.message}
                     retryAfterS={auditError.retryAfterS}
                     onRetry={handleExecuteAudit}
+                    onSwitchToPreset={() => {
+                      setInputTab("sample");
+                      setSelectedPresetId("preset_1_pass");
+                      setAuditError(null);
+                    }}
                   />
                 )}
 

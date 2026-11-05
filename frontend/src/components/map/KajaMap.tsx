@@ -139,6 +139,13 @@ export default function KajaMap({
     return [(lat + MOUNT_AGUNG.lat) / 2, (lon + MOUNT_AGUNG.lon) / 2] as [number, number];
   }, [lat, lon]);
 
+  // Sync marker position if lat / lon props change externally (dropdown / GPS)
+  useEffect(() => {
+    if (markerRef.current) {
+      markerRef.current.setLatLng([lat, lon]);
+    }
+  }, [lat, lon]);
+
   // Handle pin drag
   const onDragEnd = useMemo(
     () => () => {
