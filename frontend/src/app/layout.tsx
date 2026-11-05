@@ -18,6 +18,14 @@ export const metadata: Metadata = {
   title: "BaleKerta | Pra-Pemeriksaan Tata Ruang Adat Bali (Sanga Mandala & PBG)",
   description:
     "Sistem verifikasi kepatuhan orientasi kosmologis Asta Kosala-Kosali, Asta Bumi, dan Perda Provinsi Bali No. 5/2005 sebelum pengajuan Persetujuan Bangunan Gedung (PBG).",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
