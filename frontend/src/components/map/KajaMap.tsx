@@ -217,7 +217,7 @@ export default function KajaMap({
       */}
       <div
         className={`relative w-full h-[400px] sm:h-[460px] lg:h-[490px] rounded-lg overflow-hidden border border-ink-700 isolate z-0 shadow-sm transition-colors ${
-          mapTheme === "light" ? "bg-[#E8ECEE]" : "bg-ink-950"
+          mapTheme === "light" ? "bg-[#EDE7DA]" : "bg-ink-950"
         }`}
         style={{ isolation: "isolate" }}
         onClick={() => setScrollActive(true)}
@@ -264,18 +264,12 @@ export default function KajaMap({
           ]}
           className="w-full h-full"
         >
-          {/* CARTO Dark or Soft Light (Positron) Tiles */}
+          {/* OpenStreetMap with Dark or Soft Light (Parchment) Filter - 100% Bebas API Key */}
           <TileLayer
             key={mapTheme}
-            url={
-              mapTheme === "dark"
-                ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            }
-            subdomains="abcd"
-            maxZoom={19}
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
             className={mapTheme === "dark" ? "dark-map-tiles" : "soft-light-map-tiles"}
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>'
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
           />
 
           <MapPanController lat={lat} lon={lon} />

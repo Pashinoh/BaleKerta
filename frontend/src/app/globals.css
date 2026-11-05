@@ -51,16 +51,16 @@ body {
   box-shadow: none !important;
 }
 
-/* CARTO Dark Tiles (Native architectural dark slate) */
+/* OpenStreetMap Dark Tiles (Native architectural dark slate, 100% Bebas API Key) */
 .dark-map-tiles .leaflet-tile-pane {
+  filter: brightness(0.72) invert(100%) contrast(1.25) saturate(0.25) hue-rotate(185deg);
   background-color: #0E0D0C !important;
-  filter: none;
 }
 
-/* CARTO Soft Light / Positron Tiles (Parchment - Muted Warm, Bebas Silau) */
+/* OpenStreetMap Soft Light Tiles (Architectural Parchment - Muted Warm, Bebas Silau, 100% Bebas API Key) */
 .soft-light-map-tiles .leaflet-tile-pane {
-  background-color: #E8ECEE !important;
-  filter: brightness(0.97) contrast(1.03) sepia(0.08);
+  filter: brightness(0.94) contrast(0.92) saturate(0.55) sepia(0.14);
+  background-color: #EDE7DA !important;
 }
 
 .leaflet-tile,
