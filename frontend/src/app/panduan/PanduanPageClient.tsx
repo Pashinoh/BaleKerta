@@ -224,18 +224,19 @@ export const PanduanPageClient: React.FC = () => {
       >
         <div className="w-full px-4 lg:px-6 h-14 flex items-center justify-between gap-3">
           {/* Left: Back Link & Page Title */}
-          <div className="flex items-center gap-3 min-w-0 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink-0">
             <Link
               href="/"
-              className="min-h-[34px] inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-ink-800 bg-ink-900 text-bone-200 hover:text-bone-100 hover:bg-ink-800 text-[12.5px] font-medium transition-colors"
+              className="min-h-[34px] inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg border border-ink-800 bg-ink-900 text-bone-200 hover:text-bone-100 hover:bg-ink-800 text-[12px] sm:text-[12.5px] font-medium transition-colors"
             >
               <ArrowLeft size={14} />
-              <span>Kembali ke Denah</span>
+              <span className="hidden sm:inline">Kembali ke Denah</span>
+              <span className="sm:hidden">Kembali</span>
             </Link>
 
             <div className="hidden sm:block h-4 w-px bg-ink-800" />
 
-            <div className="hidden sm:flex items-baseline gap-2">
+            <div className="hidden md:flex items-baseline gap-2">
               <span className="text-[15px] font-bold text-bone-100 font-display tracking-tight">
                 Panduan Arsitektur Bali
               </span>
@@ -254,42 +255,43 @@ export const PanduanPageClient: React.FC = () => {
               type="button"
               onClick={() => setActiveTab("kamus")}
               aria-current={activeTab === "kamus" ? "page" : undefined}
-              className={`min-h-[30px] px-3 py-1 rounded-md text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
+              className={`min-h-[30px] px-2.5 sm:px-3 py-1 rounded-md text-[11.5px] sm:text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
                 activeTab === "kamus"
                   ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
                   : "text-bone-400 hover:text-bone-100 hover:bg-ink-800/60"
               }`}
             >
               <BookOpen size={13} />
-              <span>Glosarium</span>
+              <span className="hidden sm:inline">Glosarium</span>
+              <span className="sm:hidden">Kamus</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("kalkulator")}
               aria-current={activeTab === "kalkulator" ? "page" : undefined}
-              className={`min-h-[30px] px-3 py-1 rounded-md text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
+              className={`min-h-[30px] px-2.5 sm:px-3 py-1 rounded-md text-[11.5px] sm:text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
                 activeTab === "kalkulator"
                   ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
                   : "text-bone-400 hover:text-bone-100 hover:bg-ink-800/60"
               }`}
             >
               <Calculator size={13} />
-              <span className="hidden xs:inline">Kalkulator Hasta</span>
-              <span className="xs:hidden">Hasta</span>
+              <span className="hidden md:inline">Kalkulator Hasta</span>
+              <span className="md:hidden">Hasta</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("sanga-mandala")}
               aria-current={activeTab === "sanga-mandala" ? "page" : undefined}
-              className={`min-h-[30px] px-3 py-1 rounded-md text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
+              className={`min-h-[30px] px-2.5 sm:px-3 py-1 rounded-md text-[11.5px] sm:text-[12px] font-medium flex items-center gap-1.5 transition-colors ${
                 activeTab === "sanga-mandala"
                   ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
                   : "text-bone-400 hover:text-bone-100 hover:bg-ink-800/60"
               }`}
             >
               <Grid3X3 size={13} />
-              <span className="hidden sm:inline">Sanga Mandala</span>
-              <span className="sm:hidden">9 Zona</span>
+              <span className="hidden md:inline">Sanga Mandala</span>
+              <span className="md:hidden">9 Zona</span>
             </button>
           </nav>
 
@@ -603,16 +605,16 @@ export const PanduanPageClient: React.FC = () => {
             {/* PANE 2 (RIGHT): DETAILED INSPECTOR / READER PANE */}
             <div
               ref={detailScrollRef}
-              className={`flex-1 min-h-0 h-full overflow-y-auto p-5 sm:p-7 lg:p-9 bg-ink-900/30 ${
+              className={`flex-1 min-h-0 h-full overflow-y-auto p-4 sm:p-7 lg:p-9 bg-ink-900/30 ${
                 isMobileDetailOpen ? "flex flex-col" : "hidden lg:flex lg:flex-col"
               }`}
             >
               {/* Mobile Back Button (< lg) */}
-              <div className="lg:hidden pb-4 border-b border-ink-800 mb-4">
+              <div className="lg:hidden pb-3 sm:pb-4 border-b border-ink-800 mb-3 sm:mb-4">
                 <button
                   type="button"
                   onClick={() => setIsMobileDetailOpen(false)}
-                  className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ink-900 border border-ink-800 text-bone-200 hover:text-bone-100 text-[12.5px] font-medium transition-colors"
+                  className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ink-900 border border-ink-800 text-bone-200 hover:text-bone-100 text-[12px] sm:text-[12.5px] font-medium transition-colors"
                 >
                   <ArrowLeft size={14} />
                   <span>Kembali ke Daftar Istilah ({filteredTerms.length})</span>
@@ -620,9 +622,9 @@ export const PanduanPageClient: React.FC = () => {
               </div>
 
               {selectedTerm ? (
-                <article className="max-w-2xl space-y-6">
+                <article className="max-w-2xl space-y-5 sm:space-y-6">
                   {/* Top Metadata & Navigation Bar */}
-                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-ink-800">
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-ink-800">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-ink-950 border border-ink-700 text-bone-300 font-semibold">
                         Kelompok: {selectedTerm.group}

@@ -109,7 +109,7 @@ export const LocationSearchBox: React.FC<LocationSearchBoxProps> = ({
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 w-[330px] sm:w-[370px] bg-ink-900 border border-ink-700 rounded-xl shadow-2xl z-40 overflow-hidden">
+        <div className="absolute left-0 top-full mt-1.5 w-[calc(100vw-2.5rem)] sm:w-[370px] max-w-[370px] bg-ink-900 border border-ink-700 rounded-xl shadow-2xl z-40 overflow-hidden">
           {/* Search Input Box */}
           <div className="p-2.5 border-b border-ink-800 bg-ink-950">
             <div className="relative flex items-center">

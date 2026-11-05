@@ -358,11 +358,11 @@ export default function Home() {
             /* ========================================================== */
             <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
               {/* Kiri (8 Kolom): Kartu Peta Interaktif Full-Height */}
-              <div className="lg:col-span-8 flex flex-col min-h-[420px] lg:min-h-0 bg-ink-900 border border-ink-800 rounded-xl overflow-hidden">
+              <div className="lg:col-span-8 flex flex-col min-h-[320px] sm:min-h-[420px] lg:min-h-0 bg-ink-900 border border-ink-800 rounded-xl overflow-hidden">
                 {/* Baris Kontrol Pencarian Wilayah / Koordinat di Atas Peta */}
-                <div className="shrink-0 px-4 py-2.5 border-b border-ink-800 flex flex-wrap items-center justify-between gap-2 bg-ink-900">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[13px] font-semibold text-bone-100 mr-0.5">
+                <div className="shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 border-b border-ink-800 flex flex-wrap items-center justify-between gap-2 bg-ink-900">
+                  <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                    <span className="text-[12.5px] sm:text-[13px] font-semibold text-bone-100 mr-0.5 hidden xs:inline">
                       Lokasi Tapak:
                     </span>
                     <LocationSearchBox
@@ -370,6 +370,7 @@ export default function Home() {
                       lon={lon}
                       hasPin={hasPin}
                       onSelectLocation={handleLocationChange}
+                      className="flex-1 sm:flex-none"
                     />
 
                     <Button
@@ -377,19 +378,20 @@ export default function Home() {
                       size="sm"
                       onClick={handleUseMyLocation}
                       icon={<Locate size={13} className="text-bone-400" />}
+                      className="shrink-0"
                     >
-                      Lokasi Saya
+                      <span className="hidden xs:inline">Lokasi </span><span>Saya</span>
                     </Button>
                   </div>
 
-                  <div className="text-[11.5px] font-mono text-bone-400 flex items-center gap-1.5">
-                    <MapPin size={13} className={hasPin ? "text-clay" : "text-bone-400"} />
+                  <div className="w-full sm:w-auto text-[11px] sm:text-[11.5px] font-mono text-bone-400 flex items-center gap-1.5 truncate">
+                    <MapPin size={13} className={`shrink-0 ${hasPin ? "text-clay" : "text-bone-400"}`} />
                     {hasPin ? (
-                      <span>
+                      <span className="truncate">
                         {cleanLocationLabel(kajaData.location_label)} ({lat.toFixed(4)}°, {lon.toFixed(4)}°)
                       </span>
                     ) : (
-                      <span>Belum ada pin lokasi (Klik peta / cari wilayah)</span>
+                      <span className="truncate">Belum ada pin lokasi (Klik peta / cari wilayah)</span>
                     )}
                   </div>
                 </div>
@@ -590,7 +592,7 @@ export default function Home() {
               </div>
 
               {/* Kanan (8 Kolom): Pratinjau Kanvas Full-Height (Bisa Zoom In/Out & Pan) */}
-              <div className="lg:col-span-8 flex flex-col min-h-[420px] lg:min-h-0 relative">
+              <div className="lg:col-span-8 flex flex-col min-h-[300px] sm:min-h-[420px] lg:min-h-0 relative">
                 <PlanCanvas
                   imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
                   gridLayout={auditData?.grid_layout || null}
@@ -641,7 +643,7 @@ export default function Home() {
                   {/* Area Inspeksi 2 Kolom Full-Height */}
                   <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
                     {/* Kolom Kiri (7 Kolom): Kanvas Denah Interaktif (Bisa Zoom In/Out & Pan) */}
-                    <div className="lg:col-span-7 flex flex-col min-h-[400px] lg:min-h-0">
+                    <div className="lg:col-span-7 flex flex-col min-h-[300px] sm:min-h-[400px] lg:min-h-0">
                       <PlanCanvas
                         imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
                         gridLayout={auditData.grid_layout || null}

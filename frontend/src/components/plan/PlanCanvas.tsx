@@ -152,13 +152,17 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
 
   return (
     <div
-      className={`rounded-xl border border-ink-800 bg-ink-900 overflow-hidden flex flex-col h-full min-h-[380px] ${className}`}
+      className={`rounded-xl border border-ink-800 bg-ink-900 overflow-hidden flex flex-col h-full min-h-[300px] sm:min-h-[380px] ${className}`}
     >
       {/* Canvas Header with Zoom & Layer Controls */}
-      <div className="shrink-0 px-3.5 py-2 border-b border-ink-800 flex flex-wrap items-center justify-between gap-2 bg-ink-900">
-        <div className="flex items-center gap-2 text-[12px] font-mono text-bone-300">
+      <div className="shrink-0 px-3 sm:px-3.5 py-2 border-b border-ink-800 flex flex-wrap items-center justify-between gap-2 bg-ink-900">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[11.5px] sm:text-[12px] font-mono text-bone-300">
           <Compass size={14} className="text-bone-400 shrink-0" />
-          <span className="truncate">Kaja: {kajaBearing.toFixed(1)}° ({kajaDirection})</span>
+          <span className="truncate">
+            <span className="hidden xs:inline">Kaja: </span>
+            <span>{kajaBearing.toFixed(1)}°</span>
+            <span className="hidden sm:inline"> ({kajaDirection})</span>
+          </span>
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -174,7 +178,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
             >
               <ZoomOut size={13} />
             </button>
-            <span className="px-2 text-[11px] font-mono text-bone-200 tabular-nums select-none">
+            <span className="px-1.5 sm:px-2 text-[10.5px] sm:text-[11px] font-mono text-bone-200 tabular-nums select-none">
               {Math.round(zoom * 100)}%
             </span>
             <button
@@ -204,28 +208,28 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
             type="button"
             onClick={() => setShowGrid(!showGrid)}
             aria-pressed={showGrid}
-            className={`min-h-[28px] px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1.5 border transition-colors ${
+            className={`min-h-[28px] px-2 sm:px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1 sm:gap-1.5 border transition-colors ${
               showGrid
                 ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
                 : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
             }`}
           >
             <Grid size={12} />
-            <span>Kisi 9 Zona</span>
+            <span className="hidden sm:inline">Kisi </span><span>9 Zona</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShowLabels(!showLabels)}
             aria-pressed={showLabels}
-            className={`min-h-[28px] px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1.5 border transition-colors ${
+            className={`min-h-[28px] px-2 sm:px-2.5 py-0.5 rounded-md text-[11px] font-mono flex items-center gap-1 sm:gap-1.5 border transition-colors ${
               showLabels
                 ? "bg-bone-100 text-ink-950 border-bone-100 font-semibold"
                 : "bg-ink-950 text-bone-400 border-ink-800 hover:text-bone-100"
             }`}
           >
             {showLabels ? <Eye size={12} /> : <EyeOff size={12} />}
-            <span>Label</span>
+            <span className="hidden sm:inline">Label </span><span>Ruang</span>
           </button>
         </div>
       </div>

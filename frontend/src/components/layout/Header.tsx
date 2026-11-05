@@ -14,9 +14,9 @@ export interface HeaderProps {
 }
 
 const STEPS = [
-  { number: 1, title: "Lokasi & Arah Kaja" },
-  { number: 2, title: "Denah Bangunan" },
-  { number: 3, title: "Hasil Evaluasi PBG" },
+  { number: 1, title: "Lokasi & Arah Kaja", shortTitle: "Lokasi" },
+  { number: 2, title: "Denah Bangunan", shortTitle: "Denah" },
+  { number: 3, title: "Hasil Evaluasi PBG", shortTitle: "Hasil PBG" },
 ];
 
 export const Header: React.FC<HeaderProps> = ({
@@ -170,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Stepper Row (< md) */}
       {onSelectStep && (
-        <div className="flex md:hidden items-center justify-between gap-1 px-4 py-2 border-t border-ink-800 bg-ink-900 overflow-x-auto no-scrollbar">
+        <div className="flex md:hidden items-center justify-between gap-1 px-3 py-1.5 border-t border-ink-800 bg-ink-900">
           {STEPS.map((s) => {
             const isActive = currentStep === s.number;
             const isCompleted = currentStep > s.number;
@@ -179,16 +179,17 @@ export const Header: React.FC<HeaderProps> = ({
                 key={s.number}
                 type="button"
                 onClick={() => onSelectStep(s.number)}
-                className={`min-h-[32px] px-2.5 py-1 rounded-md flex items-center gap-1.5 text-[12px] whitespace-nowrap ${
+                className={`min-h-[32px] px-2 py-1 rounded-md flex items-center justify-center gap-1.5 text-[11.5px] sm:text-[12px] flex-1 whitespace-nowrap transition-colors ${
                   isActive
-                    ? "bg-bone-100 text-ink-950 font-semibold"
+                    ? "bg-bone-100 text-ink-950 font-semibold shadow-sm"
                     : isCompleted
-                    ? "text-bone-200"
-                    : "text-bone-400"
+                    ? "text-bone-100 hover:bg-ink-800"
+                    : "text-bone-400 hover:text-bone-200"
                 }`}
               >
                 <span className="font-mono font-bold">{s.number}.</span>
-                <span>{s.title}</span>
+                <span className="hidden sm:inline">{s.title}</span>
+                <span className="sm:hidden">{s.shortTitle}</span>
               </button>
             );
           })}

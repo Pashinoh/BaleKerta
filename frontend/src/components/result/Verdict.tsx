@@ -46,7 +46,7 @@ export const Verdict: React.FC<VerdictProps> = ({
               >
                 {isPass ? "Layak Aju PBG" : `${violationsCount} Temuan Revisi`}
               </span>
-              <h2 className="text-[15px] sm:text-[16px] font-bold text-bone-100 truncate">
+              <h2 className="text-[14px] sm:text-[16px] font-bold text-bone-100 leading-snug">
                 {isPass
                   ? "Denah mematuhi pakem tata ruang Sanga Mandala."
                   : "Terdapat ruang yang belum selaras dengan hierarki Sanga Mandala."}
@@ -56,8 +56,8 @@ export const Verdict: React.FC<VerdictProps> = ({
         </div>
 
         {/* Right: Metrics & Actions */}
-        <div className="flex items-center justify-between lg:justify-end gap-4 sm:gap-5 shrink-0">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-between lg:justify-end gap-3 sm:gap-5 shrink-0 pt-2 lg:pt-0 border-t border-ink-800/80 lg:border-t-0">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="flex items-baseline gap-1.5">
               <span className="text-[11px] font-mono text-bone-400">Skor:</span>
               <span className="text-[17px] font-bold font-mono text-bone-100 tabular-nums">

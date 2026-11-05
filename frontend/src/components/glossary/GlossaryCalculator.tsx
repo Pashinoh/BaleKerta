@@ -83,10 +83,10 @@ export const GlossaryCalculator: React.FC<GlossaryCalculatorProps> = ({
           onChange={(e) => handleHastaUpdate(parseFloat(e.target.value))}
           className="w-full accent-bone-100 cursor-pointer"
         />
-        <div className="flex justify-between text-[11px] font-mono text-bone-400">
-          <span>38.0 cm (Postur Kecil)</span>
-          <span className="text-bone-100 font-semibold">44.5 cm (Rata-rata Bali)</span>
-          <span>52.0 cm (Postur Tinggi)</span>
+        <div className="flex justify-between text-[10.5px] sm:text-[11px] font-mono text-bone-400 gap-1">
+          <span><span className="hidden sm:inline">38.0 cm </span><span>(Kecil)</span></span>
+          <span className="text-bone-100 font-semibold text-center"><span className="hidden sm:inline">44.5 cm </span><span>(Rata-rata)</span></span>
+          <span className="text-right"><span className="hidden sm:inline">52.0 cm </span><span>(Tinggi)</span></span>
         </div>
       </div>
 

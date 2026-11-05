@@ -38,7 +38,7 @@ export const AuditTransparency: React.FC<AuditTransparencyProps> = ({
           <span>Parameter Geodesik &amp; Matriks Sanga Mandala</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5 text-[12px] font-mono">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px] font-mono">
           <div className="p-2.5 rounded-lg bg-ink-900 border border-ink-800">
             <span className="text-[10.5px] text-bone-400 block">Koordinat Tapak</span>
             <span className="text-bone-100 font-semibold">
