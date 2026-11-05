@@ -238,7 +238,7 @@ html.light {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm 12mm;
+    margin: 0mm;
   }
 
   html,
@@ -286,10 +286,11 @@ html.light {
   }
 
   #printable-report-sheet {
-    width: 100% !important;
+    width: 210mm !important;
     max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0 auto !important;
+    padding: 11mm 13mm !important;
+    box-sizing: border-box !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;

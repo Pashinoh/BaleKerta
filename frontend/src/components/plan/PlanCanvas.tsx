@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { GridLayout, Room, Violation } from "@/types/audit";
-import { Compass, Eye, EyeOff, Grid } from "lucide-react";
+import { Compass, Eye, EyeOff, Grid, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { useTheme } from "@/components/layout/ThemeProvider";
 
 export interface PlanCanvasProps {
@@ -18,6 +18,10 @@ export interface PlanCanvasProps {
   kajaDirection?: string;
   className?: string;
 }
+
+const MIN_ZOOM = 0.75;
+const MAX_ZOOM = 3.0;
+const ZOOM_STEP = 0.25;
 
 export const PlanCanvas: React.FC<PlanCanvasProps> = ({
   imageSrc,
@@ -36,7 +40,72 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
   const [showGrid, setShowGrid] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
 
+  // Zoom & Pan state
+  const [zoom, setZoom] = useState<number>(1);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const dragStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+
   const isPaper = theme === "light";
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(MAX_ZOOM, Number((prev + ZOOM_STEP).toFixed(2))));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => {
+      const next = Math.max(MIN_ZOOM, Number((prev - ZOOM_STEP).toFixed(2)));
+      if (next <= 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  const handleResetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+    setZoom((prev) => {
+      const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Number((prev + delta).toFixed(2))));
+      if (next <= 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    if (zoom <= 1) return;
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      panX: pan.x,
+      panY: pan.y,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartRef.current) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    setPan({
+      x: dragStartRef.current.panX + dx,
+      y: dragStartRef.current.panY + dy,
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    dragStartRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
 
   const isRoomViolating = (room: Room): boolean => {
     return violations.some((v) => {
@@ -85,14 +154,52 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
     <div
       className={`rounded-xl border border-ink-800 bg-ink-900 overflow-hidden flex flex-col h-full min-h-[380px] ${className}`}
     >
-      {/* Minimalist Canvas Header */}
-      <div className="shrink-0 px-4 py-2 border-b border-ink-800 flex items-center justify-between gap-2 bg-ink-900">
+      {/* Canvas Header with Zoom & Layer Controls */}
+      <div className="shrink-0 px-3.5 py-2 border-b border-ink-800 flex flex-wrap items-center justify-between gap-2 bg-ink-900">
         <div className="flex items-center gap-2 text-[12px] font-mono text-bone-300">
-          <Compass size={14} className="text-bone-400" />
-          <span>Kaja: {kajaBearing.toFixed(1)}° ({kajaDirection})</span>
+          <Compass size={14} className="text-bone-400 shrink-0" />
+          <span className="truncate">Kaja: {kajaBearing.toFixed(1)}° ({kajaDirection})</span>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Zoom Control Group */}
+          <div className="flex items-center bg-ink-950 border border-ink-800 rounded-md p-0.5">
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              disabled={zoom <= MIN_ZOOM}
+              aria-label="Perkecil denah (Zoom Out)"
+              title="Perkecil denah"
+              className="min-w-[26px] min-h-[26px] flex items-center justify-center rounded text-bone-300 hover:text-bone-100 hover:bg-ink-800 disabled:opacity-40 transition-colors"
+            >
+              <ZoomOut size={13} />
+            </button>
+            <span className="px-2 text-[11px] font-mono text-bone-200 tabular-nums select-none">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              disabled={zoom >= MAX_ZOOM}
+              aria-label="Perbesar denah (Zoom In)"
+              title="Perbesar denah"
+              className="min-w-[26px] min-h-[26px] flex items-center justify-center rounded text-bone-300 hover:text-bone-100 hover:bg-ink-800 disabled:opacity-40 transition-colors"
+            >
+              <ZoomIn size={13} />
+            </button>
+            {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
+              <button
+                type="button"
+                onClick={handleResetView}
+                aria-label="Reset ukuran denah"
+                title="Reset zoom 100%"
+                className="min-w-[26px] min-h-[26px] flex items-center justify-center rounded text-bone-400 hover:text-bone-100 hover:bg-ink-800 border-l border-ink-800 ml-0.5 pl-0.5 transition-colors"
+              >
+                <RotateCcw size={12} />
+              </button>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => setShowGrid(!showGrid)}
@@ -123,14 +230,30 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
         </div>
       </div>
 
-      {/* Main Viewport (Fills remaining flex height!) */}
+      {/* Main Viewport with Wheel Zoom & Drag Pan */}
       <div
+        onWheel={handleWheel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         className={`relative flex-1 min-h-0 w-full flex items-center justify-center p-4 sm:p-5 select-none overflow-hidden transition-colors duration-200 ${
           isPaper ? "bg-[#E6DEC8]" : "bg-[#0E0D0C]"
+        } ${
+          zoom > 1
+            ? isDragging
+              ? "cursor-grabbing"
+              : "cursor-grab"
+            : "cursor-default"
         }`}
       >
         <div
-          className={`relative w-full h-full rounded-lg overflow-hidden transition-colors duration-200 ${
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: "center center",
+            transition: isDragging ? "none" : "transform 150ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+          className={`relative w-full h-full rounded-lg overflow-hidden ${
             isPaper
               ? "bg-[#FAF6EE] border border-[#C4B9A5] shadow-sm"
               : "bg-[#161412] border border-[#2C2825]"
@@ -337,9 +460,9 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
                   style={{
                     left: `${cx}%`,
                     top: `${cy}%`,
-                    transform: "translate(-50%, -50%)",
+                    transform: `translate(-50%, -50%) scale(${1 / Math.sqrt(zoom)})`,
                   }}
-                  className={`absolute z-10 px-2 py-0.5 rounded text-[11px] font-medium transition-all shadow-sm max-w-[140px] truncate border ${
+                  className={`absolute z-10 px-2 py-0.5 rounded text-[11px] font-medium transition-colors shadow-sm max-w-[150px] truncate border ${
                     violating
                       ? isPaper
                         ? "bg-[#B84322] text-[#FAF6EE] border-[#8F3014] font-semibold"
@@ -372,7 +495,7 @@ export const PlanCanvas: React.FC<PlanCanvasProps> = ({
             <span className="text-clay font-semibold">Perlu Penyesuaian</span>
           </span>
         </div>
-        <span>{rooms.length} Ruangan</span>
+        <span>Scroll / + − untuk Zoom · {rooms.length} Ruangan</span>
       </div>
     </div>
   );

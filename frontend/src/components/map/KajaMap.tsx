@@ -13,12 +13,13 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MOUNT_AGUNG, isInBali } from "@/lib/geo";
-import { AlertCircle, X } from "lucide-react";
+import { AlertCircle, X, MousePointerClick } from "lucide-react";
 import { useTheme } from "@/components/layout/ThemeProvider";
 
 export interface KajaMapProps {
   lat: number;
   lon: number;
+  hasPin?: boolean;
   bearing: number;
   cardinalDirection: string;
   distanceKm?: number;
@@ -78,7 +79,7 @@ function MapEvents({
   return null;
 }
 
-function MapFlyTo({ lat, lon }: { lat: number; lon: number }) {
+function MapFlyTo({ lat, lon, hasPin }: { lat: number; lon: number; hasPin: boolean }) {
   const map = useMap();
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -88,14 +89,17 @@ function MapFlyTo({ lat, lon }: { lat: number; lon: number }) {
   }, [map]);
 
   useEffect(() => {
-    map.panTo([lat, lon], { animate: true, duration: 0.4 });
-  }, [lat, lon, map]);
+    if (hasPin) {
+      map.panTo([lat, lon], { animate: true, duration: 0.4 });
+    }
+  }, [lat, lon, hasPin, map]);
   return null;
 }
 
 export const KajaMap: React.FC<KajaMapProps> = ({
   lat,
   lon,
+  hasPin = true,
   cardinalDirection,
   onChangeLocation,
   className = "",
@@ -140,6 +144,14 @@ export const KajaMap: React.FC<KajaMapProps> = ({
         </div>
       )}
 
+      {/* Prompt Banner when no pin has been placed yet */}
+      {!hasPin && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-ink-900/95 border border-bone-100/30 text-bone-100 text-[12px] font-medium shadow-xl flex items-center gap-2 pointer-events-none whitespace-nowrap">
+          <MousePointerClick size={14} className="text-clay shrink-0" />
+          <span>Klik pada peta Bali atau cari wilayah di atas untuk meletakkan pin lokasi</span>
+        </div>
+      )}
+
       {/* Map Frame */}
       <div
         className={`relative flex-1 w-full h-full overflow-hidden ${
@@ -170,37 +182,72 @@ export const KajaMap: React.FC<KajaMapProps> = ({
             }}
             onOutOfBounds={() => setOutOfBoundsNotice(true)}
           />
-          <MapFlyTo lat={lat} lon={lon} />
+          <MapFlyTo lat={lat} lon={lon} hasPin={hasPin} />
 
-          {/* User Site Marker */}
-          <Marker
-            position={userPosition}
-            icon={getUserPinIcon(isLight)}
-            draggable={true}
-            eventHandlers={{
-              dragend: (e) => {
-                const marker = e.target;
-                const pos = marker.getLatLng();
-                if (isInBali(pos.lat, pos.lng)) {
-                  setOutOfBoundsNotice(false);
-                  onChangeLocation(pos.lat, pos.lng);
-                } else {
-                  setOutOfBoundsNotice(true);
-                  marker.setLatLng(userPosition);
+          {/* User Site Marker (Only rendered after user pins or loads saved location) */}
+          {hasPin && (
+            <>
+              <Marker
+                position={userPosition}
+                icon={getUserPinIcon(isLight)}
+                draggable={true}
+                eventHandlers={{
+                  dragend: (e) => {
+                    const marker = e.target;
+                    const pos = marker.getLatLng();
+                    if (isInBali(pos.lat, pos.lng)) {
+                      setOutOfBoundsNotice(false);
+                      onChangeLocation(pos.lat, pos.lng);
+                    } else {
+                      setOutOfBoundsNotice(true);
+                      marker.setLatLng(userPosition);
+                    }
+                  },
+                }}
+              >
+                <Tooltip
+                  direction="bottom"
+                  offset={[0, 8]}
+                  opacity={1}
+                  permanent
+                  className="balekerta-map-tooltip"
+                >
+                  Tapak Anda (Geser pin)
+                </Tooltip>
+              </Marker>
+
+              {/* Kaja Vector Line */}
+              <Polyline
+                positions={[userPosition, agungPosition]}
+                pathOptions={{
+                  color: isLight ? "#B84322" : "#EFECE6",
+                  weight: 2.5,
+                  dashArray: "6, 6",
+                  opacity: 0.9,
+                }}
+              />
+
+              {/* Midpoint Bearing Label */}
+              <Marker
+                position={[midLat, midLon]}
+                icon={
+                  new L.DivIcon({
+                    className: "balekerta-custom-marker",
+                    html: `<div style="width:1px;height:1px;"></div>`,
+                  })
                 }
-              },
-            }}
-          >
-            <Tooltip
-              direction="bottom"
-              offset={[0, 8]}
-              opacity={1}
-              permanent
-              className="balekerta-map-tooltip"
-            >
-              Tapak Anda
-            </Tooltip>
-          </Marker>
+              >
+                <Tooltip
+                  direction="center"
+                  permanent
+                  opacity={1}
+                  className="balekerta-map-tooltip balekerta-bearing-tooltip"
+                >
+                  Kaja: {cardinalDirection}
+                </Tooltip>
+              </Marker>
+            </>
+          )}
 
           {/* Gunung Agung Marker */}
           <Marker position={agungPosition} icon={getGunungAgungIcon(isLight)}>
@@ -211,38 +258,7 @@ export const KajaMap: React.FC<KajaMapProps> = ({
               permanent
               className="balekerta-map-tooltip"
             >
-              Gunung Agung (Kaja)
-            </Tooltip>
-          </Marker>
-
-          {/* Kaja Vector Line */}
-          <Polyline
-            positions={[userPosition, agungPosition]}
-            pathOptions={{
-              color: isLight ? "#B84322" : "#EFECE6",
-              weight: 2.5,
-              dashArray: "6, 6",
-              opacity: 0.9,
-            }}
-          />
-
-          {/* Midpoint Bearing Label */}
-          <Marker
-            position={[midLat, midLon]}
-            icon={
-              new L.DivIcon({
-                className: "balekerta-custom-marker",
-                html: `<div style="width:1px;height:1px;"></div>`,
-              })
-            }
-          >
-            <Tooltip
-              direction="center"
-              permanent
-              opacity={1}
-              className="balekerta-map-tooltip balekerta-bearing-tooltip"
-            >
-              Kaja: {cardinalDirection}
+              Gunung Agung (Titik Suci Kaja)
             </Tooltip>
           </Marker>
         </MapContainer>

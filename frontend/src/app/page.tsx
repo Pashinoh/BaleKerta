@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { GlossaryDrawer } from "@/components/glossary/GlossaryDrawer";
 import { MiniZoneGrid, sacredCornerLabel, type SangaMandalaGrid } from "@/components/map/MiniZoneGrid";
+import { LocationSearchBox } from "@/components/map/LocationSearchBox";
 import { SampleList } from "@/components/plan/SampleList";
 import { UploadBox } from "@/components/plan/UploadBox";
 import { OrientationPicker } from "@/components/plan/OrientationPicker";
@@ -32,7 +33,7 @@ import {
   auditUploadedFloorPlan,
   ApiError,
 } from "@/lib/api";
-import { DEFAULT_LOCATION, BALI_QUICK_LOCATIONS, isInBali } from "@/lib/geo";
+import { DEFAULT_LOCATION, isInBali, cleanLocationLabel } from "@/lib/geo";
 import { animateStepTransition } from "@/lib/animations";
 import {
   ArrowRight,
@@ -45,6 +46,8 @@ import {
   ShieldCheck,
   MapPin,
 } from "lucide-react";
+
+const SAVED_LOCATION_KEY = "balekerta_saved_location";
 
 const KajaMap = dynamic(() => import("@/components/map/KajaMap"), {
   ssr: false,
@@ -85,7 +88,8 @@ export default function Home() {
   const [maxStepReached, setMaxStepReached] = useState<number>(1);
   const stepContainerRef = useRef<HTMLDivElement>(null);
 
-  // State geo & lokasi
+  // State geo & lokasi (hasPin default false sampai user menaruh pin atau dimuat dari localStorage)
+  const [hasPin, setHasPin] = useState<boolean>(false);
   const [lat, setLat] = useState<number>(DEFAULT_LOCATION.lat);
   const [lon, setLon] = useState<number>(DEFAULT_LOCATION.lon);
   const [kajaData, setKajaData] = useState<KajaGeoResponse>({
@@ -140,28 +144,55 @@ export default function Home() {
     }
   };
 
-  // 1. Health check awal & muat Kaja / Preset default
+  // 1. Health check awal & cek lokasi tersimpan di localStorage browser
   useEffect(() => {
     async function init() {
       const isOnline = await checkBackendHealth();
       setApiOnline(isOnline);
 
+      let initialLat = DEFAULT_LOCATION.lat;
+      let initialLon = DEFAULT_LOCATION.lon;
+      let restoredFromStorage = false;
+
       try {
-        const kaja = await getKaja(lat, lon);
+        const rawSaved = window.localStorage.getItem(SAVED_LOCATION_KEY);
+        if (rawSaved) {
+          const parsed = JSON.parse(rawSaved);
+          if (
+            typeof parsed?.lat === "number" &&
+            typeof parsed?.lon === "number" &&
+            isInBali(parsed.lat, parsed.lon)
+          ) {
+            initialLat = parsed.lat;
+            initialLon = parsed.lon;
+            restoredFromStorage = true;
+          }
+        }
+      } catch {
+        // Abaikan jika gagal membaca localStorage
+      }
+
+      if (restoredFromStorage) {
+        setLat(initialLat);
+        setLon(initialLon);
+        setHasPin(true);
+      }
+
+      try {
+        const kaja = await getKaja(initialLat, initialLon);
         setKajaData(kaja);
       } catch {
         // Fallback ke default
       }
 
       try {
-        const initialAudit = await runPresetAudit("preset_1_pass", lat, lon, 0);
+        const initialAudit = await runPresetAudit("preset_1_pass", initialLat, initialLon, 0);
         setAuditData(initialAudit);
       } catch {
         // Tangani diam-diam
       }
     }
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Sinkronkan pratinjau preset saat memilih preset baru atau merotasi arah utara denah
@@ -182,10 +213,19 @@ export default function Home() {
     };
   }, [inputTab, selectedPresetId, lat, lon, planNorthDeg]);
 
-  // 3. Ambil vektor Kaja setiap kali koordinat berubah
+  // 3. Ambil vektor Kaja & simpan lokasi ke localStorage setiap kali pengguna menaruh/menggeser pin
   const handleLocationChange = useCallback(async (newLat: number, newLon: number) => {
     setLat(newLat);
     setLon(newLon);
+    setHasPin(true);
+    try {
+      window.localStorage.setItem(
+        SAVED_LOCATION_KEY,
+        JSON.stringify({ lat: newLat, lon: newLon })
+      );
+    } catch {
+      // Abaikan jika storage penuh
+    }
     try {
       const kaja = await getKaja(newLat, newLon);
       setKajaData(kaja);
@@ -319,39 +359,18 @@ export default function Home() {
             <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
               {/* Kiri (8 Kolom): Kartu Peta Interaktif Full-Height */}
               <div className="lg:col-span-8 flex flex-col min-h-[420px] lg:min-h-0 bg-ink-900 border border-ink-800 rounded-xl overflow-hidden">
-                {/* Baris Kontrol Lokasi di Atas Peta */}
+                {/* Baris Kontrol Pencarian Wilayah / Koordinat di Atas Peta */}
                 <div className="shrink-0 px-4 py-2.5 border-b border-ink-800 flex flex-wrap items-center justify-between gap-2 bg-ink-900">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[13px] font-semibold text-bone-100 mr-1">
+                    <span className="text-[13px] font-semibold text-bone-100 mr-0.5">
                       Lokasi Tapak:
                     </span>
-                    <select
-                      id="quick-location-select"
-                      aria-label="Pilih Cepat Kabupaten atau Kota di Bali"
-                      value={
-                        BALI_QUICK_LOCATIONS.find(
-                          (loc) =>
-                            Math.abs(loc.lat - lat) < 0.03 &&
-                            Math.abs(loc.lon - lon) < 0.03
-                        )?.id || ""
-                      }
-                      className="min-h-[34px] bg-ink-950 border border-ink-800 text-bone-100 rounded-lg px-2.5 py-1 text-[12.5px] focus-visible:outline-2 focus-visible:outline-bone-100"
-                      onChange={(e) => {
-                        const selected = BALI_QUICK_LOCATIONS.find(
-                          (loc) => loc.id === e.target.value
-                        );
-                        if (selected) {
-                          handleLocationChange(selected.lat, selected.lon);
-                        }
-                      }}
-                    >
-                      <option value="">Pilih Kabupaten / Kota...</option>
-                      {BALI_QUICK_LOCATIONS.map((loc) => (
-                        <option key={loc.id} value={loc.id}>
-                          {loc.name}
-                        </option>
-                      ))}
-                    </select>
+                    <LocationSearchBox
+                      lat={lat}
+                      lon={lon}
+                      hasPin={hasPin}
+                      onSelectLocation={handleLocationChange}
+                    />
 
                     <Button
                       variant="secondary"
@@ -364,10 +383,14 @@ export default function Home() {
                   </div>
 
                   <div className="text-[11.5px] font-mono text-bone-400 flex items-center gap-1.5">
-                    <MapPin size={13} />
-                    <span>
-                      {kajaData.location_label || "Bali"} ({lat.toFixed(4)}°, {lon.toFixed(4)}°)
-                    </span>
+                    <MapPin size={13} className={hasPin ? "text-clay" : "text-bone-400"} />
+                    {hasPin ? (
+                      <span>
+                        {cleanLocationLabel(kajaData.location_label)} ({lat.toFixed(4)}°, {lon.toFixed(4)}°)
+                      </span>
+                    ) : (
+                      <span>Belum ada pin lokasi (Klik peta / cari wilayah)</span>
+                    )}
                   </div>
                 </div>
 
@@ -393,6 +416,7 @@ export default function Home() {
                   <KajaMap
                     lat={lat}
                     lon={lon}
+                    hasPin={hasPin}
                     bearing={kajaData.bearing_degrees}
                     cardinalDirection={kajaData.cardinal_direction}
                     distanceKm={kajaData.distance_km}
@@ -412,10 +436,12 @@ export default function Home() {
                         Arah Suci Kaja
                       </span>
                       <span className="text-[16px] font-bold text-bone-100 mt-0.5 block">
-                        {cardinalSingular(kajaData.cardinal_direction)}
+                        {hasPin ? cardinalSingular(kajaData.cardinal_direction) : "Pilih Titik"}
                       </span>
                       <span className="text-[11.5px] font-mono text-bone-400">
-                        {kajaData.bearing_degrees.toFixed(1)}° · {kajaData.distance_km?.toFixed(1) || "-"} km
+                        {hasPin
+                          ? `${kajaData.bearing_degrees.toFixed(1)}° · ${kajaData.distance_km?.toFixed(1) || "-"} km`
+                          : "Klik peta di samping"}
                       </span>
                     </div>
 
@@ -424,7 +450,9 @@ export default function Home() {
                         Sudut Sanggah
                       </span>
                       <span className="text-[16px] font-bold text-bone-100 mt-0.5 block">
-                        {cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant)).replace("Sudut ", "")}
+                        {hasPin
+                          ? cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant)).replace("Sudut ", "")
+                          : "Menunggu Pin"}
                       </span>
                       <span className="text-[11.5px] font-mono text-bone-400">
                         Utamaning Utama
@@ -441,9 +469,17 @@ export default function Home() {
                   />
 
                   <p className="text-[12px] text-bone-400 leading-relaxed">
-                    Poros Kaja di lokasi ini mengarah ke{" "}
-                    <strong className="text-bone-200">{cardinalSingular(kajaData.cardinal_direction)}</strong>. Zona suci keluarga (Sanggah) dikunci pada{" "}
-                    <strong className="text-bone-200">{cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))}</strong>.
+                    {hasPin ? (
+                      <>
+                        Lokasi terakhir Anda tersimpan otomatis di peramban. Poros Kaja mengarah ke{" "}
+                        <strong className="text-bone-200">{cardinalSingular(kajaData.cardinal_direction)}</strong> dan zona suci (Sanggah) dikunci pada{" "}
+                        <strong className="text-bone-200">{cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))}</strong>.
+                      </>
+                    ) : (
+                      <>
+                        Silakan <strong>klik titik lokasi tanah Anda pada peta</strong> atau gunakan kotak pencarian wilayah/koordinat di atas. Pilihan Anda akan otomatis disimpan di peramban.
+                      </>
+                    )}
                   </p>
                 </div>
 
@@ -452,10 +488,11 @@ export default function Home() {
                   variant="primary"
                   size="lg"
                   className="w-full shrink-0"
+                  disabled={!hasPin}
                   onClick={() => handleStepChange(2, "forward")}
                   icon={<ArrowRight size={16} />}
                 >
-                  Lanjut ke Denah Bangunan
+                  {hasPin ? "Lanjut ke Denah Bangunan" : "Letakkan Pin di Peta Dahulu"}
                 </Button>
               </div>
             </div>
@@ -552,7 +589,7 @@ export default function Home() {
                 </Button>
               </div>
 
-              {/* Kanan (8 Kolom): Pratinjau Kanvas Full-Height */}
+              {/* Kanan (8 Kolom): Pratinjau Kanvas Full-Height (Bisa Zoom In/Out & Pan) */}
               <div className="lg:col-span-8 flex flex-col min-h-[420px] lg:min-h-0 relative">
                 <PlanCanvas
                   imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
@@ -603,7 +640,7 @@ export default function Home() {
 
                   {/* Area Inspeksi 2 Kolom Full-Height */}
                   <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-                    {/* Kolom Kiri (7 Kolom): Kanvas Denah Interaktif */}
+                    {/* Kolom Kiri (7 Kolom): Kanvas Denah Interaktif (Bisa Zoom In/Out & Pan) */}
                     <div className="lg:col-span-7 flex flex-col min-h-[400px] lg:min-h-0">
                       <PlanCanvas
                         imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
