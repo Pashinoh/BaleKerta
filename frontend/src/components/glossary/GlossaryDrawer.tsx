@@ -22,7 +22,6 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
   const [selectedGroup, setSelectedGroup] = useState<"Semua" | "Arah" | "9 Zona" | "Bangunan" | "Pedoman" | "Ukuran" | "Aturan">("Semua");
   const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -39,7 +38,6 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Scroll to initial term if specified
   useEffect(() => {
     if (isOpen && initialTermId && itemRefs.current[initialTermId]) {
       setTimeout(() => {
@@ -51,7 +49,6 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
     }
   }, [isOpen, initialTermId]);
 
-  // Filter terms
   const filteredTerms = useMemo(() => {
     return GLOSSARY_TERMS.filter((t) => {
       const matchGroup = selectedGroup === "Semua" || t.group === selectedGroup;
@@ -71,13 +68,18 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink-950/80 transition-opacity"
+        className="fixed inset-0 bg-black/60 transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-xl h-full bg-ink-900 border-l border-ink-700 flex flex-col shadow-2xl z-10">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Panduan Istilah Adat"
+        className="relative w-full max-w-xl h-full bg-ink-900 border-l border-ink-700 flex flex-col shadow-2xl z-10"
+      >
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-ink-700 bg-ink-950 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -86,17 +88,17 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
             </div>
             <div>
               <h2 className="text-[16px] font-bold text-bone-100">
-                Panduan Istilah Adat
+                Kamus Istilah Adat
               </h2>
               <p className="text-[12px] text-bone-400 font-mono">
-                Asta Kosala-Kosali & Asta Bumi
+                Asta Kosala-Kosali &amp; Asta Bumi
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-bone-400 hover:text-bone-100 hover:bg-ink-800 rounded-lg transition-colors"
+            className="min-w-[40px] min-h-[40px] flex items-center justify-center text-bone-400 hover:text-bone-100 hover:bg-ink-800 rounded-lg transition-colors"
             aria-label="Tutup panduan"
           >
             <X size={20} />
@@ -104,12 +106,14 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
         </div>
 
         {/* Search & Filters */}
-        <GlossarySearch
-          onSearch={setSearchQuery}
-          onGroupChange={(grp) => setSelectedGroup(grp as "Semua" | "Arah" | "9 Zona" | "Bangunan" | "Pedoman" | "Ukuran" | "Aturan")}
-          selectedGroup={selectedGroup}
-          searchQuery={searchQuery}
-        />
+        <div className="p-4 border-b border-ink-700 bg-ink-900">
+          <GlossarySearch
+            onSearch={setSearchQuery}
+            onGroupChange={(grp) => setSelectedGroup(grp as "Semua" | "Arah" | "9 Zona" | "Bangunan" | "Pedoman" | "Ukuran" | "Aturan")}
+            selectedGroup={selectedGroup}
+            searchQuery={searchQuery}
+          />
+        </div>
 
         {/* Content Scrollable Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
@@ -120,7 +124,7 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
             </div>
 
             {filteredTerms.length === 0 ? (
-              <div className="p-8 text-center text-bone-400 border border-dashed border-ink-700/60 rounded-xl bg-ink-950/50">
+              <div className="p-8 text-center text-bone-400 border border-dashed border-ink-700/60 rounded-lg bg-ink-950/50">
                 Tidak ada istilah yang cocok dengan kata kunci &quot;{searchQuery}&quot;.
               </div>
             ) : (
@@ -133,14 +137,9 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
                       ref={(el) => {
                         itemRefs.current[t.id] = el;
                       }}
-                      className={`p-3 rounded-xl border transition-all duration-200 ${
-                        isTarget
-                          ? "bg-ink-800 border-bone-100 shadow-card"
-                          : "bg-ink-950 border-ink-700/80 hover:border-bone-100/50"
-                      }`}
                     >
                       <Link href={`/panduan?term=${t.id}`} onClick={onClose} className="block">
-                        <TermCard term={t} variant="compact" />
+                        <TermCard term={t} variant="compact" isHighlighted={isTarget} />
                       </Link>
                     </div>
                   );
@@ -153,7 +152,7 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
         {/* Footer with Links to Full Guide & Calculator */}
         <div className="p-4 border-t border-ink-700 bg-ink-950 text-[12px] text-bone-400 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span className="font-mono text-bone-400 text-[11px]">
-            BaleKerta Cultural Reference Guide
+            Pedoman Arsitektur Tradisional Bali
           </span>
           <div className="flex items-center gap-3">
             <Link
@@ -161,7 +160,7 @@ export const GlossaryDrawer: React.FC<GlossaryDrawerProps> = ({
               onClick={onClose}
               className="text-bone-100 hover:text-bone-300 font-semibold inline-flex items-center gap-1 transition-colors"
             >
-              <span>Buka Halaman Panduan Lengkap</span>
+              <span>Buka Halaman Panduan &amp; Kalkulator Hasta</span>
               <ExternalLink size={13} />
             </Link>
           </div>

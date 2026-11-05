@@ -17,27 +17,24 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium rounded transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-bone-100 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none";
+    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus-visible:outline-2 focus-visible:outline-bone-100 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none";
 
+  // Minimum 44px height on mobile for ergonomic thumb tap targets (R-03)
   const sizeStyles = {
-    sm: "text-[13px] px-3 py-1.5 gap-1.5 min-h-[32px]",
-    md: "text-[14px] px-4 py-2 gap-2 min-h-[38px]",
-    lg: "text-[15px] px-5 py-2.5 gap-2.5 min-h-[42px]",
+    sm: "text-[13px] px-3 py-1.5 gap-1.5 min-h-[40px] sm:min-h-[36px]",
+    md: "text-[13.5px] px-4 py-2 gap-2 min-h-[44px] sm:min-h-[40px]",
+    lg: "text-[14.5px] px-5 py-2.5 gap-2.5 min-h-[46px] sm:min-h-[44px]",
   };
 
   const variantStyles = {
-    // Primary: Solid Bone (#EDE7DA) with Ink (#0E0D0C) text for high WCAG contrast
     primary:
-      "bg-bone-100 text-ink-950 hover:bg-bone-200 active:bg-bone-300 font-semibold shadow-sm",
-    // Secondary: Deep Ink (#151311) with fine border (#2A2622)
+      "bg-bone-100 text-ink-950 border border-bone-100 hover:bg-bone-200 active:translate-y-[0.5px] font-semibold shadow-sm",
     secondary:
-      "bg-ink-900 text-bone-100 border border-ink-700 hover:bg-ink-800 hover:border-ink-600 active:bg-ink-700",
-    // Ghost: Clean inline action
+      "bg-ink-900 text-bone-100 border border-ink-600 hover:bg-ink-800 hover:border-bone-400 active:bg-ink-850",
     ghost:
-      "bg-transparent text-bone-400 hover:text-bone-100 hover:bg-ink-900 active:bg-ink-800",
-    // Danger: Clay outline for violations/errors
+      "bg-transparent text-bone-300 border border-transparent hover:text-bone-100 hover:bg-ink-850 active:bg-ink-800",
     danger:
-      "bg-transparent text-clay border border-clay hover:bg-clay/10 active:bg-clay/20",
+      "bg-clay/10 text-clay border border-clay hover:bg-clay/20 active:bg-clay/25 font-semibold",
   };
 
   return (
@@ -46,7 +43,7 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled}
       {...props}
     >
-      {icon && <span className="shrink-0">{icon}</span>}
+      {icon && <span className="shrink-0" aria-hidden="true">{icon}</span>}
       <span>{children}</span>
     </button>
   );

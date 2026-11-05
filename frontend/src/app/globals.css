@@ -2,47 +2,131 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base resets adhering to Ink / Bone / Clay design spec */
-html {
+/* ==========================================================================
+   DUAL-THEME ARCHITECTURAL TOKENS (Dark Obsidian Ink vs Soft Warm Lontar)
+   Verified WCAG AA contrast ratios across all surface/text pairings (R-25, R-34)
+   ========================================================================== */
+:root,
+html.dark {
   color-scheme: dark;
+  /* Deep Obsidian Ink Surfaces */
+  --ink-950: 14 13 12;     /* #0E0D0C - Main drafting canvas */
+  --ink-900: 22 20 18;     /* #161412 - Card & panel surface */
+  --ink-850: 29 26 23;     /* #1D1A17 - Elevated / inset surface */
+  --ink-800: 38 34 30;     /* #26221E - Active / hover surface */
+  --ink-700: 51 46 41;     /* #332E29 - Primary architectural border */
+  --ink-600: 74 67 60;     /* #4A433C - Emphasized control border */
+  --ink-500: 102 94 84;    /* #665E54 - Structural stroke */
+
+  /* Warm Bone Typography & Contrast */
+  --bone-100: 240 234 225; /* #F0EAE1 - Primary text & solid CTA (16.24:1) */
+  --bone-200: 224 216 202; /* #E0D8CA - Hover & strong subheading */
+  --bone-300: 200 191 168; /* #C8BFA8 - Body prose */
+  --bone-400: 168 159 141; /* #A89F8D - Secondary label & mono (6.61:1) */
+  --bone-500: 140 131 115; /* #8C8373 - Subtle caption */
+
+  /* Bata Bali Terracotta Accent */
+  --clay-600: 184 78 48;   /* #B84E30 */
+  --clay-500: 224 109 75;  /* #E06D4B - Violation & Kaja vector (5.65:1) */
+  --clay-400: 235 136 106; /* #EB886A */
+  --clay-300: 242 175 154; /* #F2AF9A */
+
+  --shadow-card: 0 2px 12px -2px rgba(0, 0, 0, 0.45);
+  --shadow-dock: 0 -4px 20px -2px rgba(0, 0, 0, 0.55);
 }
 
-body {
-  background-color: #0E0D0C;
-  color: #EDE7DA;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+html.light {
+  color-scheme: light;
+  /* Soft Warm Lontar & Limestone Surfaces (Zero-Glare / Tidak Silau) */
+  --ink-950: 242 236 225;  /* #F2ECE1 - Warm Lontar canvas (~0.83 luminance) */
+  --ink-900: 250 246 238;  /* #FAF6EE - Soft Warm Ivory card surface */
+  --ink-850: 234 226 211;  /* #EAE2D3 - Warm Sand inset surface */
+  --ink-800: 223 213 195;  /* #DFD5C3 - Active / selected control surface */
+  --ink-700: 207 196 176;  /* #CFC4B0 - Crisp architectural rule */
+  --ink-600: 181 168 146;  /* #B5A892 - Emphasized control boundary */
+  --ink-500: 143 130 109;  /* #8F826D - Structural stroke */
+
+  /* Deep Charcoal Ink Typography */
+  --bone-100: 28 25 22;    /* #1C1916 - Primary ink text & CTA fill (14.88:1) */
+  --bone-200: 46 41 36;    /* #2E2924 - Primary CTA hover & strong subheading */
+  --bone-300: 66 59 52;    /* #423B34 - Body prose (9.5:1) */
+  --bone-400: 92 83 73;    /* #5C5349 - Secondary label & mono (5.85:1) */
+  --bone-500: 110 100 89;  /* #6E6459 - Subtle caption */
+
+  /* Deep Bata Bali Terracotta Accent */
+  --clay-600: 156 52 22;   /* #9C3416 */
+  --clay-500: 184 67 34;   /* #B84322 - Violation & Kaja vector (4.62:1) */
+  --clay-400: 204 85 51;   /* #CC5533 */
+  --clay-300: 224 122 92;  /* #E07A5C */
+
+  --shadow-card: 0 2px 10px -2px rgba(28, 25, 22, 0.07);
+  --shadow-dock: 0 -4px 18px -2px rgba(28, 25, 22, 0.09);
 }
 
-/* Custom scrollbars with Ink tones */
+@layer base {
+  body {
+    background-color: rgb(var(--ink-950));
+    color: rgb(var(--bone-100));
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  /* Base interaction affordances (R-39) */
+  a[href],
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label[for],
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="range"]:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+/* Custom scrollbars adapting to active theme */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #0E0D0C;
+  background: rgb(var(--ink-950));
 }
 ::-webkit-scrollbar-thumb {
-  background: #2A2622;
-  border-radius: 3px;
+  background: rgb(var(--ink-700));
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3A352F;
+  background: rgb(var(--ink-600));
 }
 
-/* Precision focus outline */
+/* High-contrast keyboard focus indicator (R-32) */
 :focus-visible {
-  outline: 2px solid #EDE7DA;
+  outline: 2px solid rgb(var(--bone-100));
   outline-offset: 2px;
 }
 
-/* Clean Canvas & Container for Leaflet */
+/* ==========================================================================
+   LEAFLET MAP CUSTOMIZATION (Dark & Soft Light Non-Glaring Themes)
+   ========================================================================== */
 .leaflet-container {
-  background-color: #0E0D0C !important;
+  background-color: rgb(var(--ink-950)) !important;
   outline: none;
   font-family: inherit;
 }
 
-/* Remove default Leaflet divIcon square and border artifact (Penyebab Pin Kotak Aneh) */
+/* Remove default Leaflet divIcon white square & border artifact */
 .leaflet-div-icon,
 .custom-plot-pin,
 .custom-agung-pin {
@@ -51,9 +135,9 @@ body {
   box-shadow: none !important;
 }
 
-/* Mode Gelap (Dark Ink Slate - Diterapkan TEPAT 1x pada tile-pane) */
+/* Mode Gelap Peta (Diterapkan TEPAT 1x pada tile-pane) */
 .dark-map-theme .leaflet-tile-pane {
-  filter: brightness(0.6) invert(100%) contrast(1.6) hue-rotate(205deg) saturate(0.2) brightness(0.7) !important;
+  filter: brightness(0.62) invert(100%) contrast(1.55) hue-rotate(205deg) saturate(0.22) brightness(0.72) !important;
   background-color: #0E0D0C !important;
 }
 .dark-map-theme .leaflet-layer,
@@ -61,10 +145,10 @@ body {
   filter: none !important;
 }
 
-/* Mode Terang Lembut (Clean Light Architectural - Alami & Bebas Silau, Diterapkan TEPAT 1x) */
+/* Mode Terang Lembut Peta (Warm Lontar / Parchment - Alami & Tidak Silau, TEPAT 1x) */
 .light-map-theme .leaflet-tile-pane {
-  filter: brightness(0.97) contrast(0.95) saturate(0.85) !important;
-  background-color: #FFFFFF !important;
+  filter: sepia(0.16) brightness(0.95) contrast(0.94) saturate(0.82) !important;
+  background-color: #EAE2D3 !important;
 }
 .light-map-theme .leaflet-layer,
 .light-map-theme .leaflet-tile {
@@ -76,30 +160,60 @@ body {
   background-color: transparent !important;
 }
 
-/* Tooltip Styling: Clean Dark Architectural Badges with Matched Pointers */
-.leaflet-tooltip {
-  background-color: #0E0D0C !important;
-  color: #EDE7DA !important;
-  border: 1px solid #2A2622 !important;
+/* Tooltip Styling: Adapts cleanly to map theme */
+.dark-map-theme .leaflet-tooltip {
+  background-color: #161412 !important;
+  color: #F0EAE1 !important;
+  border: 1px solid #332E29 !important;
   border-radius: 6px !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65) !important;
   font-family: inherit !important;
   padding: 4px 8px !important;
 }
-.leaflet-tooltip-top:before {
-  border-top-color: #0E0D0C !important;
+.dark-map-theme .leaflet-tooltip-top:before {
+  border-top-color: #161412 !important;
 }
-.leaflet-tooltip-bottom:before {
-  border-bottom-color: #0E0D0C !important;
-}
-.leaflet-tooltip-left:before {
-  border-left-color: #0E0D0C !important;
-}
-.leaflet-tooltip-right:before {
-  border-right-color: #0E0D0C !important;
+.dark-map-theme .leaflet-tooltip-bottom:before {
+  border-bottom-color: #161412 !important;
 }
 
-/* Leaflet stacking context containment to prevent bleeding through header/dock */
+.light-map-theme .leaflet-tooltip {
+  background-color: #FAF6EE !important;
+  color: #1C1916 !important;
+  border: 1px solid #B5A892 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(28, 25, 22, 0.18) !important;
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  padding: 4px 8px !important;
+}
+.light-map-theme .leaflet-tooltip-top:before {
+  border-top-color: #FAF6EE !important;
+}
+.light-map-theme .leaflet-tooltip-bottom:before {
+  border-bottom-color: #FAF6EE !important;
+}
+
+/* Leaflet zoom controls adapted to theme */
+.leaflet-bar {
+  border: 1px solid rgb(var(--ink-700)) !important;
+  box-shadow: var(--shadow-card) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+.leaflet-bar a {
+  background-color: rgb(var(--ink-900)) !important;
+  color: rgb(var(--bone-100)) !important;
+  border-bottom: 1px solid rgb(var(--ink-700)) !important;
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+}
+.leaflet-bar a:hover {
+  background-color: rgb(var(--ink-800)) !important;
+}
+
+/* Leaflet stacking context containment */
 .leaflet-pane {
   z-index: 10 !important;
 }
@@ -108,26 +222,7 @@ body {
   z-index: 15 !important;
 }
 
-/* Subtle, professional architectural scanning line */
-@keyframes subtleScan {
-  0% {
-    top: 0%;
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    top: 99%;
-    opacity: 0.4;
-  }
-}
-
-.animate-subtle-scan {
-  animation: subtleScan 2.4s ease-in-out infinite alternate;
-}
-
-/* Reduced motion */
+/* Reduced motion (R-39) */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -137,31 +232,29 @@ body {
   }
 }
 
-/* Print Stylesheet for Official Pre-Inspection Report */
+/* ==========================================================================
+   PRINT / PDF STYLESHEET FOR OFFICIAL A4 ARCHITECTURAL PBG REPORT
+   ========================================================================== */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 8mm 10mm;
   }
 
   html,
   html.dark,
+  html.light,
   body {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #141210 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    height: 100% !important;
     min-height: 100% !important;
     overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
-
-  div, main, section {
-    background-color: transparent !important;
   }
 
   header,
@@ -175,23 +268,16 @@ body {
   }
 
   #printable-report-wrapper {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    min-height: 100% !important;
-    margin: 0 !important;
-    padding: 8mm 10mm !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    position: static !important;
     display: block !important;
     visibility: visible !important;
-    box-sizing: border-box !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #FFFFFF !important;
+    overflow: visible !important;
     box-shadow: none !important;
     border: none !important;
-    overflow: visible !important;
-    z-index: 999999 !important;
   }
 
   #printable-report-card {
@@ -199,11 +285,10 @@ body {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    background: #FFFFFF !important;
     border: none !important;
     box-shadow: none !important;
     overflow: visible !important;
@@ -213,10 +298,20 @@ body {
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    max-height: none !important;
+    background: #FFFFFF !important;
     overflow: visible !important;
+  }
+
+  #printable-report-sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #FFFFFF !important;
+    color: #141210 !important;
   }
 
   .print-avoid-break {
@@ -237,20 +332,6 @@ body {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
-
-  th, td {
-    border: 1px solid #d1d5db !important;
-    padding: 4px 7px !important;
-    color: #000000 !important;
-    background: #ffffff !important;
-    font-size: 10px !important;
-    line-height: 1.25 !important;
-  }
-
-  th {
-    background-color: #f3f4f6 !important;
-    font-weight: 700 !important;
-  }
 }
 
 @media screen {
@@ -259,33 +340,8 @@ body {
   }
 }
 
-/* Clean Editorial & Architectural Layout Elements */
 @layer components {
   .step-card {
-    @apply bg-ink-900 border border-ink-700 rounded-lg p-5 lg:p-6 space-y-6 shadow-card;
-  }
-  .step-header {
-    @apply flex items-center justify-between border-b border-ink-700 pb-3 mb-4;
-  }
-  .step-title {
-    @apply text-[16px] font-semibold text-bone-100 tracking-tight;
-  }
-  .step-subtitle {
-    @apply text-[12px] font-mono text-bone-400;
-  }
-  .section-header {
-    @apply flex items-center justify-between pb-3 border-b border-ink-700 mb-4;
-  }
-  .section-title {
-    @apply text-[15px] font-semibold text-bone-100;
-  }
-  .metric-label {
-    @apply text-[11px] font-mono text-bone-400 block mb-1;
-  }
-  .metric-value {
-    @apply text-[14px] font-mono font-semibold text-bone-100 block;
-  }
-  .action-row {
-    @apply flex items-center gap-3 pt-4 border-t border-ink-700;
+    @apply bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6 space-y-6 shadow-card;
   }
 }

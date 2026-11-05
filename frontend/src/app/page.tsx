@@ -48,22 +48,21 @@ import {
   Compass,
   Landmark,
   Printer,
-  Sparkles,
+  ShieldCheck,
   Layers,
   MapPin,
 } from "lucide-react";
 
-// Dynamic import untuk Leaflet map — hindari SSR
+// Dynamic import untuk Leaflet map agar bebas masalah SSR
 const KajaMap = dynamic(() => import("@/components/map/KajaMap"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[420px] bg-ink-900 border border-ink-700 rounded-xl flex items-center justify-center text-bone-400 font-mono text-[13px]">
+    <div className="w-full h-[420px] bg-ink-900 border border-ink-700 rounded-lg flex items-center justify-center text-bone-400 font-mono text-[13px]">
       Memuat peta interaktif Bali...
     </div>
   ),
 });
 
-// Helper: arah kardinal ke bentuk tunggal bahasa Indonesia
 function cardinalSingular(cardinal: string): string {
   const map: Record<string, string> = {
     "Timur Laut (NE)": "Timur Laut",
@@ -78,7 +77,6 @@ function cardinalSingular(cardinal: string): string {
   return map[cardinal] || cardinal.replace(/\s*\([A-Z]{1,2}\)/, "");
 }
 
-// Helper: label sudut ke kapitalisasi bahasa Indonesia
 function cornerCapitalized(corner: string): string {
   const map: Record<string, string> = {
     "kanan-atas": "Sudut Kanan Atas",
@@ -139,7 +137,6 @@ export default function Home() {
   // State grid Sanga Mandala (dari API backend)
   const [gridConfig, setGridConfig] = useState<SangaMandalaGrid | null>(null);
 
-  // Animasi transisi step menggunakan Anime.js
   const handleStepChange = (newStep: number, direction: "forward" | "backward" = "forward") => {
     setStep(newStep);
     setMaxStepReached((prev) => Math.max(prev, newStep));
@@ -172,7 +169,27 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2. Ambil vektor Kaja setiap kali koordinat berubah
+  // 2. Sinkronkan pratinjau preset saat memilih preset baru atau merotasi arah utara denah
+  useEffect(() => {
+    if (inputTab !== "sample" || !selectedPresetId) return;
+    let cancelled = false;
+    runPresetAudit(selectedPresetId, lat, lon, planNorthDeg)
+      .then((res) => {
+        if (!cancelled) {
+          setAuditData(res);
+          setSelectedRoomIndex(null);
+          setHoveredRoomIndex(null);
+        }
+      })
+      .catch(() => {
+        // Pertahankan pratinjau sebelumnya jika gagal
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [inputTab, selectedPresetId, lat, lon, planNorthDeg]);
+
+  // 3. Ambil vektor Kaja setiap kali koordinat berubah
   const handleLocationChange = useCallback(
     async (newLat: number, newLon: number) => {
       setLat(newLat);
@@ -180,20 +197,14 @@ export default function Home() {
       try {
         const kaja = await getKaja(newLat, newLon);
         setKajaData(kaja);
-
-        // Jika di step hasil dan menggunakan preset, hitung ulang secara live
-        if (inputTab === "sample" && selectedPresetId && auditData) {
-          const updated = await runPresetAudit(selectedPresetId, newLat, newLon, planNorthDeg);
-          setAuditData(updated);
-        }
       } catch {
         // Pertahankan state sebelumnya
       }
     },
-    [inputTab, selectedPresetId, planNorthDeg, auditData]
+    []
   );
 
-  // 2b. Handler lokasi GPS
+  // 3b. Handler lokasi GPS
   const [geoError, setGeoError] = useState<string | null>(null);
   const handleUseMyLocation = useCallback(() => {
     setGeoError(null);
@@ -226,7 +237,7 @@ export default function Home() {
       .catch(() => setGridConfig(null));
   }, [kajaData.kaja_quadrant, planNorthDeg]);
 
-  // 3. Handle pemilihan berkas
+  // 4. Handle pemilihan berkas
   const handleFileChange = (file: File | null) => {
     setSelectedFile(file);
     if (file) {
@@ -239,7 +250,7 @@ export default function Home() {
     setAuditError(null);
   };
 
-  // 4. Eksekusi audit
+  // 5. Eksekusi audit
   const handleExecuteAudit = async () => {
     setIsAuditing(true);
     setAuditError(null);
@@ -280,7 +291,6 @@ export default function Home() {
     }
   };
 
-  // Buka drawer glosarium dengan fokus istilah tertentu
   const handleOpenGlossaryWithTerm = (termId: string) => {
     setGlossaryTermId(termId);
     setIsGlossaryOpen(true);
@@ -303,17 +313,15 @@ export default function Home() {
       {/* Kontainer Utama */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 pb-32 space-y-6">
         {/* Stepper */}
-        <div className="space-y-4">
-          <Stepper
-            currentStep={step}
-            maxStepReached={maxStepReached}
-            onSelectStep={(targetStep) =>
-              handleStepChange(targetStep, targetStep > step ? "forward" : "backward")
-            }
-          />
-        </div>
+        <Stepper
+          currentStep={step}
+          maxStepReached={maxStepReached}
+          onSelectStep={(targetStep) =>
+            handleStepChange(targetStep, targetStep > step ? "forward" : "backward")
+          }
+        />
 
-        {/* Pembungkus Konten Step dengan Target Anime.js */}
+        {/* Pembungkus Konten Step */}
         <div ref={stepContainerRef} className="space-y-6">
           {step === 1 ? (
             /* ========================================================== */
@@ -321,20 +329,26 @@ export default function Home() {
             /* ========================================================== */
             <div className="space-y-6">
               {/* Atas: Peta Interaktif Kaja */}
-              <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 sm:p-5 shadow-card space-y-4">
+              <div className="bg-ink-900 border border-ink-700 rounded-lg p-4 sm:p-5 shadow-card space-y-4">
                 {/* Kontrol lokasi cepat */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-ink-700">
-                  <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-ink-700">
+                  <div className="flex items-center gap-2.5 flex-wrap">
                     <label
                       htmlFor="quick-location-select"
-                      className="text-[13px] text-bone-400 font-mono font-medium"
+                      className="text-[13px] text-bone-300 font-mono font-medium"
                     >
                       Pilih Cepat Wilayah:
                     </label>
                     <select
                       id="quick-location-select"
-                      value={BALI_QUICK_LOCATIONS.find((loc) => Math.abs(loc.lat - lat) < 0.03 && Math.abs(loc.lon - lon) < 0.03)?.id || ""}
-                      className="bg-ink-950 border border-ink-700 text-bone-100 rounded-lg px-3 py-1.5 text-[13px] focus-visible:outline-2 focus-visible:outline-bone-100"
+                      value={
+                        BALI_QUICK_LOCATIONS.find(
+                          (loc) =>
+                            Math.abs(loc.lat - lat) < 0.03 &&
+                            Math.abs(loc.lon - lon) < 0.03
+                        )?.id || ""
+                      }
+                      className="min-h-[40px] bg-ink-950 border border-ink-700 text-bone-100 rounded-md px-3 py-1.5 text-[13px] focus-visible:outline-2 focus-visible:outline-bone-100"
                       onChange={(e) => {
                         const selected = BALI_QUICK_LOCATIONS.find(
                           (loc) => loc.id === e.target.value
@@ -362,14 +376,16 @@ export default function Home() {
                     </Button>
                   </div>
 
-                  <div className="text-[12px] font-mono text-bone-400 flex items-center gap-1.5">
-                    <MapPin size={14} className="text-bone-400" />
-                    <span>{kajaData.location_label || "Wilayah Bali"}</span>
+                  <div className="text-[12px] font-mono text-bone-300 flex items-center gap-1.5 px-2.5 py-1 rounded bg-ink-950 border border-ink-700">
+                    <MapPin size={14} className="text-bone-400 shrink-0" />
+                    <span>
+                      {kajaData.location_label || "Wilayah Bali"} ({lat.toFixed(4)}°, {lon.toFixed(4)}°)
+                    </span>
                   </div>
                 </div>
 
                 {geoError && (
-                  <div className="flex items-center justify-between p-3.5 bg-ink-950 border border-clay/60 text-clay rounded-xl text-[13px]">
+                  <div className="flex items-center justify-between p-3.5 bg-ink-950 border border-clay/60 text-clay rounded-lg text-[13px]">
                     <div className="flex items-center gap-2">
                       <AlertCircle size={16} className="shrink-0" />
                       <span>{geoError}</span>
@@ -378,9 +394,9 @@ export default function Home() {
                       type="button"
                       onClick={() => setGeoError(null)}
                       aria-label="Tutup pesan"
-                      className="text-bone-400 hover:text-bone-100 transition-colors"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center text-bone-400 hover:text-bone-100 transition-colors"
                     >
-                      <X size={14} />
+                      <X size={15} />
                     </button>
                   </div>
                 )}
@@ -397,13 +413,13 @@ export default function Home() {
               </div>
 
               {/* Bawah: Analisis Geodesik & Grid Sanga Mandala */}
-              <div className="bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6 shadow-card space-y-6">
-                <header className="flex items-center justify-between border-b border-ink-700 pb-3">
-                  <div className="flex items-center gap-2">
-                    <Sparkles size={18} className="text-bone-100" />
-                    <h3 className="text-[16px] font-bold text-bone-100">
+              <div className="bg-ink-900 border border-ink-700 rounded-lg p-5 lg:p-6 shadow-card space-y-6">
+                <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink-700 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <Compass size={18} className="text-bone-100 shrink-0" />
+                    <h2 className="text-[16px] font-bold text-bone-100">
                       Orientasi Kosmologis Tapak (Sanga Mandala)
-                    </h3>
+                    </h2>
                   </div>
                   <span className="text-[12px] font-mono text-bone-400">
                     Asta Bumi Geodesic Engine
@@ -412,8 +428,8 @@ export default function Home() {
 
                 {/* Badge ringkasan */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex items-center gap-3 p-3.5 bg-ink-950 border border-ink-700 rounded-xl">
-                    <div className="w-10 h-10 rounded-lg bg-ink-800 border border-ink-600 flex items-center justify-center text-bone-100 shrink-0">
+                  <div className="flex items-center gap-3 p-3.5 bg-ink-950 border border-ink-700 rounded-lg">
+                    <div className="w-10 h-10 rounded-md bg-ink-800 border border-ink-600 flex items-center justify-center text-bone-100 shrink-0">
                       <Compass size={20} />
                     </div>
                     <div>
@@ -426,8 +442,8 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3.5 bg-ink-950 border border-ink-700 rounded-xl">
-                    <div className="w-10 h-10 rounded-lg bg-ink-800 border border-ink-600 flex items-center justify-center text-bone-100 shrink-0">
+                  <div className="flex items-center gap-3 p-3.5 bg-ink-950 border border-ink-700 rounded-lg">
+                    <div className="w-10 h-10 rounded-md bg-ink-800 border border-ink-600 flex items-center justify-center text-bone-100 shrink-0">
                       <Landmark size={20} />
                     </div>
                     <div>
@@ -442,7 +458,7 @@ export default function Home() {
                 </div>
 
                 {/* Grid 3×3 dan Penjelasan */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                   <div>
                     <MiniZoneGrid
                       gridConfig={gridConfig}
@@ -451,73 +467,62 @@ export default function Home() {
                       planNorthDeg={planNorthDeg}
                     />
                   </div>
-                  <div className="space-y-4 bg-ink-950 p-5 rounded-xl border border-ink-700">
-                    <h4 className="text-[14px] font-semibold text-bone-100 flex items-center gap-2">
-                      <Compass size={16} />
-                      <span>Penjelasan Kaidah Tata Ruang Adat:</span>
-                    </h4>
+                  <div className="space-y-4 bg-ink-950 p-5 rounded-lg border border-ink-700">
+                    <h3 className="text-[14px] font-semibold text-bone-100 flex items-center gap-2">
+                      <ShieldCheck size={16} />
+                      <span>Kaidah Tata Ruang Adat Bali (Asta Bumi)</span>
+                    </h3>
                     <p className="text-[13px] text-bone-300 leading-relaxed">
-                      Sumbu suci Kaja pada lokasi tanah Anda mengarah ke{" "}
-                      <strong className="text-bone-100">
-                        {cardinalSingular(kajaData.cardinal_direction)}
-                      </strong>. Berdasarkan hukum kosmologis Sanga Mandala, zona paling suci (*Utamaning Utama*) wajib ditempatkan di{" "}
+                      Di Bali, arah suci <strong className="text-bone-100">Kaja</strong> tidak selalu identik dengan Utara kompas, melainkan berorientasi langsung ke puncak Gunung Agung. Di Kabupaten Buleleng (Bali Utara), Kaja menghadap ke Selatan; sedangkan di Denpasar, Badung, dan Gianyar, Kaja menghadap ke Timur Laut.
+                    </p>
+                    <p className="text-[13px] text-bone-300 leading-relaxed">
+                      Berdasarkan titik koordinat tanah Anda, poros Kaja berada pada azimuth{" "}
+                      <strong className="text-bone-100">{kajaData.bearing_degrees.toFixed(1)}° ({cardinalSingular(kajaData.cardinal_direction)})</strong>, sehingga zona paling suci (<em>Utamaning Utama</em>) dikunci pada{" "}
                       <strong className="text-bone-100">
                         {cornerCapitalized(sacredCornerLabel(kajaData.kaja_quadrant))}
                       </strong>.
                     </p>
-                    <p className="text-[12px] text-bone-400 leading-relaxed">
-                      Sistem ini otomatis mengunci orientasi tersebut agar evaluasi denah bangunan pada Langkah 2 dievaluasi secara presisi dan objektif.
-                    </p>
+
+                    {/* Disclosure Parameter Teknis */}
+                    <Disclosure
+                      title="Lihat Parameter Teknis & Koordinat Geodesik"
+                      defaultOpen={false}
+                      className="border-ink-700 bg-ink-900"
+                    >
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                        <div className="p-2.5 bg-ink-950 border border-ink-700 rounded">
+                          <span className="text-[10px] text-bone-400 font-mono block">
+                            Koordinat WGS84
+                          </span>
+                          <span className="text-[12px] font-mono font-semibold text-bone-100 block mt-0.5">
+                            {lat.toFixed(4)}°, {lon.toFixed(4)}°
+                          </span>
+                        </div>
+
+                        <div className="p-2.5 bg-ink-950 border border-ink-700 rounded">
+                          <span className="text-[10px] text-bone-400 font-mono block">
+                            Azimuth &amp; Kuadran
+                          </span>
+                          <span className="text-[12px] font-mono font-semibold text-bone-100 block mt-0.5">
+                            {kajaData.bearing_degrees.toFixed(1)}° ({kajaData.kaja_quadrant})
+                          </span>
+                        </div>
+
+                        <div className="p-2.5 bg-ink-950 border border-ink-700 rounded">
+                          <span className="text-[10px] text-bone-400 font-mono block">
+                            Jarak ke Gn. Agung
+                          </span>
+                          <span className="text-[12px] font-mono font-semibold text-bone-100 block mt-0.5">
+                            {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"} (3.142 mdpl)
+                          </span>
+                        </div>
+                      </div>
+                    </Disclosure>
                   </div>
                 </div>
 
-                {/* Disclosure Parameter Teknis */}
-                <Disclosure
-                  title="Lihat Parameter Teknis & Koordinat Geodesik"
-                  defaultOpen={false}
-                  className="border-ink-700 bg-ink-950"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <div className="p-3 bg-ink-900 border border-ink-700 rounded-lg">
-                      <span className="text-[11px] text-bone-400 font-mono block mb-1">
-                        Koordinat Geografis
-                      </span>
-                      <span className="text-[14px] font-mono font-semibold text-bone-100 block">
-                        {lat.toFixed(4)}°, {lon.toFixed(4)}°
-                      </span>
-                      <span className="text-[11px] text-bone-400 mt-1 block">
-                        Datum WGS84
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-ink-900 border border-ink-700 rounded-lg">
-                      <span className="text-[11px] text-bone-400 font-mono block mb-1">
-                        Azimuth Akurat
-                      </span>
-                      <span className="text-[14px] font-mono font-semibold text-bone-100 block">
-                        {kajaData.bearing_degrees.toFixed(1)}°
-                      </span>
-                      <span className="text-[11px] text-bone-400 mt-1 block">
-                        Kuadran: {kajaData.kaja_quadrant}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-ink-900 border border-ink-700 rounded-lg">
-                      <span className="text-[11px] text-bone-400 font-mono block mb-1">
-                        Jarak ke Puncak Gn. Agung
-                      </span>
-                      <span className="text-[14px] font-mono font-semibold text-bone-100 block">
-                        {kajaData.distance_km ? `${kajaData.distance_km.toFixed(1)} km` : "-"}
-                      </span>
-                      <span className="text-[11px] text-bone-400 mt-1 block">
-                        Elevasi 3.142 mdpl
-                      </span>
-                    </div>
-                  </div>
-                </Disclosure>
-
                 {/* Aksi Langsung */}
-                <div className="pt-2 flex justify-end">
+                <div className="pt-2 flex justify-end border-t border-ink-700">
                   <Button
                     variant="primary"
                     size="lg"
@@ -531,61 +536,25 @@ export default function Home() {
             </div>
           ) : step === 2 ? (
             /* ========================================================== */
-            /* STEP 2: MASUKKAN DENAH BANGUNAN (CONTOH ATAU UPLOAD)       */
+            /* STEP 2: MASUKKAN DENAH BANGUNAN (WORKBENCH 2 KOLOM)        */
             /* ========================================================== */
-            <div className="space-y-6">
-              {/* 1. HERO: Kanvas Denah Full-Width */}
-              <div className="relative">
-                <PlanCanvas
-                  imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
-                  gridLayout={auditData?.grid_layout || null}
-                  rooms={auditData?.rooms || []}
-                  violations={auditData?.audit_report?.violations || []}
-                  hoveredIndex={hoveredRoomIndex}
-                  selectedIndex={selectedRoomIndex}
-                  onHoverIndex={setHoveredRoomIndex}
-                  onSelectIndex={setSelectedRoomIndex}
-                  kajaBearing={kajaData.bearing_degrees}
-                  kajaDirection={kajaData.cardinal_direction}
-                />
-
-                {/* Overlay animasi laser saat sedang audit */}
-                {isAuditing && (
-                  <div className="absolute inset-0 bg-ink-950/75 backdrop-blur-none z-30 flex flex-col items-center justify-center p-6 rounded-xl border border-bone-100/20 overflow-hidden">
-                    <div className="absolute left-0 right-0 h-[2px] bg-bone-100/40 animate-laser pointer-events-none" />
-                    <div className="bg-ink-900 border border-ink-700 p-5 rounded-xl text-center shadow-2xl max-w-sm">
-                      <RefreshCw size={28} className="animate-spin text-bone-100 mx-auto mb-3" />
-                      <h4 className="text-[15px] font-bold text-bone-100">
-                        {inputTab === "upload"
-                          ? "AI Vision Sedang Memindai Denah..."
-                          : "Memverifikasi Tata Ruang Sanga Mandala..."}
-                      </h4>
-                      <p className="text-[12px] text-bone-400 mt-1.5 font-mono">
-                        Memetakan poligon ruangan & menghitung keselarasan arah Kaja
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 2. Form Konfigurasi Denah */}
-              <div className="bg-ink-900 border border-ink-700 rounded-xl p-5 lg:p-6 shadow-card space-y-6">
-                <header className="flex items-center justify-between border-b border-ink-700 pb-4">
-                  <div>
-                    <h2 className="text-[17px] font-bold text-bone-100">
-                      Pilih atau Unggah Denah Bangunan
-                    </h2>
-                    <p className="text-[12px] font-mono text-bone-400">
-                      Langkah 2 dari 3 · Verifikasi Tata Ruang
-                    </p>
-                  </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* KOLOM KIRI (5 cols): Form Konfigurasi Denah & Orientasi */}
+              <div className="lg:col-span-5 bg-ink-900 border border-ink-700 rounded-lg p-5 shadow-card space-y-5">
+                <header className="border-b border-ink-700 pb-3.5">
+                  <h2 className="text-[17px] font-bold text-bone-100">
+                    Pilih atau Unggah Denah Bangunan
+                  </h2>
+                  <p className="text-[12px] font-mono text-bone-400 mt-0.5">
+                    Langkah 2 dari 3 · Konfigurasi Denah &amp; Arah Utara
+                  </p>
                 </header>
 
                 {/* Tab Pemilih Mode */}
                 <Tabs
                   tabs={[
-                    { id: "sample", label: "Pilih Denah Contoh" },
-                    { id: "upload", label: "Unggah Denah Sendiri (AI Vision)" },
+                    { id: "sample", label: "Denah Contoh" },
+                    { id: "upload", label: "Unggah Denah (AI)" },
                   ]}
                   activeTab={inputTab}
                   onChange={(id) => {
@@ -612,7 +581,7 @@ export default function Home() {
                 )}
 
                 {/* Pemilih Orientasi */}
-                <div className="p-4 bg-ink-950 border border-ink-700 rounded-xl space-y-3">
+                <div className="p-4 bg-ink-950 border border-ink-700 rounded-lg">
                   <OrientationPicker
                     planNorthDeg={planNorthDeg}
                     onChange={setPlanNorthDeg}
@@ -634,7 +603,7 @@ export default function Home() {
                 )}
 
                 {/* Baris Aksi */}
-                <div className="flex items-center justify-between gap-3 pt-4 border-t border-ink-700">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-3 border-t border-ink-700">
                   <Button
                     variant="secondary"
                     size="md"
@@ -653,16 +622,69 @@ export default function Home() {
                       isAuditing ? (
                         <RefreshCw size={16} className="animate-spin" />
                       ) : (
-                        <Sparkles size={16} />
+                        <ShieldCheck size={16} />
                       )
                     }
                   >
                     {isAuditing
                       ? inputTab === "upload"
-                        ? "AI Sedang Membaca Denah..."
+                        ? "AI Membaca Denah..."
                         : "Memeriksa Tata Ruang..."
-                      : "Jalankan Pemeriksaan Sanga Mandala"}
+                      : "Jalankan Pemeriksaan"}
                   </Button>
+                </div>
+              </div>
+
+              {/* KOLOM KANAN (7 cols): Pratinjau Kanvas Denah Interaktif */}
+              <div className="lg:col-span-7 lg:sticky lg:top-20 space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[13px] font-semibold text-bone-100 flex items-center gap-1.5">
+                    <Layers size={16} className="text-bone-400" />
+                    <span>
+                      Pratinjau Denah:{" "}
+                      {inputTab === "upload"
+                        ? selectedFile
+                          ? selectedFile.name
+                          : "Menunggu Unggahan Berkas"
+                        : currentPresetName}
+                    </span>
+                  </span>
+                  <span className="text-[11px] font-mono text-bone-400">
+                    Kaja: {kajaData.bearing_degrees.toFixed(1)}° · Utara: {planNorthDeg}°
+                  </span>
+                </div>
+
+                <div className="relative">
+                  <PlanCanvas
+                    imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
+                    gridLayout={auditData?.grid_layout || null}
+                    rooms={inputTab === "upload" && !auditData ? [] : auditData?.rooms || []}
+                    violations={inputTab === "upload" && !auditData ? [] : auditData?.audit_report?.violations || []}
+                    hoveredIndex={hoveredRoomIndex}
+                    selectedIndex={selectedRoomIndex}
+                    onHoverIndex={setHoveredRoomIndex}
+                    onSelectIndex={setSelectedRoomIndex}
+                    kajaBearing={kajaData.bearing_degrees}
+                    kajaDirection={kajaData.cardinal_direction}
+                  />
+
+                  {/* Overlay animasi laser saat sedang audit */}
+                  {isAuditing && (
+                    <div className="absolute inset-0 bg-ink-950/75 z-30 flex flex-col items-center justify-center p-6 rounded-lg border border-bone-100/20 overflow-hidden">
+                      <div className="absolute left-0 right-0 h-[2px] bg-bone-100/40 animate-laser pointer-events-none" />
+                      <div className="bg-ink-900 border border-ink-700 p-5 rounded-lg text-center shadow-2xl max-w-sm">
+                        <RefreshCw size={28} className="animate-spin text-bone-100 mx-auto mb-3" />
+                        <h4 className="text-[15px] font-bold text-bone-100">
+                          {inputTab === "upload"
+                            ? "AI Vision Sedang Memindai Denah..."
+                            : "Memverifikasi Tata Ruang Sanga Mandala..."}
+                        </h4>
+                        <p className="text-[12px] text-bone-400 mt-1.5 font-mono">
+                          Memetakan poligon ruangan &amp; menghitung keselarasan arah Kaja
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -680,7 +702,7 @@ export default function Home() {
                         Hasil Pra-Pemeriksaan Tata Ruang
                       </h2>
                       <p className="text-[12px] font-mono text-bone-400">
-                        Evaluasi Kepatuhan Perda Prov. Bali No. 5/2005 & Asta Bumi
+                        Evaluasi Kepatuhan Perda Prov. Bali No. 5/2005 &amp; Asta Bumi
                       </p>
                     </div>
                     <SourceBanner
@@ -699,11 +721,11 @@ export default function Home() {
                   {/* Layout Dual-Pane: Kiri PlanCanvas, Kanan Temuan & Ruangan */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     {/* Kolom Kiri: Kanvas Interaktif */}
-                    <div className="lg:col-span-7 xl:col-span-7 sticky top-20 space-y-3">
+                    <div className="lg:col-span-7 xl:col-span-7 lg:sticky lg:top-20 space-y-3">
                       <div className="flex items-center justify-between px-1">
                         <span className="text-[13px] font-semibold text-bone-100 flex items-center gap-1.5">
                           <Layers size={16} className="text-bone-400" />
-                          <span>Kanvas Denah & Sanga Mandala Grid</span>
+                          <span>Kanvas Denah &amp; Matriks Sanga Mandala</span>
                         </span>
                         <span className="text-[11px] font-mono text-bone-400">
                           Arah Kaja: {kajaData.bearing_degrees.toFixed(1)}°
@@ -727,7 +749,7 @@ export default function Home() {
                     {/* Kolom Kanan: Temuan, Ruangan, dan Rekomendasi */}
                     <div className="lg:col-span-5 xl:col-span-5 space-y-4">
                       {/* Widget Ruangan Terdeteksi */}
-                      <div className="bg-ink-900 border border-ink-700 rounded-xl p-4 shadow-card">
+                      <div className="bg-ink-900 border border-ink-700 rounded-lg p-4 shadow-card">
                         <RoomList
                           rooms={auditData.rooms || []}
                           violations={auditData.audit_report.violations || []}
@@ -740,7 +762,7 @@ export default function Home() {
                       </div>
 
                       {/* Daftar Pelanggaran / Temuan */}
-                      <div className="bg-ink-900 border border-ink-700 rounded-xl p-5 shadow-card space-y-4">
+                      <div className="bg-ink-900 border border-ink-700 rounded-lg p-5 shadow-card space-y-4">
                         <header className="flex items-center justify-between border-b border-ink-700 pb-3">
                           <span className="text-[15px] font-bold text-bone-100 flex items-center gap-2">
                             <AlertCircle size={17} className="text-clay" />
@@ -752,10 +774,10 @@ export default function Home() {
                         </header>
 
                         {auditData.audit_report.violations.length === 0 ? (
-                          <div className="p-6 text-center text-bone-300 bg-ink-950 rounded-xl border border-ink-700 space-y-2">
+                          <div className="p-6 text-center text-bone-300 bg-ink-950 rounded-lg border border-ink-700 space-y-2">
                             <CheckCircle2 size={32} className="text-bone-100 mx-auto" />
                             <p className="text-[14px] font-semibold text-bone-100">
-                              Semua ruangan mematuhi pakem Asta Bumi & Perda Bali No. 5/2005.
+                              Semua ruangan mematuhi pakem Asta Bumi &amp; Perda Bali No. 5/2005.
                             </p>
                             <p className="text-[12px] text-bone-400">
                               Denah ini layak diajukan untuk proses perizinan PBG.
@@ -806,7 +828,7 @@ export default function Home() {
                             {auditData.audit_report.compliances.map((c, idx) => (
                               <li
                                 key={idx}
-                                className="flex items-start gap-2.5 p-2.5 bg-ink-950 rounded-lg border border-ink-700"
+                                className="flex items-start gap-2.5 p-2.5 bg-ink-950 rounded-md border border-ink-700"
                               >
                                 <CheckCircle2 size={15} className="text-bone-400 shrink-0 mt-0.5" />
                                 <div className="space-y-0.5">
@@ -839,7 +861,7 @@ export default function Home() {
                           onClick={() => setIsReportOpen(true)}
                           icon={<Printer size={16} />}
                         >
-                          Cetak Dokumen Resmi
+                          Cetak Lembar PBG (PDF)
                         </Button>
                       </div>
                     </div>
@@ -861,12 +883,13 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Dock Kontrol Bawah Sticky untuk Alur Kerja yang Ramah Pengguna */}
+      {/* Dock Kontrol Bawah Sticky */}
       <StickyControlDock
         step={step}
         onPrev={() => handleStepChange(Math.max(1, step - 1), "backward")}
         onNext={() => handleStepChange(Math.min(3, step + 1), "forward")}
         onRunAudit={handleExecuteAudit}
+        onOpenReport={() => setIsReportOpen(true)}
         isAuditing={isAuditing}
         locationLabel={kajaData.location_label}
         kajaBearing={kajaData.bearing_degrees}
@@ -887,6 +910,7 @@ export default function Home() {
         isOpen={isReportOpen}
         onClose={() => setIsReportOpen(false)}
         data={auditData}
+        planNorthDeg={planNorthDeg}
       />
     </div>
   );

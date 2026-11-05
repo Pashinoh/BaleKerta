@@ -10,31 +10,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Deep Ink Canvas Palette
+        // Semantic Dual-Theme Surface Palette (Dark Obsidian Ink <-> Soft Warm Lontar Paper)
         ink: {
-          950: "#0E0D0C", // Deep background canvas
-          900: "#151311", // Card & surface background
-          850: "#191614",
-          800: "#1D1A17", // Elevated cards & components
-          700: "#2A2622", // Borders & separators
-          600: "#3A352F", // Dividers & subtle strokes
-          500: "#524C44",
+          950: "rgb(var(--ink-950) / <alpha-value>)",
+          900: "rgb(var(--ink-900) / <alpha-value>)",
+          850: "rgb(var(--ink-850) / <alpha-value>)",
+          800: "rgb(var(--ink-800) / <alpha-value>)",
+          700: "rgb(var(--ink-700) / <alpha-value>)",
+          600: "rgb(var(--ink-600) / <alpha-value>)",
+          500: "rgb(var(--ink-500) / <alpha-value>)",
         },
-        // Bone Precision Typography & Accents
+        // Semantic Dual-Theme Typography & Contrast Palette
         bone: {
-          100: "#EDE7DA", // Primary text, solid buttons, sacred lines
-          200: "#DDD6C7", // Hovered buttons, secondary highlights
-          300: "#C4BCAB",
-          400: "#A39B8B", // Secondary text, inactive states
-          500: "#827B6E",
+          100: "rgb(var(--bone-100) / <alpha-value>)",
+          200: "rgb(var(--bone-200) / <alpha-value>)",
+          300: "rgb(var(--bone-300) / <alpha-value>)",
+          400: "rgb(var(--bone-400) / <alpha-value>)",
+          500: "rgb(var(--bone-500) / <alpha-value>)",
         },
-        // Clay: Exclusively for Violations & Critical Alerts
+        // Bata Bali Terracotta: Exclusively for Spatial Violations & Kaja Vector Accent
         clay: {
-          DEFAULT: "#D2603F",
-          600: "#B84E30",
-          500: "#D2603F",
-          400: "#DF7B5D",
-          300: "#ECA590",
+          DEFAULT: "rgb(var(--clay-500) / <alpha-value>)",
+          600: "rgb(var(--clay-600) / <alpha-value>)",
+          500: "rgb(var(--clay-500) / <alpha-value>)",
+          400: "rgb(var(--clay-400) / <alpha-value>)",
+          300: "rgb(var(--clay-300) / <alpha-value>)",
         },
       },
       fontFamily: {
@@ -49,8 +49,8 @@ const config: Config = {
         xl: "12px",
       },
       boxShadow: {
-        card: "0 4px 20px -2px rgba(0, 0, 0, 0.5)",
-        dock: "0 -4px 24px -2px rgba(0, 0, 0, 0.65)",
+        card: "var(--shadow-card)",
+        dock: "var(--shadow-dock)",
       },
     },
   },

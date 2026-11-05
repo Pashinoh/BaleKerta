@@ -19,26 +19,27 @@ export const Disclosure: React.FC<DisclosureProps> = ({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className={`border border-ink-700 rounded-lg overflow-hidden bg-ink-900 ${className}`}>
+    <div className={`border border-ink-700 rounded-xl overflow-hidden bg-ink-900 ${className}`}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between p-3.5 text-left hover:bg-ink-850 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-bone-100"
+        className="w-full min-h-[44px] flex items-center justify-between p-3.5 sm:px-4 text-left hover:bg-ink-850 active:bg-ink-800 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-bone-100"
         aria-expanded={isOpen}
       >
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[14px] font-medium text-bone-100">{title}</span>
+        <div className="flex flex-col gap-0.5 pr-3">
+          <span className="text-[14px] font-semibold text-bone-100">{title}</span>
           {subtitle && <span className="text-[12px] text-bone-400 font-mono">{subtitle}</span>}
         </div>
         <ChevronDown
           size={16}
-          className={`text-bone-400 transition-transform duration-150 ${
+          aria-hidden="true"
+          className={`text-bone-400 shrink-0 transition-transform duration-150 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
       </button>
       {isOpen && (
-        <div className="p-3.5 pt-1 border-t border-ink-700/60 text-[13px] text-bone-400">
+        <div className="p-3.5 sm:p-4 pt-2 border-t border-ink-700 text-[13px] text-bone-300">
           {children}
         </div>
       )}

@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Sparkles, Compass, Landmark } from "lucide-react";
+import { Compass, Landmark } from "lucide-react";
 
-// Types matching backend API response
 export interface SangaMandalaCell {
   row: number;
   col: number;
@@ -29,7 +28,6 @@ export interface MiniZoneGridProps {
   locationLabel?: string;
 }
 
-// Helper: cardinal direction to singular Indonesian
 function cardinalSingular(cardinal?: string): string {
   if (!cardinal) return "Timur";
   const map: Record<string, string> = {
@@ -45,7 +43,6 @@ function cardinalSingular(cardinal?: string): string {
   return map[cardinal] || cardinal.replace(/\s*\([A-Z]{1,2}\)/, "");
 }
 
-// Helper: corner label to capitalized Indonesian
 function cornerCapitalized(corner: string): string {
   const map: Record<string, string> = {
     "kanan-atas": "Sudut Kanan Atas",
@@ -61,7 +58,7 @@ export function sacredCornerLabel(
   planNorthDeg: number = 0
 ): "kanan-atas" | "kanan-bawah" | "kiri-bawah" | "kiri-atas" {
   let baseRow = 0;
-  let baseCol = 2; // TOP_RIGHT default
+  let baseCol = 2;
 
   if (kajaQuadrant === "BOTTOM_RIGHT") {
     baseRow = 2;
@@ -96,8 +93,7 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
   kajaQuadrant = "TOP_RIGHT",
   planNorthDeg = 0,
 }) => {
-  // If gridConfig is provided (from backend API), use it; otherwise compute deterministically
-  const cornerLabel = gridConfig?.sacred_row_col 
+  const cornerLabel = gridConfig?.sacred_row_col
     ? (() => {
         const [r, c] = gridConfig.sacred_row_col;
         if (r === 0 && c === 2) return "kanan-atas";
@@ -123,61 +119,73 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
   const cardSingular = cardinalSingular(cardinalDirection);
 
   return (
-    <div className="space-y-2.5">
-      {/* 3x3 Mini Grid */}
-      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-ink-950 border border-ink-700 rounded-md aspect-square max-w-[270px] mx-auto">
+    <div className="space-y-3">
+      {/* 3x3 Sanga Mandala Matrix */}
+      <div className="grid grid-cols-3 gap-2 p-2.5 bg-ink-950 border border-ink-700 rounded-xl aspect-square max-w-[290px] mx-auto">
         {[0, 1, 2].map((r) =>
           [0, 1, 2].map((c) => {
             const isSacred = r === sacredPos.row && c === sacredPos.col;
             const isCenter = r === 1 && c === 1;
-            const isMadya = isCenter || (r === 1 && c !== 1) || (c === 1 && r !== 1);
+            const isTeba = r === 2 - sacredPos.row && c === 2 - sacredPos.col;
 
-            // Find cell data from API if available
-            const cellData = cells.find(cell => cell.row === r && cell.col === c);
+            const cellData = cells.find((cell) => cell.row === r && cell.col === c);
             const zoneId = cellData?.zone_id;
 
             let cellClass =
-              "flex flex-col items-center justify-center p-1 rounded text-center transition-colors border ";
+              "flex flex-col items-center justify-center p-1.5 rounded-lg text-center transition-colors border ";
             if (isSacred) {
               cellClass +=
                 "bg-bone-100 text-ink-950 border-bone-100 font-semibold shadow-sm";
-            } else if (isMadya) {
+            } else if (isCenter) {
               cellClass +=
-                "bg-ink-900 border-ink-700 text-bone-100";
+                "bg-ink-900 border-ink-600 text-bone-100";
+            } else if (isTeba) {
+              cellClass +=
+                "bg-clay/10 border-clay/50 text-clay";
             } else {
               cellClass +=
-                "bg-ink-950/60 border-ink-700/60 text-bone-400";
+                "bg-ink-900/60 border-ink-700 text-bone-300";
             }
 
             return (
               <div key={`${r}-${c}`} className={cellClass}>
                 {isSacred ? (
                   <>
-                    <Sparkles size={14} className="text-ink-950 mb-0.5" />
-                    <span className="text-[12px] font-bold text-ink-950 leading-tight">
+                    <Landmark size={14} className="text-ink-950 mb-0.5" aria-hidden="true" />
+                    <span className="text-[11px] font-bold text-ink-950 leading-tight">
                       Utamaning Utama
                     </span>
-                    <span className="text-[10px] text-ink-900/80 font-mono">
-                      (Paling Suci)
+                    <span className="text-[9.5px] text-ink-950/80 font-mono mt-0.5">
+                      Sanggah / Suci
                     </span>
                   </>
                 ) : isCenter ? (
                   <>
-                    <span className="text-[12px] font-semibold text-bone-100 leading-tight">
+                    <span className="text-[11.5px] font-bold text-bone-100 leading-tight">
                       Natah
                     </span>
-                    <span className="text-[10px] text-bone-400 font-mono">
-                      (Halaman)
+                    <span className="text-[9.5px] text-bone-400 font-mono mt-0.5">
+                      Halaman Tengah
+                    </span>
+                  </>
+                ) : isTeba ? (
+                  <>
+                    <span className="text-[10.5px] font-semibold leading-tight">
+                      Nistaning Nista
+                    </span>
+                    <span className="text-[9.5px] font-mono opacity-85 mt-0.5">
+                      Teba / Sanitasi
                     </span>
                   </>
                 ) : zoneId ? (
-                  <>
-                    <span className="text-[11px] font-medium leading-tight">
-                      {zoneId.replace("_", " ")}
-                    </span>
-                  </>
+                  <span className="text-[10.5px] font-medium leading-tight px-1">
+                    {zoneId
+                      .split("_")
+                      .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+                      .join(" ")}
+                  </span>
                 ) : (
-                  <span className="text-[11px] font-medium leading-tight">
+                  <span className="text-[10.5px] font-medium leading-tight">
                     {r === 0 ? "Kaja" : r === 2 ? "Kelod" : ""}{" "}
                     {c === 0 ? "Kauh" : c === 2 ? "Kangin" : ""}
                   </span>
@@ -188,18 +196,19 @@ export const MiniZoneGrid: React.FC<MiniZoneGridProps> = ({
         )}
       </div>
 
-      {/* Cultural Meaning Explanation */}
-      <div className="text-[12px] text-bone-300 bg-ink-950 p-3 rounded border border-ink-700/60 leading-relaxed">
-        <div className="flex items-start gap-1.5 mb-1">
-          <Compass size={14} className="text-bone-100 shrink-0 mt-0.5" />
+      {/* Cultural Orientation Legend */}
+      <div className="text-[12px] text-bone-300 bg-ink-950 p-3 rounded-lg border border-ink-700 leading-relaxed space-y-1">
+        <div className="flex items-start gap-2">
+          <Compass size={14} className="text-bone-100 shrink-0 mt-0.5" aria-hidden="true" />
           <span>
-            <strong className="text-bone-100">Arah Kaja</strong> = menghadap ke Gunung Agung ({cardSingular}).
+            <strong className="text-bone-100">Poros Kaja:</strong> Menghadap ke Gunung Agung ({cardSingular}).
           </span>
         </div>
-        <div className="flex items-start gap-1.5">
-          <Landmark size={14} className="text-bone-100 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2">
+          <Landmark size={14} className="text-bone-100 shrink-0 mt-0.5" aria-hidden="true" />
           <span>
-            <strong className="text-bone-100">Area Suci (Sanggah/Merajan)</strong> = terletak di <span className="text-bone-100 font-semibold">{cornerCap}</span> denah Anda.
+            <strong className="text-bone-100">Kuadran Sanggah:</strong> Berada di{" "}
+            <span className="text-bone-100 font-semibold">{cornerCap}</span> denah Anda.
           </span>
         </div>
       </div>
