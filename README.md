@@ -256,9 +256,10 @@ Seluruh fitur utama (kalkulator geodesik, analisis denah, glosarium adat, dan un
 
 ## Team Members
 
-- **Ketua Tim / Role:** Irfan Dwi Rangga Putra
-- **Institusi / Afiliasi:** Universitas / Instansi Peserta
-- **Kontak:** irfandwiranggap@gmail.com
+| Nama | Peran / Fokus | Asal Institusi | Kontak Email |
+| :--- | :--- | :--- | :--- |
+| **Irfan Dwi Rangga Putra** | Ketua Tim (Full-Stack & Spatial Core Engine) | Universitas Duta Bangsa Surakarta | irfandwiranggap@gmail.com |
+| **Pradipta Arya Setya** | Anggota Tim (Frontend & UI/UX Interaction) | Universitas Duta Bangsa Surakarta | pradiptaaryasty@gmail.com |
 
 ---
 

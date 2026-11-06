@@ -2,7 +2,7 @@ Write-Host "============================================================" -Foreg
 Write-Host "  MENJALANKAN BALEKERTA - BALI DIGIFEST 2026" -ForegroundColor Yellow
 Write-Host "============================================================" -ForegroundColor Cyan
 
-$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Root = Split-Path -Parent $PSScriptRoot
 
 # Start Backend
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$Root\backend'; .\venv\Scripts\activate; uvicorn main:app --reload --port 8000"
