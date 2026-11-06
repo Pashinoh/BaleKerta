@@ -186,6 +186,39 @@ docker compose up --build
 - Frontend: `http://localhost:3000`
 - Dokumentasi Interaktif API (Swagger UI): `http://localhost:8000/docs`
 
+### 6. Akses Dokumentasi API & Health Check
+
+Setelah backend aktif, juri dan penguji dapat mengakses dokumentasi interaktif serta melakukan pemeriksaan kesehatan sistem:
+
+- **Swagger UI (Interaktif):** [`http://localhost:8000/docs`](http://localhost:8000/docs)  
+  Uji seluruh parameter endpoint API secara langsung via browser.
+- **ReDoc (Alternatif OpenAPI):** [`http://localhost:8000/redoc`](http://localhost:8000/redoc)
+- **Health Check Endpoints:**
+  - `GET /api/health` atau `GET /healthz`
+  - Contoh respon JSON:
+    ```json
+    {
+      "status": "healthy",
+      "gemini_configured": true,
+      "cache_dir_ready": true
+    }
+    ```
+
+#### Contoh Perintah cURL untuk Pengujian Cepat:
+```bash
+# 1. Cek kesehatan sistem
+curl http://localhost:8000/api/health
+
+# 2. Hitung azimuth poros Kaja Denpasar (-8.6705, 115.2126)
+curl "http://localhost:8000/api/kaja?lat=-8.6705&lon=115.2126"
+
+# 3. Ambil matriks 9 zona Sanga Mandala kuadran TOP_RIGHT
+curl "http://localhost:8000/api/sanga-mandala-grid?kaja_quadrant=TOP_RIGHT"
+
+# 4. Ambil denah preset bawaan (Preset 1: Lolos Adat)
+curl http://localhost:8000/api/presets/preset_1_pass
+```
+
 ---
 
 ## Deployment URL
