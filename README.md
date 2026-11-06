@@ -271,3 +271,4 @@ Dokumentasi teknis pendukung:
 - [Pemetaan Regulasi Perda Bali & Asta Bumi](docs/PERDA_BALI_MAPPING.md)
 - [Arsitektur Teknis Sistem](docs/ARCHITECTURE.md)
 - [Spesifikasi Desain & Palet Warna](docs/DESIGN.md)
+- [Panduan Deployment (Render + Vercel)](docs/DEPLOYMENT.md)
