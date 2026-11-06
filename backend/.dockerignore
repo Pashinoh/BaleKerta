@@ -1,9 +1,16 @@
-__pycache__
+# Konteks build backend: hanya file runtime (lihat .dockerignore)
+tests/
+tools/
+__pycache__/
 *.py[cod]
 venv/
 env/
+.pytest_cache/
 data/cache/
 *.png
-.pytest_cache
+.env
+requirements-dev.txt
+Procfile
+*.md
 Dockerfile
 .dockerignore
