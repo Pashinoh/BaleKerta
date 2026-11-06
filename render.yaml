@@ -1,0 +1,20 @@
+# Render Blueprint — backend BaleKerta (FastAPI).
+# Deploy: Render Dashboard → New → Blueprint → pilih repo ini.
+# Frontend di-deploy terpisah di Vercel (lihat docs/DEPLOYMENT.md).
+services:
+  - type: web
+    name: balekerta-backend
+    runtime: docker
+    rootDir: backend # monorepo: Dockerfile & build context di folder backend/
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false # diminta saat Blueprint sync (tidak pernah masuk repo)
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      # Origin frontend (pindahkan/kustomisasi lewat dashboard setelah tahu
+      # URL Vercel final — comma-separated). Kosong = pakai default localhost +
+      # balekerta.web.id.
+      - key: CORS_ORIGINS
+        sync: false
