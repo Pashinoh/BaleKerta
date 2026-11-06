@@ -223,8 +223,8 @@ curl http://localhost:8000/api/presets/preset_1_pass
 
 ## Deployment URL
 
-- **URL Aplikasi Web (Production):** `https://balekerta.vercel.app` *(atau URL hosting aktif tim)*
-- **Dokumentasi API Backend:** `https://balekerta-api.up.railway.app/docs` *(atau URL backend aktif)*
+- **URL Aplikasi Web (Production):** [`https://balekerta.web.id`](https://balekerta.web.id)
+- **Dokumentasi API Backend:** [`https://balekerta.web.id/docs`](https://balekerta.web.id/docs) *(atau Swagger UI backend)*
 
 ---
 
@@ -256,10 +256,10 @@ Seluruh fitur utama (kalkulator geodesik, analisis denah, glosarium adat, dan un
 
 ## Team Members
 
-| Nama | Peran / Fokus | Asal Institusi | Kontak Email |
-| :--- | :--- | :--- | :--- |
-| **Irfan Dwi Rangga Putra** | Ketua Tim (Full-Stack & Spatial Core Engine) | Universitas Duta Bangsa Surakarta | irfandwiranggap@gmail.com |
-| **Pradipta Arya Setya** | Anggota Tim (Frontend & UI/UX Interaction) | Universitas Duta Bangsa Surakarta | pradiptaaryasty@gmail.com |
+| Nama Anggota | Asal Institusi | Kontak Email |
+| :--- | :--- | :--- |
+| **Irfan Dwi Rangga Putra** | Universitas Duta Bangsa Surakarta | irfandwiranggap@gmail.com |
+| **Pradipta Arya Setya** | Universitas Duta Bangsa Surakarta | pradiptaaryasty@gmail.com |
 
 ---
 

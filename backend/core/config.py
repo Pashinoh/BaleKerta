@@ -24,6 +24,8 @@ class Settings(BaseModel):
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://balekerta.web.id",
+        "https://www.balekerta.web.id",
     ]
     
     # Directory paths
