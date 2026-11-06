@@ -224,7 +224,7 @@ curl http://localhost:8000/api/presets/preset_1_pass
 ## Deployment URL
 
 - **URL Aplikasi Web (Production):** [`https://balekerta.web.id`](https://balekerta.web.id)
-- **Dokumentasi API Backend:** [`https://balekerta.web.id/docs`](https://balekerta.web.id/docs) *(atau Swagger UI backend)*
+- **Dokumentasi API Backend (Swagger UI):** [`https://balekerta-backend-production-da88.up.railway.app/docs`](https://balekerta-backend-production-da88.up.railway.app/docs) *(Tautan Langsung Server)* atau [`https://balekerta.web.id/docs`](https://balekerta.web.id/docs) *(Tautan Domain Proxy)*
 
 ---
 

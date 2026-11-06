@@ -277,6 +277,10 @@ export default function Home() {
       if (uploadedImageSrc) URL.revokeObjectURL(uploadedImageSrc);
       setUploadedImageSrc(null);
     }
+    // Bersihkan hasil audit lama agar kotak preset/denah sebelumnya tidak tertinggal di atas denah baru
+    setAuditData(null);
+    setSelectedRoomIndex(null);
+    setHoveredRoomIndex(null);
     setAuditError(null);
   };
 
@@ -529,6 +533,14 @@ export default function Home() {
                     onChange={(id) => {
                       setInputTab(id);
                       setAuditError(null);
+                      setSelectedRoomIndex(null);
+                      setHoveredRoomIndex(null);
+                      if (id === "upload") {
+                        // Saat beralih ke tab upload, bersihkan kotak preset jika belum diaudit AI
+                        if (auditData?.source === "preset" || auditData?.mode === "preset") {
+                          setAuditData(null);
+                        }
+                      }
                     }}
                     className="w-full"
                   />
@@ -596,8 +608,18 @@ export default function Home() {
                 <PlanCanvas
                   imageSrc={inputTab === "upload" ? uploadedImageSrc : null}
                   gridLayout={auditData?.grid_layout || null}
-                  rooms={inputTab === "upload" && !auditData ? [] : auditData?.rooms || []}
-                  violations={inputTab === "upload" && !auditData ? [] : auditData?.audit_report?.violations || []}
+                  rooms={
+                    inputTab === "upload" &&
+                    (auditData?.source === "preset" || auditData?.mode === "preset" || !auditData)
+                      ? []
+                      : auditData?.rooms || []
+                  }
+                  violations={
+                    inputTab === "upload" &&
+                    (auditData?.source === "preset" || auditData?.mode === "preset" || !auditData)
+                      ? []
+                      : auditData?.audit_report?.violations || []
+                  }
                   hoveredIndex={hoveredRoomIndex}
                   selectedIndex={selectedRoomIndex}
                   onHoverIndex={setHoveredRoomIndex}
